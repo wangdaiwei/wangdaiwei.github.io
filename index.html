@@ -4,13 +4,35 @@
     <!-- Set the viewport width to device width for mobile -->
     <meta name="viewport" content="width=device-width" />
 
-    <title>Wangdaiwei's San Siro</title>
+    <title>欢迎来到Wangdaiwei的个人主页</title>
 
     <link rel="stylesheet" href="/theme/css/normalize.css" />
     <link rel="stylesheet" href="/theme/css/foundation.min.css" />
     <link rel="stylesheet" href="/theme/css/style.css" />
     <link rel="stylesheet" href="/theme/css/pygments.css" />	
     <script src="/theme/js/custom.modernizr.js"></script>
+    
+    <script type= "text/javascript">
+        var s = document.createElement('script');
+        s.type = 'text/javascript';
+        s.src = 'https:' == document.location.protocol ? 'https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js' : 'http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'; 
+        s[(window.opera ? "innerHTML" : "text")] =
+            "MathJax.Hub.Config({" + 
+            "    config: ['MMLorHTML.js']," + 
+            "    jax: ['input/TeX','input/MathML','output/HTML-CSS','output/NativeMML']," +
+            "    TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } }," + 
+            "    extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']," +
+            "    tex2jax: { " +
+            "        inlineMath: [ ['$','$'] ], " +
+            "        displayMath: [ ['$$','$$'] ]," +
+            "        processEscapes: true }, " +
+            "    'HTML-CSS': { " +
+            "        styles: { '.MathJax .mo, .MathJax .mi': {color: 'black ! important'}} " +
+            "    } " +
+            "}); ";
+        (document.body || document.getElementsByTagName('head')[0]).appendChild(s);
+    </script>
+
 </head>
 
 <body>
@@ -42,150 +64,54 @@
 
     <!-- Main Blog Content -->
     <div class="large-9 columns">
+<article>
+    <header>
+        <h3 class="article-title"><a href="/posts/2013/Dec/22/huan-ying-lai-dao-wangdaiweide-ge-ren-zhu-ye/" rel="bookmark"
+        title="Permalink to 欢迎来到Wangdaiwei的个人主页">欢迎来到Wangdaiwei的个人主页</a></h3>
         
-        
+    <script type= "text/javascript">
+        var s = document.createElement('script');
+        s.type = 'text/javascript';
+        s.src = 'https:' == document.location.protocol ? 'https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js' : 'http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'; 
+        s[(window.opera ? "innerHTML" : "text")] =
+            "MathJax.Hub.Config({" + 
+            "    config: ['MMLorHTML.js']," + 
+            "    jax: ['input/TeX','input/MathML','output/HTML-CSS','output/NativeMML']," +
+            "    TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } }," + 
+            "    extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']," +
+            "    tex2jax: { " +
+            "        inlineMath: [ ['$','$'] ], " +
+            "        displayMath: [ ['$$','$$'] ]," +
+            "        processEscapes: true }, " +
+            "    'HTML-CSS': { " +
+            "        styles: { '.MathJax .mo, .MathJax .mi': {color: 'black ! important'}} " +
+            "    } " +
+            "}); ";
+        (document.body || document.getElementsByTagName('head')[0]).appendChild(s);
+    </script>
 
-            <article>
-                <a href="/posts/2014/Jan/07/constraint-satisfaction-problem/"><h3 class="article-title">Constraint Satisfaction Problem</h3></a>
-<h6 class="subheader" title="2014-01-07T00:00:00">Tue 07 January 2014
+    </header>
+
+<h6 class="subheader" title="2013-12-22T00:00:00">Sun 22 December 2013
 </h6>
 
 
-<h2>CSP概述</h2>
-<p>作为对学了一个学期的内容的总结，在这里稍微介绍一下Constraint Satisfaction Problem（CSP）吧。这个题目我也不知道中文叫做什么，也许叫做有约束问题解决模型比较合适。虽然我没有学过数学建模，但或许他们之间是比较类似的，CSP的中心思想就是针对一个特定的问题建立模型，然后解决它。解决问题的具体实现就叫做Constraint Solver（约束处理机）。我认为这个方法还是很实际的，它可以帮助我们快速建立起对一个问题的数学角度的认识，同时在编程方面也有很多的函数库，比如说IBM的CPLEX。这里只介绍Gecode的使用，当然官方文档对于Gecode已经解释的很详细了，我在这里只想梳理一下整个建立模型的步骤和稍微介绍一下Gecode。</p>
-<h2>Gecode</h2>
-<p>Gecode是一个用于解决约束问题的基于C++的函数库，覆盖了Windows，Linux，Mac三个平台。在2012年以前长期霸占着MiniZinc比赛的头名，就现在来说当然性能也不差，而且也一直有更新。关键的是，相比起CPLEX，它是免费开源的。官方主页：<a href="http://www.gecode.org/">Gecode</a>。</p>
-<h2>问题描述</h2>
-<p>在CSP概念里，问题被表示成几个部分：变量（Variable），值域（Domain），约束（Constraint）。变量是问题模型中所有可以改变的量，可以是一组数，也可以是未知的属性，比如说香港的某一所高校。对应于每一个变量有一个相应的值域，变量的取值范围只能从值域中取。约束限制了问题里的变量的取值范围，比如说，变量$x$不能等于$y$。这三个是CSP必备的元素，Constraint Programming（CP）就是用于找出所有满足着三个元素的可能解的编程方法。对于某些问题，我们可能对于所有的可能解不感兴趣，而更想最小化某一个值，这个值是部分变量经过一些数学方程运算得出的结果，称之为目标函数（Objective）。比如说假如$x$和$y$代表房子的长和宽，我们希望最大化房子的面积，也就是$x \times y$的值。在这个问题里，我们的目标函数就是$ -(x \times y) $。需要注意的是我们关注的是目标函数的最小值，而不是最大值，因此需要求解最大值时需要取负来实现。对应于不同的编程环境，目标函数可能有不同的理解。在Gecode中，目标函数既可以求最大值也可以求最小值。</p>
-<p>举一个熟悉的例子，我们给数独建立一个CSP模型。该模型可以表述如下：</p>
-<ul>
-<li><strong>变量</strong>：$ x_{11}，x_{12}，x_{13}，……x_{98}，x_{99} $，每一个$ x_{ij}（0&lt;i，j&lt;10） $表示数独问题中每一个位置的数字，其中$ i $表示行数，$ j $表示列数。</li>
-<li><strong>值域</strong>：$ [1，9] $。</li>
-<li>
-<p><strong>约束</strong>：$ \forall i，j，m，n \in [1，9]，i \neq m，j \neq n $
-$$ \implies x_{ij} \neq x_{in}，x_{ij} \neq x_{mj}，  $$</p>
-<p>并且如果$ ({i-1 \over 3} = {m-1 \over 3}) \land ({j-1 \over 3} = {n-1 \over 3}) $，则$ x_{ij} \neq x_{mn} $。</p>
-<p>对于特定的数独问题，某些空格的值已经固定，因此还要针对该问题限制这些空格的值为固定值。</p>
-</li>
-</ul>
-<p>约束条件分为三个部分，第一个和第二个不等式分别表示的是数独矩阵里面行和列的元素不能重复，第三个不等式表示的是在数独矩阵中，被分割出来的一个小的$ 3 \times 3 $矩阵里面的元素也不能重复。</p>
-<p>对于同一个问题，我们可以有不同的建模方式。比如同样是数独问题，我们可以把原来的一个$ 9 \times 9 $的矩阵分解成9个大小一样的$ 3 \times 3 $矩阵，于是变量$ x_{11} $表示数字1在第一个矩阵出现的位置，变量$ x_{12} $表示数字2在第二个矩阵出现的位置，依此类推。对同一个问题的不同模型在编写程序时有可能会出现很大的性能差异，当时在处理Langford问题时不同的模型随着问题的增大，时间差距呈指数增长。所以，对于模型的选取一定要慎重考虑，而且并不是说容易理解的模型就一定优于难懂的模型，一定要考虑所用的函数库的特点。</p>
-<h2>寻找问题的解</h2>
-<p>现在我们已经有了一个问题的模型，那么如何找到这个模型的解呢？最简单的办法就是对于所有变量，我们都给它赋予满足值域的一个值，然后看看满不满足约束条件。当这个取值满足所有条件时，我们就找到了一个解，否则就从可能的取值范围里剔除掉这个情况。于是我们可以这么解决数独问题，一个一个空都填上数字，看看填满空格之后的矩阵是否满足数独问题的条件，没有满足的话就改变其中一个变量的值，或者多个变量的值，直到找到一个解或者所有解为止。这是一种最原始的方法，对于规模比较小的问题，这种方法表现还算可以，并且足够简单。但假如问题稍微增大一点，这种方法就变得力不从心了。</p>
-<p>假设我们有10个变量，每个变量有20个值可以取，那么我们需要和约束条件测试$ 20^{10} $次才能找到所有的可能解。即使现在的电脑运算速度已经非常快了，需要计算的次数对一般的电脑来说也是十分费时的。要是你不介意时间的话，当然就无所谓了。但要是有20个变量，100个变量，估计你就无法在有生之年看到所有的结果了。</p>
-<p>如何减少计算量？最直观的方法就是减少需要测试是否满足约束条件的可能解的个数。那如何保证没有经过测试的取值一定不满足约束条件，换句话说，如何保证没有一个解被遗漏掉？假如一个问题只有一个解，遗漏掉这个解的结果就是使得我们误认为这个问题没有任何解。因此，最好的方式就是从约束问题着手，我们不需要那些测试那些明显不满足约束条件的取值，把这些取值剔除掉，所需要测试的取值范围就会大大减小。</p>
-<h2>缩小取值范围</h2>
-<p>那么什么样的取值才叫做“明显不满足约束条件”呢？这就要看具体实现的权衡了。如果我们把所有不满足约束条件的取值全部剔除，那么在这一过程完成的同时，我们也找到了问题的解，因为所有剩下的取值都满足约束条件。如果我们什么都不做，那么我们就回到了前面最原始的方法，一个一个测试所有可能的取值组合。实际上，问题的关键在于有多少约束条件需要在给变量取值之前测试，有多少约束条件需要在取值之后测试。在Gecode环境里，相对应的就是代码里面将开始搜索取值的函数branch放在设置约束条件的函数之后还是之前。</p>
-<p>在这里需要定义一个概念，Consistency，即一致性。在前面讲到在剔除掉可能的取值组合时我们想保证不会将潜在的解给剔除掉，这样可以保证在缩小取值范围前后的解是一致的。所有剔除掉的取值都满足一致性的要求。在一致性的要求下，又衍生出了Node Consistency，Arc Consistency等概念，分别针对一个变量，两个变量等等。这方面已经有很多paper研究过了，现在大部分研究都关注Global Constraint的实现和定义新的Global Constraint。</p>
-<p>这个问题扩展开来可以有很多内容，实际上大部分CSP的工作都是在这里完成的。这一部分还是先暂时打住，里面涉及到的都是具体的算法了。</p>
-<h2>数独Gecode实现</h2>
-<p>在Gecode环境下，对变量，值域和约束条件的设置都在类的初始函数里面设置。初始函数必须继承自Gecode里面的一个类，Script，IntMaximizeScript等等。具体如何完整编写一个约束问题的Constraint Solver，可以参考官方文档<a href="http://www.gecode.org/doc-latest/MPG.pdf">MPG</a>。</p>
-<p>Gecode中用IntVarArray表示数组变量，于是数独的变量被初始化为：</p>
-<div class="highlight"><pre><span class="n">IntVarArray</span> <span class="n">l</span><span class="p">;</span>
-<span class="p">...</span>
-<span class="n">l</span><span class="p">(</span><span class="o">*</span><span class="n">this</span><span class="p">,</span> <span class="mi">9</span><span class="o">*</span><span class="mi">9</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">9</span><span class="p">);</span>
-</pre></div>
-
-
-<p>建立一个矩阵数据结构来表示数独矩阵，便于对行和列分别设置约束条件</p>
-<div class="highlight"><pre><span class="nx">Matrix</span><span class="o">&lt;</span><span class="nx">IntVarArray</span><span class="o">&gt;</span> <span class="nx">mat</span><span class="p">(</span><span class="nx">l</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">9</span><span class="p">);</span>
-</pre></div>
-
-
-<p>这样对于每一行和每一列都用一个distinct constraint限定行列的元素都不重复</p>
-<div class="highlight"><pre><span class="c1">// constraint of row and column</span>
-<span class="k">for</span> <span class="p">(</span><span class="k">int</span> <span class="n">index</span> <span class="o">=</span> <span class="mh">0</span><span class="p">;</span> <span class="n">index</span> <span class="o">&lt;</span> <span class="mh">9</span><span class="p">;</span> <span class="o">++</span><span class="n">index</span><span class="p">)</span> <span class="p">{</span>
-    <span class="n">distinct</span><span class="p">(</span><span class="o">*</span><span class="k">this</span><span class="p">,</span> <span class="n">mat</span><span class="p">.</span><span class="n">row</span><span class="p">(</span><span class="n">index</span><span class="p">));</span>
-    <span class="n">distinct</span><span class="p">(</span><span class="o">*</span><span class="k">this</span><span class="p">,</span> <span class="n">mat</span><span class="p">.</span><span class="n">col</span><span class="p">(</span><span class="n">index</span><span class="p">));</span>
-<span class="p">}</span>
-</pre></div>
-
-
-<p>￼￼原始的数独问题我们用一个数组来表示</p>
-<div class="highlight"><pre><span class="kt">int</span> <span class="n">sudokuArray</span><span class="p">[]</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="mi">0</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span>
-    <span class="mi">8</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span>
-    <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span>
-    <span class="mi">5</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span>
-    <span class="mi">4</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span>
-    <span class="mi">6</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span>
-    <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span>
-    <span class="mi">9</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span>
-    <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">0</span><span class="p">};</span>
-</pre></div>
-
-
-<p>于是接下来对于第三个约束条件以及限定矩阵中部分元素的值和问题一致可以按照如下实现</p>
-<div class="highlight"><pre><span class="c1">// constraint of each 3 * 3 box and the specific box</span>
-<span class="k">for</span> <span class="p">(</span><span class="k">int</span> <span class="n">index1</span> <span class="o">=</span> <span class="mh">0</span><span class="p">;</span> <span class="n">index1</span> <span class="o">&lt;</span> <span class="mh">9</span><span class="o">*</span><span class="mh">9</span><span class="p">;</span> <span class="o">++</span><span class="n">index1</span><span class="p">)</span> <span class="p">{</span>
-    <span class="k">for</span> <span class="p">(</span><span class="k">int</span> <span class="n">index2</span> <span class="o">=</span> <span class="n">index1</span> <span class="o">+</span> <span class="mh">1</span><span class="p">;</span> <span class="n">index2</span> <span class="o">&lt;</span> <span class="mh">9</span><span class="o">*</span><span class="mh">9</span><span class="p">;</span> <span class="o">++</span><span class="n">index2</span><span class="p">)</span> <span class="p">{</span>
-    <span class="c1">// index/9 is the row number, index%9 is the column number</span>
-        <span class="k">if</span> <span class="p">((</span><span class="n">index1</span><span class="o">/</span><span class="p">(</span><span class="mh">9</span><span class="o">*</span><span class="mh">3</span><span class="p">)</span> <span class="o">==</span> <span class="n">index2</span><span class="o">/</span><span class="p">(</span><span class="mh">9</span><span class="o">*</span><span class="mh">3</span><span class="p">))</span> <span class="o">&amp;&amp;</span> <span class="p">((</span><span class="n">index1</span><span class="o">%</span><span class="mh">9</span><span class="p">)</span><span class="o">/</span><span class="mh">3</span> <span class="o">==</span> <span class="p">(</span><span class="n">index2</span><span class="o">%</span><span class="mh">9</span><span class="p">)</span><span class="o">/</span><span class="mh">3</span><span class="p">))</span> <span class="p">{</span>
-            <span class="n">rel</span><span class="p">(</span><span class="o">*</span><span class="k">this</span><span class="p">,</span> <span class="n">l</span><span class="p">[</span><span class="n">index1</span><span class="p">],</span> <span class="no">IRT_NQ</span><span class="p">,</span> <span class="n">l</span><span class="p">[</span><span class="n">index2</span><span class="p">]);</span>
-        <span class="p">}</span>
-    <span class="p">}</span>
-    <span class="k">if</span> <span class="p">(</span><span class="n">sudokuArray</span><span class="p">[</span><span class="n">index1</span><span class="p">]</span> <span class="o">!=</span> <span class="mh">0</span><span class="p">)</span> <span class="p">{</span>
-        <span class="n">rel</span><span class="p">(</span><span class="o">*</span><span class="k">this</span><span class="p">,</span> <span class="n">l</span><span class="p">[</span><span class="n">index1</span><span class="p">],</span> <span class="no">IRT_EQ</span><span class="p">,</span> <span class="n">sudokuArray</span><span class="p">[</span><span class="n">index1</span><span class="p">]);</span>
-    <span class="p">}</span>
-<span class="p">}</span>
-</pre></div>
-
-
-<p>设置了branch的参数之后，Constraint Solver的构造函数就算是完成了</p>
-<div class="highlight"><pre><span class="c1">// post branching</span>
-<span class="n">branch</span><span class="p">(</span><span class="o">*</span><span class="k">this</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="no">INT_VAR_SIZE_MIN</span><span class="p">(),</span> <span class="no">INT_VAL_SPLIT_MIN</span><span class="p">());</span>
-</pre></div>
-
-
-<p>接下来补全sudoku类的剩余部分，一个Solver类的编写就算是完成了。</p><p class="subheader">Category: <a href="/category/study.html">Study</a>
-
-    Tagged: 
-    <a href="/tag/gecode.html">Gecode </a>
-    <a href="/tag/cuhk.html">CUHK </a>
-    <a href="/tag/csp.html">CSP </a>
-</p>
-
-
-
-<p><a href="/posts/2014/Jan/07/constraint-satisfaction-problem/#disqus_thread">comments</a></p>            </article>
-
-
-                <hr  class="gradient"/>
-
-
-        
-
-
-            <article>
-                <a href="/posts/2013/Dec/23/di-pian-ri-zhi/"><h3 class="article-title">第一篇日志</h3></a>
-<h6 class="subheader" title="2013-12-23T00:00:00">Mon 23 December 2013
-</h6>
-
-
-<h3>写在前面</h3>
-<p>很早就想自己搭一个个人网站了，之前在Wix上写了一个，但是又没有动力去维护了。自从看到了论坛上的帖子有人在Github上搭了一个，一直想试一试，可惜上课的时候太忙了就没怎么开始。现在总算到了放假的时间，自己整一个感觉还挺不错的。有时间把自己之前做的乱七八糟的代码整理一下扔上来，顺便回顾一下以前的东西，希望能够有所帮助吧。至于说网站的名字，就是米兰的主场，想不出什么好名字就拿这个凑合了。</p>
-<h3>这是拿什么做的</h3>
-<p>既然是基于别人写的东西搭建的网站，原作者的文档还是放上来好一些吧。写的还是挺清楚的，不过Windows的用户就可能没有什么参考价值了。博客地址：<a href="http://www.lizherui.com/pages/2013/08/17/build_blog.html">一步一步打造Geek风格的技术博客</a>。</p>
-<h3>近期安排</h3>
-<p>这几天在北京闲逛，准备找几个老师学长聊聊。感觉在香港待了一段时间后回来节奏有点不适应了。有机会写一点关于香港学习生活的感悟吧。</p><p class="subheader">Category: <a href="/category/life.html">Life</a>
+    <p>这是wangdaiwei的个人主页，里面包含了本人在学习和生活中的收获和看法。</p>
+<p class="subheader">Category: <a href="/category/misc.html">Misc</a>
 
 </p>
 
 
 
-<p><a href="/posts/2013/Dec/23/di-pian-ri-zhi/#disqus_thread">comments</a></p>                <a class="button radius secondary small right" href="/posts/2013/Dec/23/di-pian-ri-zhi/">Read More</a>
-                <hr  class="gradient"/>
-            </article>
+    
+    <br>
+    <li>
+        <a href="/posts/2013/Dec/23/di-pian-ri-zhi/">
+            第一篇日志
+        </a>
+    </li>
 
-            <!-- /#posts-list -->
-<div class="pagination-centered">
-<h6 class="subheader">Page 1 of 1</h6>
-
-<p>
-
-</p>
-</div>
-
+</article>
     </div>
     <!-- End Main Content -->
 
@@ -200,7 +126,7 @@ $$ \implies x_{ij} \neq x_{in}，x_{ij} \neq x_{mj}，  $$</p>
 		
         <h5 class="sidebar-title">Categories</h5>
         <ul class="side-nav">
-            <li><a href="/category/life.html">Life</a></li>
+            <li><a href="/category/misc.html">Misc</a></li>
             <li><a href="/category/study.html">Study</a></li>
    
         </ul>
