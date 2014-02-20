@@ -2,7 +2,7 @@
 <html lang="cn">
 <head>
 
-        <title>N-Queens Problem Definition</title>
+        <title>ABC Path Problem Definition</title>
         <meta charset="utf-8" />
         <link href="http://wangdaiwei.github.io/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Wangdaiwei's San Siro Full Atom Feed" />
         <link href="http://wangdaiwei.github.io/feeds/study.atom.xml" type="application/atom+xml" rel="alternate" title="Wangdaiwei's San Siro Categories Atom Feed" />
@@ -86,8 +86,8 @@
 
             <header>
               <h2 class="entry-title">
-                <a href="http://wangdaiwei.github.io/posts/2014/Feb/20/n-queens-problem-definition/" rel="bookmark"
-                   title="Permalink to N-Queens Problem Definition">N-Queens Problem Definition</a></h2>
+                <a href="http://wangdaiwei.github.io/posts/2014/Feb/20/abc-path-problem-definition/" rel="bookmark"
+                   title="Permalink to ABC Path Problem Definition">ABC Path Problem Definition</a></h2>
            
             </header>
             <footer class="post-info">
@@ -99,29 +99,60 @@
               </address>
             </footer><!-- /.post-info -->
             <div class="entry-content">
-              <h1>N Queens Problem Definition</h1>
-<p>N-Queens problem is defined as: place n queens on an $n × n$ chess board so that the queens do not attack each other. Now, we rotate the board clockwisely by 45 degrees as shown in following picture, and use a variable to denote the queen partition (if any) for each row (a diagonal in the original board).</p>
-<p><img alt="Figure 1" src="https://raw.github.com/wangdaiwei/gecode/master/queens.jpg" /></p>
-<p>Thus the variables are $y_{1-n}, y_{2-n},..., y_{0},..., y_{n-2}, y_{n-1}.$ While each variable takes values according to the new coordinate system, we use the value $−n$ to denote that there are no queens on a particular row. The domain of each variable $y_i$ is thus $ D_i = $ { $|i|+1,|i|+3,...,2n−|i|−1$ } $∪$ {$−n$} for $i ∈ [1−n,n−1] $. The set of constraints are given as follows:</p>
+              <h1>ABC Path Problem Definition</h1>
+<p>ABC Path is a game that you have to put into the N $\times$ N grid such that the total payoff of the game is maximized. If a letter is placed on the desired position, it gets 1 as payoff. Here is an example for the desired position of each letter for a $4 \times 4 $ grid.￼</p>
+<table>
+<thead>
+<tr>
+<th>A</th>
+<th>B</th>
+<th>C</th>
+<th>D</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>E</td>
+<td>F</td>
+<td>G</td>
+<td>H</td>
+</tr>
+<tr>
+<td>I</td>
+<td>J</td>
+<td>K</td>
+<td>L</td>
+</tr>
+<tr>
+<td>M</td>
+<td>N</td>
+<td>O</td>
+<td>P</td>
+</tr>
+</tbody>
+</table>
+<p>And the rule is the same for other N values. It follows the alphabetic order from the upper left to the bottom right.</p>
+<p>We can model the problem with a set of 16 variables $X =$ { $x_i, j| i, j ∈ [1..4]$ }, each representing a cell of the grid. The domain of each variable $x_i,j$ is $D_i,j =$ {$ 1, 2, .., 16$ } with each value representing the letter in { $A,B,..,P$ } respectively. Let $S_i,j$ be the set of all adjacent cells of $x_i,j$. The set of constraints and the associated objective function of the problem are given as follows:</p>
 <ul>
-<li>for $i∈[1−n,n−1]$: $\sum_i(y_i \ne−n)=n$</li>
-<li>for $i∈[1−n,n−1]$ and $j∈[1,2n−1]: \sum_i(y_i =j)≤1$</li>
-<li>for $i,j∈[1−n,n−1]$ and $i \ne j:|y_i−y_j| \ne |i−j|$</li>
+<li>$(x_{i,j} =1)∨ ( \bigvee _{s \in S_{i, j}} x_{i,j} =s+1 ) ,$$ for $$i,j∈[1..4]$</li>
+<li>$x_{i,j} \ne x_{u,v},$ for $i,j,u,v∈[1..4]$ where $¬(i=u∧j=v)$</li>
+<li>Objective:
+max $\sum_{i,j \in [1...4]} (x_{i,j} −(4i+j −4) == 0)$</li>
 </ul>
-<p>The model is modeled in three ways: arithmetic constraint, tuple sets and DFA.</p>
+<p>An alternative way to model the problem is to represent each letter with a variable $x_i$ , where $i ∈ [1..n2 ]$ and the domain of each variable $x_i$ is $D_i =$ { $1, 2, ..., n2$ } representing the position of the corresponding letter in the grid.</p>
 <p>The Gecode implementation has been uploaded to my github repository. You can see the source code at website <a href="https://github.com/wangdaiwei/gecode">wangdaiwei/gecode</a>.</p>
 <p>The program should be run as following command in Mac OSX:</p>
 <div class="highlight"><pre><span class="p">.</span><span class="o">/</span><span class="n">queens</span> <span class="o">-</span><span class="n">model</span> <span class="n">mod</span> <span class="mi">5</span>
 </pre></div>
 
 
-<p>Here <em>mod</em> stands for the model you choose. The value is from 1 to 3. The last parameter defines the size of N-Queens problem.</p>
+<p>Here <em>mod</em> stands for the model you choose. The value is from 1 to 2, which represents the memtioned models. The last parameter defines the size of ABC Path problem.</p>
             </div><!-- /.entry-content -->
             <div class="comments">
               <h3>Comments</h3>
               <div id="disqus_thread"></div>
               <script type="text/javascript">
-                var disqus_identifier = "posts/2014/Feb/20/n-queens-problem-definition/";
+                var disqus_identifier = "posts/2014/Feb/20/abc-path-problem-definition/";
                 (function() {
                 var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
                 dsq.src = 'http://wangdaiwei.disqus.com/embed.js';

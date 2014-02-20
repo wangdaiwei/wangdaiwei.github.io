@@ -1,5 +1,52 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>Wangdaiwei's San Siro</title><link href="http://wangdaiwei.github.io/" rel="alternate"></link><link href="http://wangdaiwei.github.io/feeds/study.atom.xml" rel="self"></link><id>http://wangdaiwei.github.io/</id><updated>2014-02-20T00:00:00+08:00</updated><entry><title>N-Queens Problem Definition</title><link href="http://wangdaiwei.github.io/posts/2014/Feb/20/n-queens-problem-definition/" rel="alternate"></link><updated>2014-02-20T00:00:00+08:00</updated><author><name>wangdaiwei</name></author><id>tag:wangdaiwei.github.io,2014-02-20:posts/2014/Feb/20/n-queens-problem-definition/</id><summary type="html">&lt;h1&gt;N Queens Problem&lt;/h1&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Wangdaiwei's San Siro</title><link href="http://wangdaiwei.github.io/" rel="alternate"></link><link href="http://wangdaiwei.github.io/feeds/study.atom.xml" rel="self"></link><id>http://wangdaiwei.github.io/</id><updated>2014-02-20T00:00:00+08:00</updated><entry><title>ABC Path Problem Definition</title><link href="http://wangdaiwei.github.io/posts/2014/Feb/20/abc-path-problem-definition/" rel="alternate"></link><updated>2014-02-20T00:00:00+08:00</updated><author><name>wangdaiwei</name></author><id>tag:wangdaiwei.github.io,2014-02-20:posts/2014/Feb/20/abc-path-problem-definition/</id><summary type="html">&lt;h1&gt;ABC Path Problem Definition&lt;/h1&gt;
+&lt;p&gt;ABC Path is a game that you have to put into the N $\times$ N grid such that the total payoff of the game is maximized. If a letter is placed on the desired position, it gets 1 as payoff. Here is an example for the desired position of each letter for a $4 \times 4 $ grid.￼&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;A&lt;/th&gt;
+&lt;th&gt;B&lt;/th&gt;
+&lt;th&gt;C&lt;/th&gt;
+&lt;th&gt;D&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;E&lt;/td&gt;
+&lt;td&gt;F&lt;/td&gt;
+&lt;td&gt;G&lt;/td&gt;
+&lt;td&gt;H&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;I&lt;/td&gt;
+&lt;td&gt;J&lt;/td&gt;
+&lt;td&gt;K&lt;/td&gt;
+&lt;td&gt;L&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;M&lt;/td&gt;
+&lt;td&gt;N&lt;/td&gt;
+&lt;td&gt;O&lt;/td&gt;
+&lt;td&gt;P&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;And the rule is the same for other N values. It follows the alphabetic order from the upper left to the bottom right.&lt;/p&gt;
+&lt;p&gt;We can model the problem with a set of 16 variables $X =$ { $x_i, j| i, j ∈ [1..4]$ }, each representing a cell of the grid. The domain of each variable $x_i,j$ is $D_i,j =$ {$ 1, 2, .., 16$ } with each value representing the letter in { $A,B,..,P$ } respectively. Let $S_i,j$ be the set of all adjacent cells of $x_i,j$. The set of constraints and the associated objective function of the problem are given as follows:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;$(x_{i,j} =1)∨ ( \bigvee _{s \in S_{i, j}} x_{i,j} =s+1 ) ,$$ for $$i,j∈[1..4]$&lt;/li&gt;
+&lt;li&gt;$x_{i,j} \ne x_{u,v},$ for $i,j,u,v∈[1..4]$ where $¬(i=u∧j=v)$&lt;/li&gt;
+&lt;li&gt;Objective:
+max $\sum_{i,j \in [1...4]} (x_{i,j} −(4i+j −4) == 0)$&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;An alternative way to model the problem is to represent each letter with a variable $x_i$ , where $i ∈ [1..n2 ]$ and the domain of each variable $x_i$ is $D_i =$ { $1, 2, ..., n2$ } representing the position of the corresponding letter in the grid.&lt;/p&gt;
+&lt;p&gt;The Gecode implementation has been uploaded to my github repository. You can see the source code at website &lt;a href="https://github.com/wangdaiwei/gecode"&gt;wangdaiwei/gecode&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;The program should be run as following command in Mac OSX:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;queens&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;model&lt;/span&gt; &lt;span class="n"&gt;mod&lt;/span&gt; &lt;span class="mi"&gt;5&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Here &lt;em&gt;mod&lt;/em&gt; stands for the model you choose. The value is from 1 to 2, which represents the memtioned models. The last parameter defines the size of ABC Path problem.&lt;/p&gt;</summary><category term="CSP"></category></entry><entry><title>N-Queens Problem Definition</title><link href="http://wangdaiwei.github.io/posts/2014/Feb/20/n-queens-problem-definition/" rel="alternate"></link><updated>2014-02-20T00:00:00+08:00</updated><author><name>wangdaiwei</name></author><id>tag:wangdaiwei.github.io,2014-02-20:posts/2014/Feb/20/n-queens-problem-definition/</id><summary type="html">&lt;h1&gt;N Queens Problem Definition&lt;/h1&gt;
 &lt;p&gt;N-Queens problem is defined as: place n queens on an $n × n$ chess board so that the queens do not attack each other. Now, we rotate the board clockwisely by 45 degrees as shown in following picture, and use a variable to denote the queen partition (if any) for each row (a diagonal in the original board).&lt;/p&gt;
 &lt;p&gt;&lt;img alt="Figure 1" src="https://raw.github.com/wangdaiwei/gecode/master/queens.jpg" /&gt;&lt;/p&gt;
 &lt;p&gt;Thus the variables are $y_{1-n}, y_{2-n},..., y_{0},..., y_{n-2}, y_{n-1}.$ While each variable takes values according to the new coordinate system, we use the value $−n$ to denote that there are no queens on a particular row. The domain of each variable $y_i$ is thus $ D_i = $ { $|i|+1,|i|+3,...,2n−|i|−1$ } $∪$ {$−n$} for $i ∈ [1−n,n−1] $. The set of constraints are given as follows:&lt;/p&gt;
@@ -15,7 +62,7 @@
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;p&gt;Here &lt;em&gt;mod&lt;/em&gt; stands for the model you choose. The value is from 1 to 3. The last parameter defines the size of N-Queens problem.&lt;/p&gt;</summary><category term="CSP"></category></entry><entry><title>Sudoku Problem Definition</title><link href="http://wangdaiwei.github.io/posts/2014/Feb/20/sudoku-problem-definition/" rel="alternate"></link><updated>2014-02-20T00:00:00+08:00</updated><author><name>wangdaiwei</name></author><id>tag:wangdaiwei.github.io,2014-02-20:posts/2014/Feb/20/sudoku-problem-definition/</id><summary type="html">&lt;h1&gt;Sudoku Problem&lt;/h1&gt;
+&lt;p&gt;Here &lt;em&gt;mod&lt;/em&gt; stands for the model you choose. The value is from 1 to 3. The last parameter defines the size of N-Queens problem.&lt;/p&gt;</summary><category term="CSP"></category></entry><entry><title>Sudoku Problem Definition</title><link href="http://wangdaiwei.github.io/posts/2014/Feb/20/sudoku-problem-definition/" rel="alternate"></link><updated>2014-02-20T00:00:00+08:00</updated><author><name>wangdaiwei</name></author><id>tag:wangdaiwei.github.io,2014-02-20:posts/2014/Feb/20/sudoku-problem-definition/</id><summary type="html">&lt;h1&gt;Sudoku Problem Definition&lt;/h1&gt;
 &lt;p&gt;Sudoku is a puzzle that requires players to complete a partially filled 9 × 9 grid with digits 1 to 9 such that each row, each column and each of the nine 3 × 3 boxes (shown in Figure 1 in thick border lines) contain different digits.&lt;/p&gt;
 &lt;p&gt;￼￼￼The Gecode implementation has hardcoded the sudoku problem. You can modify the sudokuArray in order to solve different sudoku problems.&lt;/p&gt;
 &lt;p&gt;The Gecode implementation has been uploaded to my github repository. You can see the source code at website &lt;a href="https://github.com/wangdaiwei/gecode"&gt;wangdaiwei/gecode&lt;/a&gt;.&lt;/p&gt;</summary><category term="CSP"></category></entry><entry><title>理解Hadoop和MapReduce</title><link href="http://wangdaiwei.github.io/posts/2014/Jan/25/li-jie-hadoophe-mapreduce/" rel="alternate"></link><updated>2014-01-25T00:00:00+08:00</updated><author><name>wangdaiwei</name></author><id>tag:wangdaiwei.github.io,2014-01-25:posts/2014/Jan/25/li-jie-hadoophe-mapreduce/</id><summary type="html">&lt;h2&gt;为什么需要用到Hadoop&lt;/h2&gt;
