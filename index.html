@@ -4,35 +4,13 @@
     <!-- Set the viewport width to device width for mobile -->
     <meta name="viewport" content="width=device-width" />
 
-    <title>欢迎来到Wangdaiwei的个人主页</title>
+    <title>Wangdaiwei's San Siro</title>
 
     <link rel="stylesheet" href="/theme/css/normalize.css" />
     <link rel="stylesheet" href="/theme/css/foundation.min.css" />
     <link rel="stylesheet" href="/theme/css/style.css" />
     <link rel="stylesheet" href="/theme/css/pygments.css" />	
     <script src="/theme/js/custom.modernizr.js"></script>
-    
-    <script type= "text/javascript">
-        var s = document.createElement('script');
-        s.type = 'text/javascript';
-        s.src = 'https:' == document.location.protocol ? 'https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js' : 'http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'; 
-        s[(window.opera ? "innerHTML" : "text")] =
-            "MathJax.Hub.Config({" + 
-            "    config: ['MMLorHTML.js']," + 
-            "    jax: ['input/TeX','input/MathML','output/HTML-CSS','output/NativeMML']," +
-            "    TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } }," + 
-            "    extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']," +
-            "    tex2jax: { " +
-            "        inlineMath: [ ['$','$'] ], " +
-            "        displayMath: [ ['$$','$$'] ]," +
-            "        processEscapes: true }, " +
-            "    'HTML-CSS': { " +
-            "        styles: { '.MathJax .mo, .MathJax .mi': {color: 'black ! important'}} " +
-            "    } " +
-            "}); ";
-        (document.body || document.getElementsByTagName('head')[0]).appendChild(s);
-    </script>
-
 </head>
 
 <body>
@@ -64,54 +42,136 @@
 
     <!-- Main Blog Content -->
     <div class="large-9 columns">
-<article>
-    <header>
-        <h3 class="article-title"><a href="/posts/2013/Dec/22/huan-ying-lai-dao-wangdaiweide-ge-ren-zhu-ye/" rel="bookmark"
-        title="Permalink to 欢迎来到Wangdaiwei的个人主页">欢迎来到Wangdaiwei的个人主页</a></h3>
         
-    <script type= "text/javascript">
-        var s = document.createElement('script');
-        s.type = 'text/javascript';
-        s.src = 'https:' == document.location.protocol ? 'https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js' : 'http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'; 
-        s[(window.opera ? "innerHTML" : "text")] =
-            "MathJax.Hub.Config({" + 
-            "    config: ['MMLorHTML.js']," + 
-            "    jax: ['input/TeX','input/MathML','output/HTML-CSS','output/NativeMML']," +
-            "    TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } }," + 
-            "    extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']," +
-            "    tex2jax: { " +
-            "        inlineMath: [ ['$','$'] ], " +
-            "        displayMath: [ ['$$','$$'] ]," +
-            "        processEscapes: true }, " +
-            "    'HTML-CSS': { " +
-            "        styles: { '.MathJax .mo, .MathJax .mi': {color: 'black ! important'}} " +
-            "    } " +
-            "}); ";
-        (document.body || document.getElementsByTagName('head')[0]).appendChild(s);
-    </script>
+        
 
-    </header>
-
-<h6 class="subheader" title="2013-12-22T00:00:00">Sun 22 December 2013
+            <article>
+                <a href="/posts/2014/Jan/25/li-jie-hadoophe-mapreduce/"><h3 class="article-title">理解Hadoop和MapReduce</h3></a>
+<h6 class="subheader" title="2014-01-25T00:00:00">Sat 25 January 2014
 </h6>
 
 
-    <p>这是wangdaiwei的个人主页，里面包含了本人在学习和生活中的收获和看法。</p>
-<p class="subheader">Category: <a href="/category/misc.html">Misc</a>
+<h2>为什么需要用到Hadoop</h2>
+<p>Hadoop是Apache开源基金会下的一个项目，针对处理大数据的特性设计的分布式编程模型工具。Hadoop的核心思想来源于Google的MapReduce和Google File System（GFS）。通俗来讲，就是将处理的问题分为两个子问题，一个负责将问题分割成一个一个小的部分，另一个负责将前一个步骤的每一部分都合并在一起。</p>
+<p>最常见的例子就是单词统计。假设我们需要统计一个文档里的单词，最简单的方式就是用一个dictionary或者map来存储一个key-value对。一旦发现一个新的单词，我们就在这个dictionary里面添加一个条目，value设为1。如果这个单词已经存在，那么取出这个key对应的value，将其加1。这种方式对于一个小的文档来说固然合适，但如果我们处理的是一个TB，PB级别的数据呢？如果我们想在1秒钟之内就处理完这些数据？这就需要用到分布式处理了，也就是多台机器同时运算。对于数单词这样一个简单的工作，要解决的就是如何分配任务，每一台机器需要处理文档的哪个部分，以及如何将这些结果整合在一起。有了这样的思想，我们可以给这两个部分的工作分配给两个模块，一个是mapper，一个是reducer。mapper负责把问题分割成很小的一部分，每一部分都会产生一个问题的输出；reducer负责把所有若干个mapper产生的输出汇总，再计算出所需的输出。由于这种模型涉及到的数据量都比较大，而建立在大数据上的数据处理一般来说都相对比较简单，因此将这种模型一般化，使用户只需要关注mapper和reducer的具体实现，而不用考虑异常处理，问题分割等等细节问题，这就是Hadoop需要解决的问题。</p>
+<p>但是，并不是所有问题都适合用MapReduce模型解决，比如说PageRank。当问题涉及到图结构的时候，一个很普遍的现象就是活跃节点和不活跃节点差异非常明显。比如说Yahoo网页的PageRank值要计算很多次才能收敛，因为它链接的网页实在是太多了。而小一点的网站可能一下子就收敛了，因为其本身链接的网站并不多，也并没有很高的影响力。而且在图问题中，绝大部分的节点都是不活跃的，也就是说可能整个MapReduce计算一次，只有少数几个节点的值发生了变化，这严重影响到了处理时间。Google针对这个问题提出了Pregel模型，GraphLab就是参考这个模型实现的，相关的论文里面可以看出在PageRank和三角形计数算法上GraphLab完胜基于MapReduce的Hadoop。</p>
+<h2>理解Mapper和Reducer</h2>
+<p>如果只从输入输出来看，mapper和reducer的输入输出都是一个key-valud对。当然，具体实现来说key和value并不是必须的，比如说统计所有文档的单词数，mapper的输入就可以是key：文件名，value：文件内容，文件名在这里不需要用到。</p>
+<p>对于数单词这个问题，mapper需要做的就是把自己负责的那部分文档的单词都统计出来，输出key-value对。这里的key就是单词，value就是1，代表的含义就是在这部分的文档中这个单词出现了1次。当然，也可以在mapper里面就把所有重复的单词都统计一次，汇总之后再设为这个单词key的value。而reducer就会收到mapper的单词key-value对。假如一开始mapper输入的文档内容是这样的：</p>
+<div class="highlight"><pre><span class="n">foo</span> <span class="n">other</span> <span class="n">more</span> <span class="n">data</span> <span class="n">foo</span>
+</pre></div>
+
+
+<p>那么mapper的输出就是如下形式：</p>
+<div class="highlight"><pre><span class="n">foo</span> <span class="mi">1</span>
+<span class="n">other</span> <span class="mi">1</span>
+<span class="n">more</span> <span class="mi">1</span>
+<span class="n">data</span> <span class="mi">1</span>
+<span class="n">foo</span> <span class="mi">1</span>
+</pre></div>
+
+
+<p>此时reducer接收到的输入是按照key排列号的，因此实际上reducer的输入是如下的顺序输入的：</p>
+<div class="highlight"><pre><span class="n">data</span> <span class="mi">1</span>
+<span class="n">foo</span> <span class="mi">1</span>
+<span class="n">foo</span> <span class="mi">1</span>
+<span class="n">more</span> <span class="mi">1</span>
+<span class="n">other</span> <span class="mi">1</span>
+</pre></div>
+
+
+<p>于是实际上reducer可以这么写，这里用伪代码实现：</p>
+<div class="highlight"><pre><span class="n">let</span> <span class="n">reduce</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">values</span><span class="p">)</span> <span class="o">=</span> 
+    <span class="n">sum</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">foreach</span> <span class="kt">int</span> <span class="n">i</span> <span class="n">in</span> <span class="n">vals</span><span class="o">:</span>
+        <span class="n">sum</span> <span class="o">+=</span> <span class="n">i</span>
+    <span class="n">emit</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">sum</span><span class="p">)</span>
+</pre></div>
+
+
+<p>这样得到的最终reducer的输出应该是这样的：</p>
+<div class="highlight"><pre><span class="n">data</span> <span class="mi">1</span>
+<span class="n">foo</span> <span class="mi">2</span>
+<span class="n">more</span> <span class="mi">1</span>
+<span class="n">other</span> <span class="mi">1</span>
+</pre></div>
+
+
+<h2>具体实现</h2>
+<p>鉴于网上hadoop的教程都比较多，就不在这里写出来了，用Python实现的可以参考<a href="http://www.michael-noll.com/tutorials/writing-an-hadoop-mapreduce-program-in-python/">Writing an Hadoop MapReduce Program in Python</a>，还有用Java实现的例子：<a href="http://www.cnblogs.com/xia520pi/archive/2012/06/04/2534533.html">Hadoop集群（第9期）_MapReduce初级案例</a>。</p><p class="subheader">Category: <a href="/category/study.html">Study</a>
+
+    Tagged: 
+    <a href="/tag/mapreduce.html">Mapreduce </a>
+</p>
+
+
+
+<p><a href="/posts/2014/Jan/25/li-jie-hadoophe-mapreduce/#disqus_thread">comments</a></p>            </article>
+
+
+                <hr  class="gradient"/>
+
+
+        
+
+
+            <article>
+                <a href="/posts/2014/Jan/07/constraint-satisfaction-problem/"><h3 class="article-title">Constraint Satisfaction Problem</h3></a>
+<h6 class="subheader" title="2014-01-07T00:00:00">Tue 07 January 2014
+</h6>
+
+
+<h2>CSP概述</h2>
+<p>作为对学了一个学期的内容的总结，在这里稍微介绍一下Constraint Satisfaction Problem（CSP）吧。这个题目我也不知道中文叫做什么，也许叫做有约束问题解决模型比较合适。虽然我没有学过数学建模，但或许他们之间是比较类似的，CSP的中心思想就是针对一个特定的问题建立模型，然后解决它。解决问题的具体实现就叫做Constraint Solver（约束处理机）。我认为这个方法还是很实际的，它可以帮助我们快速建立起对一个问题的数学角度的认识，同时在编程方面也有很多的函数库，比如说IBM的CPLEX。这里只介绍Gecode的使用，当然官方文档对于Gecode已经解释的很详细了，我在这里只想梳理一下整个建立模型的步骤和稍微介绍一下Gecode。</p>
+<h2>Gecode</h2>
+<p>Gecode是一个用于解决约束问题的基于C++的函数库，覆盖了Windows，Linux，Mac三个平台。在2012年以前长期霸占着MiniZinc比赛的头名，就现在来说当然性能也不差，而且也一直有更新。关键的是，相比起CPLEX，它是免费开源的。官方主页：<a href="http://www.gecode.org/">Gecode</a>。</p>
+<h2>问题描述</h2>
+<p>在CSP概念里，问题被表示成几个部分：变量（Variable），值域（Domain），约束（Constraint）。变量是问题模型中所有可以改变的量，可以是一组数，也可以是未知的属性，比如说香港的某一所高校 ...</p><p class="subheader">Category: <a href="/category/study.html">Study</a>
+
+    Tagged: 
+    <a href="/tag/gecode.html">Gecode </a>
+    <a href="/tag/csp.html">CSP </a>
+</p>
+
+
+
+<p><a href="/posts/2014/Jan/07/constraint-satisfaction-problem/#disqus_thread">comments</a></p>                <a class="button radius secondary small right" href="/posts/2014/Jan/07/constraint-satisfaction-problem/">Read More</a>
+                <hr  class="gradient"/>
+            </article>
+
+        
+
+
+            <article>
+                <a href="/posts/2013/Dec/23/di-pian-ri-zhi/"><h3 class="article-title">第一篇日志</h3></a>
+<h6 class="subheader" title="2013-12-23T00:00:00">Mon 23 December 2013
+</h6>
+
+
+<h3>写在前面</h3>
+<p>很早就想自己搭一个个人网站了，之前在Wix上写了一个，但是又没有动力去维护了。自从看到了论坛上的帖子有人在Github上搭了一个，一直想试一试，可惜上课的时候太忙了就没怎么开始。现在总算到了放假的时间，自己整一个感觉还挺不错的。有时间把自己之前做的乱七八糟的代码整理一下扔上来，顺便回顾一下以前的东西，希望能够有所帮助吧。至于说网站的名字，就是米兰的主场，想不出什么好名字就拿这个凑合了。</p>
+<h3>这是拿什么做的</h3>
+<p>既然是基于别人写的东西搭建的网站，原作者的文档还是放上来好一些吧。写的还是挺清楚的，不过Windows的用户就可能没有什么参考价值了。博客地址：<a href="http://www.lizherui.com/pages/2013/08/17/build_blog.html">一步一步打造Geek风格的技术博客</a>。同时另外一篇日志也比较有参考价值：<a href="http://terriyu.info/blog/posts/2013/07/pelican-setup/">How I setup Pelican</a>。</p>
+<h3>近期安排</h3>
+<p>这几天在北京闲逛，准备找几个老师学长聊聊。感觉在香港待了一段时间后回来节奏有点不适应了。有机会写一点关于香港学习生活的感悟吧。</p><p class="subheader">Category: <a href="/category/misc.html">Misc</a>
 
 </p>
 
 
 
-    
-    <br>
-    <li>
-        <a href="/posts/2013/Dec/23/di-pian-ri-zhi/">
-            第一篇日志
-        </a>
-    </li>
+<p><a href="/posts/2013/Dec/23/di-pian-ri-zhi/#disqus_thread">comments</a></p>                <a class="button radius secondary small right" href="/posts/2013/Dec/23/di-pian-ri-zhi/">Read More</a>
+                <hr  class="gradient"/>
+            </article>
 
-</article>
+            <!-- /#posts-list -->
+<div class="pagination-centered">
+<h6 class="subheader">Page 1 of 1</h6>
+
+<p>
+
+</p>
+</div>
+
     </div>
     <!-- End Main Content -->
 
