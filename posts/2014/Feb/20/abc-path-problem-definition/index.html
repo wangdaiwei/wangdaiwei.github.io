@@ -134,10 +134,9 @@
 <p>And the rule is the same for other N values. It follows the alphabetic order from the upper left to the bottom right.</p>
 <p>We can model the problem with a set of 16 variables $X =$ { $x_i, j| i, j ∈ [1..4]$ }, each representing a cell of the grid. The domain of each variable $x_i,j$ is $D_i,j =$ {$ 1, 2, .., 16$ } with each value representing the letter in { $A,B,..,P$ } respectively. Let $S_i,j$ be the set of all adjacent cells of $x_i,j$. The set of constraints and the associated objective function of the problem are given as follows:</p>
 <ul>
-<li>$$(x_{i,j} =1)∨ ( \bigvee _{s \in S_{i, j}} x_{i,j} =s+1 ) ,$$ for $$i,j∈[1..4]$$</li>
+<li>$(x_{i,j} =1)∨ ( \bigvee _{s \in S_{i, j}} x_{i,j} =s+1 ) ,$ for $i,j∈[1..4]$</li>
 <li>$x_{i,j} \ne x_{u,v},$ for $i,j,u,v∈[1..4]$ where $¬(i=u∧j=v)$</li>
-<li>Objective:
-max $\sum_{i,j \in [1...4]} (x_{i,j} −(4i+j −4) == 0)$</li>
+<li>Objective: max $\sum_{i,j \in [1...4]} (x_{i,j} −(4i+j −4) == 0)$</li>
 </ul>
 <p>An alternative way to model the problem is to represent each letter with a variable $x_i$ , where $i ∈ [1..n2 ]$ and the domain of each variable $x_i$ is $D_i =$ { $1, 2, ..., n2$ } representing the position of the corresponding letter in the grid.</p>
 <p>The Gecode implementation has been uploaded to my github repository. You can see the source code at website <a href="https://github.com/wangdaiwei/gecode">wangdaiwei/gecode</a>.</p>
