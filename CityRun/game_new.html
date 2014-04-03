@@ -1,0 +1,51 @@
+<!doctype html>
+<html>
+  <head>
+		<title>Game</title>
+		<style>
+			body {
+				background-color: black;
+			}
+			#scoreboard {
+				text-align: center;
+				font-family: Segoe UI, Helvetica, Ubuntu, sans-serif;
+				color: white;
+			}
+			#scores {
+				font-size:600%; 
+				padding:0; 
+				margin:0;
+				color: white;
+			}
+			#title {
+				background-color: white;
+				color: black;
+			}
+			#gameCanvas {
+				background-color: black;
+				width: window.innerWidth;
+				height: 500px;
+				margin: auto;
+				align: center;
+			}
+		</style>
+	</head>
+	<body onload='setup();'>
+		<div id='scoreboard'>
+			<!-- <h1 id='scores'>0-0</h1> -->
+			<h1 id='title'>City Run</h1>
+			<!-- <h2 id='winnerBoard'>First to 7 wins!</h2> -->
+			<h3>W, S, A, D - move forward, backward, left, right</h3>
+		</div>
+		<div id='gameCanvas'></div>
+		<script src='js/libs/three.min.js'></script>
+		<script src='js/Car.js'></script>
+		<script src='js/controls/PointerLockControls.js'></script>
+		<script src="js/controls/OrbitControls.js"></script>
+		<script src='js/controls/keyboard.js'></script>
+		<script src='./game.js'></script>
+
+		<script src="js/Detector.js"></script>
+		<script src="js/libs/stats.js"></script>
+	</body>
+</html>
