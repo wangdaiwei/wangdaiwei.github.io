@@ -2,10 +2,9 @@
 <html lang="cn">
 <head>
 
-        <title>Wangdaiwei's San Siro</title>
+        <title>Wangdaiwei's San Siro - WebGL</title>
         <meta charset="utf-8" />
         <link href="http://wangdaiwei.github.io/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Wangdaiwei's San Siro Full Atom Feed" />
-        <link href="http://wangdaiwei.github.io/feeds/misc.atom.xml" type="application/atom+xml" rel="alternate" title="Wangdaiwei's San Siro Categories Atom Feed" />
 
 
         <!-- Mobile viewport optimized: j.mp/bplateviewport -->
@@ -57,7 +56,7 @@
             </div>
 
 <section id="content">
-<h2>Articles in the Misc category</h2>
+
 
 
    <div class="row">
@@ -66,22 +65,27 @@
         <div class="eleven columns">
 		         <ol id="post-list">
 				        <li><article class="hentry">
-				                <header> <h2 class="entry-title"><a href="http://wangdaiwei.github.io/posts/2013/Dec/23/di-pian-ri-zhi/" rel="bookmark" title="Permalink to 第一篇日志">第一篇日志</a></h2> </header>
+				                <header> <h2 class="entry-title"><a href="http://wangdaiwei.github.io/posts/2014/May/22/yong-webglbian-xie-ge-3dtu-xing-wang-zhan/" rel="bookmark" title="Permalink to 用WebGL编写一个3D图形网站">用WebGL编写一个3D图形网站</a></h2> </header>
 				                <footer class="post-info">
-				                    <abbr class="published" title="2013-12-23T00:00:00"> Mon 23 December 2013 </abbr>
+				                    <abbr class="published" title="2014-05-22T00:00:00"> Thu 22 May 2014 </abbr>
 <address class="vcard author">By <a class="url fn" href="http://wangdaiwei.github.io/author/wangdaiwei.html">wangdaiwei</a></address>				                </footer><!-- /.post-info -->
-				                <div class="entry-content"> <h3>写在前面</h3>
-<p>很早就想自己搭一个个人网站了，之前在Wix上写了一个，但是又没有动力去维护了。自从看到了论坛上的帖子有人在Github上搭了一个，一直想试一试，可惜上课的时候太忙了就没怎么开始。现在总算到了放假的时间，自己整一个感觉还挺不错的。有时间把自己之前做的乱七八糟的代码整理一下扔上来，顺便回顾一下以前的东西，希望能够有所帮助吧。至于说网站的名字，就是米兰的主场，想不出什么好名字就拿这个凑合了。</p>
-<h3>这是拿什么做的</h3>
-<p>既然是基于别人写的东西搭建的网站，原作者的文档还是放上来好一些吧。写的还是挺清楚的，不过Windows的用户就可能没有什么参考价值了。博客地址：<a href="http://www.lizherui.com/pages/2013/08/17/build_blog.html">一步一步打造Geek风格的技术博客</a>。同时另外一篇日志也比较有参考价值：<a href="http://terriyu.info/blog/posts/2013/07/pelican-setup/">How I setup Pelican</a>。</p>
-<h3>近期安排</h3>
-<p>这几天在北京闲逛，准备找几个老师学长聊聊。感觉在香港待了一段时间后回来节奏有点不适应了。有机会写一点关于香港学习生活的感悟吧。</p> </div><!-- /.entry-content -->
+				                <div class="entry-content"> <p>自己的学生生涯也差不多结束了，感觉是时候把自己这一年来学的东西做一个总结，顺便回顾一下以前做过的东西。这几天多动动手，争取写多一些内容。</p>
+<h2>WebGL简单介绍</h2>
+<p>如果有听说过OpenGL的话，那么WebGL理解起来就不是那么困难了，简单来说其实就是OpenGL在HTML5的JavaScript移植版。要是OpenGL没听说过，那就把它当成是一个在网页上的图形引擎吧。我们可以在HTML5的网页上创建Canvas（画布）来配置我们的WebGL绘制图形的过程。</p>
+<p>要想从最基本的开始写一个很简单的程序也不是那么容易的，写过OpenGL程序的人肯定都知道，想要显示一个简单的正方形也不是一句代码就能解决的事。你得设置好视角，然后你得定义绘图方式，标出矩形每一个顶点的位置，再转换到世界坐标系等等。总之就是一切都是计算机图形学基础的东西，要想好好用WebGL这个写一个能看的动画估计就得花好长时间了。所以我们还是用点现成的东西吧，目前关于WebGL可用的库有很多，比较常用的就是Three.js。</p>
+<h2>Three.js</h2>
+<p>这个库已经写的比较完整了，已经有很多很炫的例子，可以在<a href="http://threejs.org/">官网</a>上找到。有了Three.js，很多事情变简单了许多。绘制一个3D画面的步骤就变成这样了：</p>
+<div class="highlight"><pre><span class="mi">1</span><span class="err">、在</span><span class="n">HTML</span><span class="err">网页里配置基本的画布</span>
+<span class="mi">2</span><span class="err">、在画布上布置</span><span class="n">WebGL</span><span class="err">基本元素，比如立方体，球体等等</span>
+<span class="mi">3</span><span class="err">、配置好 ...</span></pre></div> </div><!-- /.entry-content -->
 
-								<div class="medium primary btn"><a href="http://wangdaiwei.github.io/posts/2013/Dec/23/di-pian-ri-zhi/" rel="bookmark" title="Permalink to 第一篇日志">Read more <i class="icon-arrow-right"></i></a></div>
+								<div class="medium primary btn"><a href="http://wangdaiwei.github.io/posts/2014/May/22/yong-webglbian-xie-ge-3dtu-xing-wang-zhan/" rel="bookmark" title="Permalink to 用WebGL编写一个3D图形网站">Read more <i class="icon-arrow-right"></i></a></div>
 
 
 
 								<div class="row tag-row">
+										<span>Tagged as : </span>
+											<a class="danger label" href="http://wangdaiwei.github.io/tag/webgl.html">WebGL</a>
 								</div>
 
 
