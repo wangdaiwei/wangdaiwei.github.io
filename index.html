@@ -51,6 +51,7 @@
               <ul class="columns">
                 <li><a href="http://wangdaiwei.github.io">Home</a></li>
 
+                <li><a href="http://wangdaiwei.github.io/pages/about.html">About</a></li>
 
               </ul>
             </div>
@@ -71,14 +72,14 @@
 <address class="vcard author">By <a class="url fn" href="http://wangdaiwei.github.io/author/wangdaiwei.html">wangdaiwei</a></address>				                </footer><!-- /.post-info -->
 				                <div class="entry-content"> <h2>赛车坐标系</h2>
 <p>先不讨论场景和光线的配置，光是赛车本身涉及到的一些座标变换就足够复杂的了。先假设汽车模型摆放在坐标轴中心，如下图所示：</p>
-<p><img alt="Car icon" src="http://i62.tinypic.com/315200k.png" /></p>
+<p><img alt="Car icon" src="http://wangdaiwei.github.io/images/car.png" /></p>
 <p>一般情况下坐标系为右手系表示，即图中的红，绿，蓝分别代表x，y，z轴。假设汽车要向前移动的话，那么车身和车轮都需要沿着坐标系z轴作平移变换，同时前轮需要绕着前轮车轴为中心沿着x轴方向旋转变换。直白地说，就是车子在往前走的时候轮子也需要滚动。</p>
 <p>直行时的情况比较简单，但是如果需要旋转就比较麻烦了。先来考虑真实的情况，轮子在转动的时候不是一下子就旋转到位的，而是有个缓慢转动的过程，在转动的过程中车身也一直在前进。我们需要记录下来车身此时面对的方向以及轮子此时面对的方向。我们需要将坐标系拆分成两个部分，一个是车子和整个场景所在的世界坐标系，一个是以车子自身位中心的单位坐标系。我们需要在单位坐标系下对轮子做相对于车身的座标变换，在世界坐标系下更新车子当前的座标和面对的方向。</p>
 <h2>前期准备</h2>
 <p>实际上上面的内容Three.js里面的例子已经有现成的代码了，之前还花了好多时间研究诸如cannon.js，Physijs等等JavaSript物理引擎，出来的结果不是车子不停的打转就是动弹不得。还是先考虑没有物理引擎的情况吧。</p>
 <p>Car.js的文件可以在Three.js的github源码中找到，在example目录下的js文件夹里面。也可以在我的github里面这个demo的代码中找到，但是我稍微修改了一下里面的参数。</p>
 <p>首先我们需要将Three.js库以及Car.js添加到源文件当中</p>
-<div class="highlight"><pre><span class="nt">&lt;script</span> <span class="na">src=</span><span class="s">&#39;js/libs/three ...</span></pre></div> </div><!-- /.entry-content -->
+<div class="highlight"><pre><span class="nt">&lt;script </span><span class="na">src=</span><span class="s">&#39;js/libs/three ...</span></pre></div> </div><!-- /.entry-content -->
 
 								<div class="medium primary btn"><a href="http://wangdaiwei.github.io/posts/2014/May/31/threejssai-che-you-xi/" rel="bookmark" title="Permalink to Three.js赛车游戏">Read more <i class="icon-arrow-right"></i></a></div>
 
@@ -87,6 +88,28 @@
 								<div class="row tag-row">
 										<span>Tagged as : </span>
 											<a class="danger label" href="http://wangdaiwei.github.io/tag/webgl.html">WebGL</a>
+								</div>
+
+
+
+				        </article></li>
+				        <li><article class="hentry">
+				                <header> <h2 class="entry-title"><a href="http://wangdaiwei.github.io/posts/2014/May/31/zhong-da-zhe-nian/" rel="bookmark" title="Permalink to 中大这一年">中大这一年</a></h2> </header>
+				                <footer class="post-info">
+				                    <abbr class="published" title="2014-05-31T00:00:00"> Sat 31 May 2014 </abbr>
+<address class="vcard author">By <a class="url fn" href="http://wangdaiwei.github.io/author/wangdaiwei.html">wangdaiwei</a></address>				                </footer><!-- /.post-info -->
+				                <div class="entry-content"> <p>快到六月了，距离去年毕业也快一年了。这一年里发生了许多事情，记录一下自己的经历，是这一年学习和生活的总结，也希望能够帮到以后来香港求学的人。</p>
+<h3>选课的故事</h3>
+<p>中大的计算机系的Msc可以选的计算机系的课程氛围两种，和PhD，MPhill一起上课的CSCI系列，以及和Local一起上课的CMSC系列。除了这两种课，我们还可以选别的系的课，也是算学分的，只要修够24学分就够了，也就是八门课。这两种课一般是CSCI在白天上课，CMSC在晚上上课，不过也有周末上课的，但我没选过。两个学期除了Project是规定如果选的话一定要两个学期选，都没有跨学期的情况。</p>
+<p>在选Project的时候误打误撞选到了Computer Graphics相关的Project，因为之前没接触过相关的东西，觉着应该能学到很多东西就这么定下来了，做的是人脸建模的项目。其他的课程，基本上是看到什么有兴趣就学什么。上学期选的全是CSCI的课，下学期选的全是CMSC的课，所以说PhD和Local都认识得七七八八了，当然肯定也还有很多没有认全。按照系里小米的说法，一学期最好不要选超过两门CSCI的课，第一学期果然就全部躺枪了，清一色的B，还熬夜熬得心旷神怡。第二学期就好了许多，平时不上课都有很多时间干别的了，就常常跑到理工的图书馆去看书。这两种课，都算是有利有弊吧，CSCI学习压力大，但能学到很多东西，不过对于找工作而言帮助并不是很大。总不能跟公司说这门课教会了我LaTeX就能让公司录用了吧。CMSC能够学到很实际的东西，比如App，比如网页设计 ...</p> </div><!-- /.entry-content -->
+
+								<div class="medium primary btn"><a href="http://wangdaiwei.github.io/posts/2014/May/31/zhong-da-zhe-nian/" rel="bookmark" title="Permalink to 中大这一年">Read more <i class="icon-arrow-right"></i></a></div>
+
+
+
+								<div class="row tag-row">
+										<span>Tagged as : </span>
+											<a class="danger label" href="http://wangdaiwei.github.io/tag/cuhk.html">CUHK</a>
 								</div>
 
 
@@ -285,6 +308,7 @@
 <h4>Pages</h4>
 
  <ul>
+      <li><a href="http://wangdaiwei.github.io/pages/about.html">About</a></li>
   </ul>
 
 <h4>Categories</h4>
@@ -297,11 +321,11 @@
 
 <h4>Tags</h4>
 	<ul>
-	    <li class="tag-1"><a href="http://wangdaiwei.github.io/tag/csp.html">CSP</a></li>
-	    <li class="tag-4"><a href="http://wangdaiwei.github.io/tag/cuhk.html">CUHK</a></li>
-	    <li class="tag-4"><a href="http://wangdaiwei.github.io/tag/gecode.html">Gecode</a></li>
-	    <li class="tag-4"><a href="http://wangdaiwei.github.io/tag/mapreduce.html">Mapreduce</a></li>
 	    <li class="tag-2"><a href="http://wangdaiwei.github.io/tag/webgl.html">WebGL</a></li>
+	    <li class="tag-4"><a href="http://wangdaiwei.github.io/tag/mapreduce.html">Mapreduce</a></li>
+	    <li class="tag-1"><a href="http://wangdaiwei.github.io/tag/csp.html">CSP</a></li>
+	    <li class="tag-4"><a href="http://wangdaiwei.github.io/tag/gecode.html">Gecode</a></li>
+	    <li class="tag-2"><a href="http://wangdaiwei.github.io/tag/cuhk.html">CUHK</a></li>
 </ul>
 
 

@@ -52,6 +52,7 @@
               <ul class="columns">
                 <li><a href="http://wangdaiwei.github.io">Home</a></li>
 
+                <li><a href="http://wangdaiwei.github.io/pages/about.html">About</a></li>
 
               </ul>
             </div>
@@ -72,14 +73,14 @@
 <address class="vcard author">By <a class="url fn" href="http://wangdaiwei.github.io/author/wangdaiwei.html">wangdaiwei</a></address>				                </footer><!-- /.post-info -->
 				                <div class="entry-content"> <h2>赛车坐标系</h2>
 <p>先不讨论场景和光线的配置，光是赛车本身涉及到的一些座标变换就足够复杂的了。先假设汽车模型摆放在坐标轴中心，如下图所示：</p>
-<p><img alt="Car icon" src="http://i62.tinypic.com/315200k.png" /></p>
+<p><img alt="Car icon" src="http://wangdaiwei.github.io/images/car.png" /></p>
 <p>一般情况下坐标系为右手系表示，即图中的红，绿，蓝分别代表x，y，z轴。假设汽车要向前移动的话，那么车身和车轮都需要沿着坐标系z轴作平移变换，同时前轮需要绕着前轮车轴为中心沿着x轴方向旋转变换。直白地说，就是车子在往前走的时候轮子也需要滚动。</p>
 <p>直行时的情况比较简单，但是如果需要旋转就比较麻烦了。先来考虑真实的情况，轮子在转动的时候不是一下子就旋转到位的，而是有个缓慢转动的过程，在转动的过程中车身也一直在前进。我们需要记录下来车身此时面对的方向以及轮子此时面对的方向。我们需要将坐标系拆分成两个部分，一个是车子和整个场景所在的世界坐标系，一个是以车子自身位中心的单位坐标系。我们需要在单位坐标系下对轮子做相对于车身的座标变换，在世界坐标系下更新车子当前的座标和面对的方向。</p>
 <h2>前期准备</h2>
 <p>实际上上面的内容Three.js里面的例子已经有现成的代码了，之前还花了好多时间研究诸如cannon.js，Physijs等等JavaSript物理引擎，出来的结果不是车子不停的打转就是动弹不得。还是先考虑没有物理引擎的情况吧。</p>
 <p>Car.js的文件可以在Three.js的github源码中找到，在example目录下的js文件夹里面。也可以在我的github里面这个demo的代码中找到，但是我稍微修改了一下里面的参数。</p>
 <p>首先我们需要将Three.js库以及Car.js添加到源文件当中</p>
-<div class="highlight"><pre><span class="nt">&lt;script</span> <span class="na">src=</span><span class="s">&#39;js/libs/three ...</span></pre></div> </div><!-- /.entry-content -->
+<div class="highlight"><pre><span class="nt">&lt;script </span><span class="na">src=</span><span class="s">&#39;js/libs/three ...</span></pre></div> </div><!-- /.entry-content -->
 
 								<div class="medium primary btn"><a href="http://wangdaiwei.github.io/posts/2014/May/31/threejssai-che-you-xi/" rel="bookmark" title="Permalink to Three.js赛车游戏">Read more <i class="icon-arrow-right"></i></a></div>
 
@@ -239,6 +240,7 @@
 <h4>Pages</h4>
 
  <ul>
+      <li><a href="http://wangdaiwei.github.io/pages/about.html">About</a></li>
   </ul>
 
 <h4>Categories</h4>
@@ -251,11 +253,11 @@
 
 <h4>Tags</h4>
 	<ul>
-	    <li class="tag-1"><a href="http://wangdaiwei.github.io/tag/csp.html">CSP</a></li>
-	    <li class="tag-4"><a href="http://wangdaiwei.github.io/tag/cuhk.html">CUHK</a></li>
-	    <li class="tag-4"><a href="http://wangdaiwei.github.io/tag/gecode.html">Gecode</a></li>
-	    <li class="tag-4"><a href="http://wangdaiwei.github.io/tag/mapreduce.html">Mapreduce</a></li>
 	    <li class="tag-2"><a href="http://wangdaiwei.github.io/tag/webgl.html">WebGL</a></li>
+	    <li class="tag-4"><a href="http://wangdaiwei.github.io/tag/mapreduce.html">Mapreduce</a></li>
+	    <li class="tag-1"><a href="http://wangdaiwei.github.io/tag/csp.html">CSP</a></li>
+	    <li class="tag-4"><a href="http://wangdaiwei.github.io/tag/gecode.html">Gecode</a></li>
+	    <li class="tag-2"><a href="http://wangdaiwei.github.io/tag/cuhk.html">CUHK</a></li>
 </ul>
 
 

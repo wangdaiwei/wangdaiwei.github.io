@@ -74,6 +74,7 @@
               <ul class="columns">
                 <li><a href="http://wangdaiwei.github.io">Home</a></li>
 
+                <li><a href="http://wangdaiwei.github.io/pages/about.html">About</a></li>
 
               </ul>
             </div>
@@ -119,12 +120,12 @@
 <div class="highlight"><pre><span class="nt">&lt;html&gt;</span>
     <span class="nt">&lt;head&gt;</span>
         <span class="nt">&lt;title&gt;</span>My first Three.js app<span class="nt">&lt;/title&gt;</span>
-        <span class="nt">&lt;style&gt;</span>canvas { width: 100%; height: 100% }<span class="nt">&lt;/style&gt;</span>
+        <span class="nt">&lt;style&gt;canvas</span> <span class="p">{</span> <span class="k">width</span><span class="o">:</span> <span class="m">100</span><span class="o">%</span><span class="p">;</span> <span class="k">height</span><span class="o">:</span> <span class="m">100</span><span class="o">%</span> <span class="p">}</span><span class="nt">&lt;/style&gt;</span>
     <span class="nt">&lt;/head&gt;</span>
     <span class="nt">&lt;body&gt;</span>
-        <span class="nt">&lt;script</span> <span class="na">src=</span><span class="s">&quot;js/three.min.js&quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
+        <span class="nt">&lt;script </span><span class="na">src=</span><span class="s">&quot;js/three.min.js&quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
         <span class="nt">&lt;script&gt;</span>
-            // Our Javascript will go here.
+            <span class="c1">// Our Javascript will go here.</span>
         <span class="nt">&lt;/script&gt;</span>
     <span class="nt">&lt;/body&gt;</span>
 <span class="nt">&lt;/html&gt;</span>
@@ -133,12 +134,12 @@
 
 <h2>创建场景</h2>
 <p>接下来我们要在script标签里面创建我们的场景，我们需要获取到网页窗口的大小然后告诉给渲染器</p>
-<div class="highlight"><pre><span class="n">var</span> <span class="n">scene</span> <span class="o">=</span> <span class="n">new</span> <span class="n">THREE</span><span class="p">.</span><span class="n">Scene</span><span class="p">();</span>
-<span class="n">var</span> <span class="n">camera</span> <span class="o">=</span> <span class="n">new</span> <span class="n">THREE</span><span class="p">.</span><span class="n">PerspectiveCamera</span><span class="p">(</span> <span class="mi">75</span><span class="p">,</span> <span class="n">window</span><span class="p">.</span><span class="n">innerWidth</span> <span class="o">/</span> <span class="n">window</span><span class="p">.</span><span class="n">innerHeight</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mi">1000</span> <span class="p">);</span>
+<div class="highlight"><pre><span class="kd">var</span> <span class="nx">scene</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">THREE</span><span class="p">.</span><span class="nx">Scene</span><span class="p">();</span>
+<span class="kd">var</span> <span class="nx">camera</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">THREE</span><span class="p">.</span><span class="nx">PerspectiveCamera</span><span class="p">(</span> <span class="mi">75</span><span class="p">,</span> <span class="nb">window</span><span class="p">.</span><span class="nx">innerWidth</span> <span class="o">/</span> <span class="nb">window</span><span class="p">.</span><span class="nx">innerHeight</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mi">1000</span> <span class="p">);</span>
 
-<span class="n">var</span> <span class="n">renderer</span> <span class="o">=</span> <span class="n">new</span> <span class="n">THREE</span><span class="p">.</span><span class="n">WebGLRenderer</span><span class="p">();</span>
-<span class="n">renderer</span><span class="p">.</span><span class="n">setSize</span><span class="p">(</span> <span class="n">window</span><span class="p">.</span><span class="n">innerWidth</span><span class="p">,</span> <span class="n">window</span><span class="p">.</span><span class="n">innerHeight</span> <span class="p">);</span>
-<span class="n">document</span><span class="p">.</span><span class="n">body</span><span class="p">.</span><span class="n">appendChild</span><span class="p">(</span> <span class="n">renderer</span><span class="p">.</span><span class="n">domElement</span> <span class="p">);</span>
+<span class="kd">var</span> <span class="nx">renderer</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">THREE</span><span class="p">.</span><span class="nx">WebGLRenderer</span><span class="p">();</span>
+<span class="nx">renderer</span><span class="p">.</span><span class="nx">setSize</span><span class="p">(</span> <span class="nb">window</span><span class="p">.</span><span class="nx">innerWidth</span><span class="p">,</span> <span class="nb">window</span><span class="p">.</span><span class="nx">innerHeight</span> <span class="p">);</span>
+<span class="nb">document</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">appendChild</span><span class="p">(</span> <span class="nx">renderer</span><span class="p">.</span><span class="nx">domElement</span> <span class="p">);</span>
 </pre></div>
 
 
@@ -147,12 +148,12 @@
 <p>第三个和第四个值分别表示近平面和远平面的距离，这两个值决定了小于和大于多少的距离的物体会被剔除出视野外。近平面一般都设置得比较小，但绝对不能是零，因为当计算物体大小得时候是按照和Camera原点的距离比值计算的，当无限接近于Camera原点的时候物体的大小会变成无穷大。</p>
 <p>渲染器需要知道它需要渲染的窗口大小，因此在这里设置成整个网页窗口。我们需要把设置好的元素加入到html里面。</p>
 <p>接下来让我们创建一个立方体：</p>
-<div class="highlight"><pre><span class="n">var</span> <span class="n">geometry</span> <span class="o">=</span> <span class="n">new</span> <span class="n">THREE</span><span class="p">.</span><span class="n">CubeGeometry</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">);</span>
-<span class="n">var</span> <span class="n">material</span> <span class="o">=</span> <span class="n">new</span> <span class="n">THREE</span><span class="p">.</span><span class="n">MeshBasicMaterial</span><span class="p">(</span> <span class="p">{</span> <span class="n">color</span><span class="o">:</span> <span class="mh">0x00ff00</span> <span class="p">}</span> <span class="p">);</span>
-<span class="n">var</span> <span class="n">cube</span> <span class="o">=</span> <span class="n">new</span> <span class="n">THREE</span><span class="p">.</span><span class="n">Mesh</span><span class="p">(</span> <span class="n">geometry</span><span class="p">,</span> <span class="n">material</span> <span class="p">);</span>
-<span class="n">scene</span><span class="p">.</span><span class="n">add</span><span class="p">(</span> <span class="n">cube</span> <span class="p">);</span>
+<div class="highlight"><pre><span class="kd">var</span> <span class="nx">geometry</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">THREE</span><span class="p">.</span><span class="nx">CubeGeometry</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">material</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">THREE</span><span class="p">.</span><span class="nx">MeshBasicMaterial</span><span class="p">(</span> <span class="p">{</span> <span class="nx">color</span><span class="o">:</span> <span class="mh">0x00ff00</span> <span class="p">}</span> <span class="p">);</span>
+<span class="kd">var</span> <span class="nx">cube</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">THREE</span><span class="p">.</span><span class="nx">Mesh</span><span class="p">(</span> <span class="nx">geometry</span><span class="p">,</span> <span class="nx">material</span> <span class="p">);</span>
+<span class="nx">scene</span><span class="p">.</span><span class="nx">add</span><span class="p">(</span> <span class="nx">cube</span> <span class="p">);</span>
 
-<span class="n">camera</span><span class="p">.</span><span class="n">position</span><span class="p">.</span><span class="n">z</span> <span class="o">=</span> <span class="mi">5</span><span class="p">;</span>
+<span class="nx">camera</span><span class="p">.</span><span class="nx">position</span><span class="p">.</span><span class="nx">z</span> <span class="o">=</span> <span class="mi">5</span><span class="p">;</span>
 </pre></div>
 
 
@@ -171,48 +172,48 @@
 <p>requestAnimationFram函数会在用户切换到其他页面时停止刷新当前页面。</p>
 <h2>让立方体动起来</h2>
 <p>这时候打开网页，看到的只是在黑色背景里面一个绿色的正方形。因为是正对着立方体看的，所以看不出有任何的3D效果。我们可以让立方体动起来观察它，在render函数里面加入：</p>
-<div class="highlight"><pre><span class="n">cube</span><span class="p">.</span><span class="n">rotation</span><span class="p">.</span><span class="n">x</span> <span class="o">+=</span> <span class="mf">0.1</span><span class="p">;</span>
-<span class="n">cube</span><span class="p">.</span><span class="n">rotation</span><span class="p">.</span><span class="n">y</span> <span class="o">+=</span> <span class="mf">0.1</span><span class="p">;</span>
+<div class="highlight"><pre><span class="nx">cube</span><span class="p">.</span><span class="nx">rotation</span><span class="p">.</span><span class="nx">x</span> <span class="o">+=</span> <span class="mf">0.1</span><span class="p">;</span>
+<span class="nx">cube</span><span class="p">.</span><span class="nx">rotation</span><span class="p">.</span><span class="nx">y</span> <span class="o">+=</span> <span class="mf">0.1</span><span class="p">;</span>
 </pre></div>
 
 
 <p>我们就可以在网页里看到一个疯狂转动的立方体了。</p>
 <h2>完整代码</h2>
-<div class="highlight"><pre><span class="nt">&lt;html&gt;</span>
-    <span class="nt">&lt;head&gt;</span>
-        <span class="nt">&lt;title&gt;</span>My first Three.js app<span class="nt">&lt;/title&gt;</span>
-        <span class="nt">&lt;style&gt;</span>canvas { width: 100%; height: 100% }<span class="nt">&lt;/style&gt;</span>
-    <span class="nt">&lt;/head&gt;</span>
-    <span class="nt">&lt;body&gt;</span>
-        <span class="nt">&lt;script</span> <span class="na">src=</span><span class="s">&quot;js/three.min.js&quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
-        <span class="nt">&lt;script&gt;</span>
-            var scene = new THREE.Scene();
-            var camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+<div class="highlight"><pre><span class="o">&lt;</span><span class="nx">html</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="nx">head</span><span class="o">&gt;</span>
+        <span class="o">&lt;</span><span class="nx">title</span><span class="o">&gt;</span><span class="nx">My</span> <span class="nx">first</span> <span class="nx">Three</span><span class="p">.</span><span class="nx">js</span> <span class="nx">app</span><span class="o">&lt;</span><span class="err">/title&gt;</span>
+        <span class="o">&lt;</span><span class="nx">style</span><span class="o">&gt;</span><span class="nx">canvas</span> <span class="p">{</span> <span class="nx">width</span><span class="o">:</span> <span class="mi">100</span><span class="o">%</span><span class="p">;</span> <span class="nx">height</span><span class="o">:</span> <span class="mi">100</span><span class="o">%</span> <span class="p">}</span><span class="o">&lt;</span><span class="err">/style&gt;</span>
+    <span class="o">&lt;</span><span class="err">/head&gt;</span>
+    <span class="o">&lt;</span><span class="nx">body</span><span class="o">&gt;</span>
+        <span class="o">&lt;</span><span class="nx">script</span> <span class="nx">src</span><span class="o">=</span><span class="s2">&quot;js/three.min.js&quot;</span><span class="o">&gt;&lt;</span><span class="err">/script&gt;</span>
+        <span class="o">&lt;</span><span class="nx">script</span><span class="o">&gt;</span>
+            <span class="kd">var</span> <span class="nx">scene</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">THREE</span><span class="p">.</span><span class="nx">Scene</span><span class="p">();</span>
+            <span class="kd">var</span> <span class="nx">camera</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">THREE</span><span class="p">.</span><span class="nx">PerspectiveCamera</span><span class="p">(</span><span class="mi">75</span><span class="p">,</span> <span class="nb">window</span><span class="p">.</span><span class="nx">innerWidth</span><span class="o">/</span><span class="nb">window</span><span class="p">.</span><span class="nx">innerHeight</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mi">1000</span><span class="p">);</span>
 
-            var renderer = new THREE.WebGLRenderer();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            document.body.appendChild(renderer.domElement);
+            <span class="kd">var</span> <span class="nx">renderer</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">THREE</span><span class="p">.</span><span class="nx">WebGLRenderer</span><span class="p">();</span>
+            <span class="nx">renderer</span><span class="p">.</span><span class="nx">setSize</span><span class="p">(</span><span class="nb">window</span><span class="p">.</span><span class="nx">innerWidth</span><span class="p">,</span> <span class="nb">window</span><span class="p">.</span><span class="nx">innerHeight</span><span class="p">);</span>
+            <span class="nb">document</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">appendChild</span><span class="p">(</span><span class="nx">renderer</span><span class="p">.</span><span class="nx">domElement</span><span class="p">);</span>
 
-            var geometry = new THREE.CubeGeometry(1,1,1);
-            var material = new THREE.MeshBasicMaterial({color: 0x00ff00});
-            var cube = new THREE.Mesh(geometry, material);
-            scene.add(cube);
+            <span class="kd">var</span> <span class="nx">geometry</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">THREE</span><span class="p">.</span><span class="nx">CubeGeometry</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">);</span>
+            <span class="kd">var</span> <span class="nx">material</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">THREE</span><span class="p">.</span><span class="nx">MeshBasicMaterial</span><span class="p">({</span><span class="nx">color</span><span class="o">:</span> <span class="mh">0x00ff00</span><span class="p">});</span>
+            <span class="kd">var</span> <span class="nx">cube</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">THREE</span><span class="p">.</span><span class="nx">Mesh</span><span class="p">(</span><span class="nx">geometry</span><span class="p">,</span> <span class="nx">material</span><span class="p">);</span>
+            <span class="nx">scene</span><span class="p">.</span><span class="nx">add</span><span class="p">(</span><span class="nx">cube</span><span class="p">);</span>
 
-            camera.position.z = 5;
+            <span class="nx">camera</span><span class="p">.</span><span class="nx">position</span><span class="p">.</span><span class="nx">z</span> <span class="o">=</span> <span class="mi">5</span><span class="p">;</span>
 
-            var render = function () {
-                requestAnimationFrame(render);
+            <span class="kd">var</span> <span class="nx">render</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+                <span class="nx">requestAnimationFrame</span><span class="p">(</span><span class="nx">render</span><span class="p">);</span>
 
-                cube.rotation.x += 0.1;
-                cube.rotation.y += 0.1;
+                <span class="nx">cube</span><span class="p">.</span><span class="nx">rotation</span><span class="p">.</span><span class="nx">x</span> <span class="o">+=</span> <span class="mf">0.1</span><span class="p">;</span>
+                <span class="nx">cube</span><span class="p">.</span><span class="nx">rotation</span><span class="p">.</span><span class="nx">y</span> <span class="o">+=</span> <span class="mf">0.1</span><span class="p">;</span>
 
-                renderer.render(scene, camera);
-            };
+                <span class="nx">renderer</span><span class="p">.</span><span class="nx">render</span><span class="p">(</span><span class="nx">scene</span><span class="p">,</span> <span class="nx">camera</span><span class="p">);</span>
+            <span class="p">};</span>
 
-            render();
-        <span class="nt">&lt;/script&gt;</span>
-    <span class="nt">&lt;/body&gt;</span>
-<span class="nt">&lt;/html&gt;</span>
+            <span class="nx">render</span><span class="p">();</span>
+        <span class="o">&lt;</span><span class="err">/script&gt;</span>
+    <span class="o">&lt;</span><span class="err">/body&gt;</span>
+<span class="o">&lt;</span><span class="err">/html&gt;</span>
 </pre></div>
 
 
@@ -251,6 +252,7 @@
 <h4>Pages</h4>
 
  <ul>
+      <li><a href="http://wangdaiwei.github.io/pages/about.html">About</a></li>
   </ul>
 
 <h4>Categories</h4>
@@ -263,11 +265,11 @@
 
 <h4>Tags</h4>
 	<ul>
-	    <li class="tag-1"><a href="http://wangdaiwei.github.io/tag/csp.html">CSP</a></li>
-	    <li class="tag-4"><a href="http://wangdaiwei.github.io/tag/cuhk.html">CUHK</a></li>
-	    <li class="tag-4"><a href="http://wangdaiwei.github.io/tag/gecode.html">Gecode</a></li>
-	    <li class="tag-4"><a href="http://wangdaiwei.github.io/tag/mapreduce.html">Mapreduce</a></li>
 	    <li class="tag-2"><a href="http://wangdaiwei.github.io/tag/webgl.html">WebGL</a></li>
+	    <li class="tag-4"><a href="http://wangdaiwei.github.io/tag/mapreduce.html">Mapreduce</a></li>
+	    <li class="tag-1"><a href="http://wangdaiwei.github.io/tag/csp.html">CSP</a></li>
+	    <li class="tag-4"><a href="http://wangdaiwei.github.io/tag/gecode.html">Gecode</a></li>
+	    <li class="tag-2"><a href="http://wangdaiwei.github.io/tag/cuhk.html">CUHK</a></li>
 </ul>
 
 
