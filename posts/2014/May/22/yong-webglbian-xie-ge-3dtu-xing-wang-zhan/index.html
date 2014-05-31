@@ -105,14 +105,13 @@
 <p>要想从最基本的开始写一个很简单的程序也不是那么容易的，写过OpenGL程序的人肯定都知道，想要显示一个简单的正方形也不是一句代码就能解决的事。你得设置好视角，然后你得定义绘图方式，标出矩形每一个顶点的位置，再转换到世界坐标系等等。总之就是一切都是计算机图形学基础的东西，要想好好用WebGL这个写一个能看的动画估计就得花好长时间了。所以我们还是用点现成的东西吧，目前关于WebGL可用的库有很多，比较常用的就是Three.js。</p>
 <h2>Three.js</h2>
 <p>这个库已经写的比较完整了，已经有很多很炫的例子，可以在<a href="http://threejs.org/">官网</a>上找到。有了Three.js，很多事情变简单了许多。绘制一个3D画面的步骤就变成这样了：</p>
-<div class="highlight"><pre><span class="mi">1</span><span class="err">、在</span><span class="n">HTML</span><span class="err">网页里配置基本的画布</span>
-<span class="mi">2</span><span class="err">、在画布上布置</span><span class="n">WebGL</span><span class="err">基本元素，比如立方体，球体等等</span>
-<span class="mi">3</span><span class="err">、配置好</span><span class="n">Camera</span><span class="err">（照相机？总觉得怪怪的）加入光源，着色器等等</span>
-<span class="mi">4</span><span class="err">、如果需要的话，加入对输入设备的检测，比如鼠标的点击动作</span>
-<span class="mi">5</span><span class="err">、最后就是加入一个计时器不断地刷新页面，比如动态显示水面的波纹，需要随时更新水平面上点的新的法面向量</span>
-</pre></div>
-
-
+<ol>
+<li>在HTML网页里配置基本的画布</li>
+<li>在画布上布置WebGL基本元素，比如立方体，球体等等</li>
+<li>配置好Camera（照相机？总觉得怪怪的）加入光源，着色器等等</li>
+<li>如果需要的话，加入对输入设备的检测，比如鼠标的点击动作</li>
+<li>最后就是加入一个计时器不断地刷新页面，比如动态显示水面的波纹，需要随时更新水平面上点的新的法面向量</li>
+</ol>
 <p>现在我们已经不需要考虑物体中每一个点的坐标变换，我们可以对整个物体进行旋转平移操作。我们也不需要编写着色器来为每一个顶点着色，设置缓存来计算每一顶点的RGB值。</p>
 <h2>前期准备</h2>
 <p>首先当然是把Three.js库下载下来，可以在Github上找到<a href="https://github.com/mrdoob/three.js/">https://github.com/mrdoob/three.js/</a>，也可一在<a href="http://threejs.org/docs/index.html#Manual/Introduction/Creating_a_scene">官网的教程</a>上下载到。我们只需要three.min.js文件就够了。</p>
@@ -264,11 +263,11 @@
 
 <h4>Tags</h4>
 	<ul>
+	    <li class="tag-1"><a href="http://wangdaiwei.github.io/tag/csp.html">CSP</a></li>
+	    <li class="tag-4"><a href="http://wangdaiwei.github.io/tag/cuhk.html">CUHK</a></li>
 	    <li class="tag-4"><a href="http://wangdaiwei.github.io/tag/gecode.html">Gecode</a></li>
 	    <li class="tag-4"><a href="http://wangdaiwei.github.io/tag/mapreduce.html">Mapreduce</a></li>
-	    <li class="tag-4"><a href="http://wangdaiwei.github.io/tag/cuhk.html">CUHK</a></li>
-	    <li class="tag-1"><a href="http://wangdaiwei.github.io/tag/csp.html">CSP</a></li>
-	    <li class="tag-4"><a href="http://wangdaiwei.github.io/tag/webgl.html">WebGL</a></li>
+	    <li class="tag-2"><a href="http://wangdaiwei.github.io/tag/webgl.html">WebGL</a></li>
 </ul>
 
 
