@@ -66,6 +66,27 @@
         <div class="eleven columns">
 		         <ol id="post-list">
 				        <li><article class="hentry">
+				                <header> <h2 class="entry-title"><a href="http://wangdaiwei.github.io/posts/2014/Jun/23/iostui-song-ji-zhi-de-yin-huan/" rel="bookmark" title="Permalink to iOS推送机制的隐患">iOS推送机制的隐患</a></h2> </header>
+				                <footer class="post-info">
+				                    <abbr class="published" title="2014-06-23T23:30:00"> Mon 23 June 2014 </abbr>
+<address class="vcard author">By <a class="url fn" href="http://wangdaiwei.github.io/author/wangdaiwei.html">wangdaiwei</a></address>				                </footer><!-- /.post-info -->
+				                <div class="entry-content"> <p>最近在研究iOS的推送系统，虽然配置起来稍微麻烦了一些，但是实现的原理并不复杂。简单来讲，就是通过app向APNS（Apple Push Notification Service）发送一个注册的请求，等到APNS同意之后便会发回设备的ID。在这个过程中，用户是可以一开始就选择是否接受推送通知的，如果用户不同意接收推送通知的话那么APNS也会收到用户的选择而不再发送推送通知，直到用户修改设置里面的选项。</p>
+<p>现在的一个问题就在于，推送通知在app没有打开的情况（或者打开以后进入后台）下，是iOS系统自己处理的。这就造成什么问题呢？应用在没有使用的情况下，是没有办法处理接收到的推送通知的。比如说一个新闻客户端，如果想在收到推送通知的时候弹出提示框显示最新的新闻，这是无法办到的，除非用户在设置里面将推送的显示修改成提示框形式。这样有一个好处就是，应用程序无需关注程序没有打开情况下对推送的信息的处理，同时也节省了系统的资源，不需要每一个程序都监视推送信息的接收。</p>
+<p>直到现在都一切正常，没有什么大问题。但是最近突然发现了一个很致命的安全隐患，就是<strong>假如用户卸载了app并且重新安装回去，即使用户不打开app也能收到之前用户的推送信息</strong>。这代表什么呢？假使用户卸载了应用程序但是没有删除用户信息，那么接下来的用户如果安装了同一个应用并且并没有登录进应用程序，那么他照样可以收到<strong>之前用户</strong>的推送信息。这是什么原因呢？iOS在卸载用户程序的时候不会告诉给应用程序提供者，因此假如该用户没有在新的设备上登录的话，那么应用程序提供者将会继续发送该用户的推送信息给该设备。当设备重新安装上app的时候，就会接收到之前用户的推送信息，只要这位用户还没有登录自己的账号 ...</p> </div><!-- /.entry-content -->
+
+								<div class="medium primary btn"><a href="http://wangdaiwei.github.io/posts/2014/Jun/23/iostui-song-ji-zhi-de-yin-huan/" rel="bookmark" title="Permalink to iOS推送机制的隐患">Read more <i class="icon-arrow-right"></i></a></div>
+
+
+
+								<div class="row tag-row">
+										<span>Tagged as : </span>
+											<a class="danger label" href="http://wangdaiwei.github.io/tag/ios.html">iOS</a>
+								</div>
+
+
+
+				        </article></li>
+				        <li><article class="hentry">
 				                <header> <h2 class="entry-title"><a href="http://wangdaiwei.github.io/posts/2014/May/31/zhong-da-zhe-nian/" rel="bookmark" title="Permalink to 中大这一年">中大这一年</a></h2> </header>
 				                <footer class="post-info">
 				                    <abbr class="published" title="2014-05-31T22:40:00"> Sat 31 May 2014 </abbr>
@@ -277,28 +298,6 @@
 
 
 				        </article></li>
-				        <li><article class="hentry">
-				                <header> <h2 class="entry-title"><a href="http://wangdaiwei.github.io/posts/2013/Dec/23/di-pian-ri-zhi/" rel="bookmark" title="Permalink to 第一篇日志">第一篇日志</a></h2> </header>
-				                <footer class="post-info">
-				                    <abbr class="published" title="2013-12-23T00:00:00"> Mon 23 December 2013 </abbr>
-<address class="vcard author">By <a class="url fn" href="http://wangdaiwei.github.io/author/wangdaiwei.html">wangdaiwei</a></address>				                </footer><!-- /.post-info -->
-				                <div class="entry-content"> <h3>写在前面</h3>
-<p>很早就想自己搭一个个人网站了，之前在Wix上写了一个，但是又没有动力去维护了。自从看到了论坛上的帖子有人在Github上搭了一个，一直想试一试，可惜上课的时候太忙了就没怎么开始。现在总算到了放假的时间，自己整一个感觉还挺不错的。有时间把自己之前做的乱七八糟的代码整理一下扔上来，顺便回顾一下以前的东西，希望能够有所帮助吧。至于说网站的名字，就是米兰的主场，想不出什么好名字就拿这个凑合了。</p>
-<h3>这是拿什么做的</h3>
-<p>既然是基于别人写的东西搭建的网站，原作者的文档还是放上来好一些吧。写的还是挺清楚的，不过Windows的用户就可能没有什么参考价值了。博客地址：<a href="http://www.lizherui.com/pages/2013/08/17/build_blog.html">一步一步打造Geek风格的技术博客</a>。同时另外一篇日志也比较有参考价值：<a href="http://terriyu.info/blog/posts/2013/07/pelican-setup/">How I setup Pelican</a>。</p>
-<h3>近期安排</h3>
-<p>这几天在北京闲逛，准备找几个老师学长聊聊。感觉在香港待了一段时间后回来节奏有点不适应了。有机会写一点关于香港学习生活的感悟吧。</p> </div><!-- /.entry-content -->
-
-								<div class="medium primary btn"><a href="http://wangdaiwei.github.io/posts/2013/Dec/23/di-pian-ri-zhi/" rel="bookmark" title="Permalink to 第一篇日志">Read more <i class="icon-arrow-right"></i></a></div>
-
-
-
-								<div class="row tag-row">
-								</div>
-
-
-
-				        </article></li>
 				</ol><!-- /#posts-list -->
 
         </div><!-- /.eleven.columns -->
@@ -316,16 +315,18 @@
 		<li><a href="http://wangdaiwei.github.io/category/life.html">Life</a></li>
 		<li><a href="http://wangdaiwei.github.io/category/misc.html">Misc</a></li>
 		<li><a href="http://wangdaiwei.github.io/category/study.html">Study</a></li>
+		<li><a href="http://wangdaiwei.github.io/category/tech.html">Tech</a></li>
 </ul>
 
 
 <h4>Tags</h4>
 	<ul>
 	    <li class="tag-1"><a href="http://wangdaiwei.github.io/tag/csp.html">CSP</a></li>
-	    <li class="tag-2"><a href="http://wangdaiwei.github.io/tag/cuhk.html">CUHK</a></li>
-	    <li class="tag-4"><a href="http://wangdaiwei.github.io/tag/mapreduce.html">Mapreduce</a></li>
-	    <li class="tag-4"><a href="http://wangdaiwei.github.io/tag/gecode.html">Gecode</a></li>
 	    <li class="tag-2"><a href="http://wangdaiwei.github.io/tag/webgl.html">WebGL</a></li>
+	    <li class="tag-2"><a href="http://wangdaiwei.github.io/tag/cuhk.html">CUHK</a></li>
+	    <li class="tag-4"><a href="http://wangdaiwei.github.io/tag/gecode.html">Gecode</a></li>
+	    <li class="tag-4"><a href="http://wangdaiwei.github.io/tag/ios.html">iOS</a></li>
+	    <li class="tag-4"><a href="http://wangdaiwei.github.io/tag/mapreduce.html">Mapreduce</a></li>
 </ul>
 
 
@@ -342,7 +343,8 @@
 </div> </div><!-- /.row -->
 
 <p class="paginator">
-    Page 1 / 1
+    Page 1 / 2
+        <a href="http://wangdaiwei.github.io/index2.html"><i class="icon-arrow-right"></i></a>
 </p>
 </section><!-- /#content -->
 

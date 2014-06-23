@@ -2,7 +2,7 @@
 <html lang="cn">
 <head>
 
-        <title>Wangdaiwei's San Siro - WebGL</title>
+        <title>Wangdaiwei's San Siro - iOS</title>
         <meta charset="utf-8" />
         <link href="http://wangdaiwei.github.io/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Wangdaiwei's San Siro Full Atom Feed" />
 
@@ -66,57 +66,21 @@
         <div class="eleven columns">
 		         <ol id="post-list">
 				        <li><article class="hentry">
-				                <header> <h2 class="entry-title"><a href="http://wangdaiwei.github.io/posts/2014/May/31/threejssai-che-you-xi/" rel="bookmark" title="Permalink to Three.js赛车游戏">Three.js赛车游戏</a></h2> </header>
+				                <header> <h2 class="entry-title"><a href="http://wangdaiwei.github.io/posts/2014/Jun/23/iostui-song-ji-zhi-de-yin-huan/" rel="bookmark" title="Permalink to iOS推送机制的隐患">iOS推送机制的隐患</a></h2> </header>
 				                <footer class="post-info">
-				                    <abbr class="published" title="2014-05-31T12:00:00"> Sat 31 May 2014 </abbr>
+				                    <abbr class="published" title="2014-06-23T23:30:00"> Mon 23 June 2014 </abbr>
 <address class="vcard author">By <a class="url fn" href="http://wangdaiwei.github.io/author/wangdaiwei.html">wangdaiwei</a></address>				                </footer><!-- /.post-info -->
-				                <div class="entry-content"> <h2>赛车坐标系</h2>
-<p>先不讨论场景和光线的配置，光是赛车本身涉及到的一些座标变换就足够复杂的了。先假设汽车模型摆放在坐标轴中心，如下图所示：</p>
-<p><img alt="Car icon" src="http://wangdaiwei.github.io/images/car.png" /></p>
-<p>一般情况下坐标系为右手系表示，即图中的红，绿，蓝分别代表x，y，z轴。假设汽车要向前移动的话，那么车身和车轮都需要沿着坐标系z轴作平移变换，同时前轮需要绕着前轮车轴为中心沿着x轴方向旋转变换。直白地说，就是车子在往前走的时候轮子也需要滚动。</p>
-<p>直行时的情况比较简单，但是如果需要旋转就比较麻烦了。先来考虑真实的情况，轮子在转动的时候不是一下子就旋转到位的，而是有个缓慢转动的过程，在转动的过程中车身也一直在前进。我们需要记录下来车身此时面对的方向以及轮子此时面对的方向。我们需要将坐标系拆分成两个部分，一个是车子和整个场景所在的世界坐标系，一个是以车子自身位中心的单位坐标系。我们需要在单位坐标系下对轮子做相对于车身的座标变换，在世界坐标系下更新车子当前的座标和面对的方向。</p>
-<h2>前期准备</h2>
-<p>实际上上面的内容Three.js里面的例子已经有现成的代码了，之前还花了好多时间研究诸如cannon.js，Physijs等等JavaSript物理引擎，出来的结果不是车子不停的打转就是动弹不得。还是先考虑没有物理引擎的情况吧。</p>
-<p>Car.js的文件可以在Three.js的github源码中找到，在example目录下的js文件夹里面。也可以在我的github里面这个demo的代码中找到，但是我稍微修改了一下里面的参数。</p>
-<p>首先我们需要将Three.js库以及Car.js添加到源文件当中</p>
-<div class="highlight"><pre><span class="nt">&lt;script </span><span class="na">src=</span><span class="s">&#39;js/libs/three ...</span></pre></div> </div><!-- /.entry-content -->
+				                <div class="entry-content"> <p>最近在研究iOS的推送系统，虽然配置起来稍微麻烦了一些，但是实现的原理并不复杂。简单来讲，就是通过app向APNS（Apple Push Notification Service）发送一个注册的请求，等到APNS同意之后便会发回设备的ID。在这个过程中，用户是可以一开始就选择是否接受推送通知的，如果用户不同意接收推送通知的话那么APNS也会收到用户的选择而不再发送推送通知，直到用户修改设置里面的选项。</p>
+<p>现在的一个问题就在于，推送通知在app没有打开的情况（或者打开以后进入后台）下，是iOS系统自己处理的。这就造成什么问题呢？应用在没有使用的情况下，是没有办法处理接收到的推送通知的。比如说一个新闻客户端，如果想在收到推送通知的时候弹出提示框显示最新的新闻，这是无法办到的，除非用户在设置里面将推送的显示修改成提示框形式。这样有一个好处就是，应用程序无需关注程序没有打开情况下对推送的信息的处理，同时也节省了系统的资源，不需要每一个程序都监视推送信息的接收。</p>
+<p>直到现在都一切正常，没有什么大问题。但是最近突然发现了一个很致命的安全隐患，就是<strong>假如用户卸载了app并且重新安装回去，即使用户不打开app也能收到之前用户的推送信息</strong>。这代表什么呢？假使用户卸载了应用程序但是没有删除用户信息，那么接下来的用户如果安装了同一个应用并且并没有登录进应用程序，那么他照样可以收到<strong>之前用户</strong>的推送信息。这是什么原因呢？iOS在卸载用户程序的时候不会告诉给应用程序提供者，因此假如该用户没有在新的设备上登录的话，那么应用程序提供者将会继续发送该用户的推送信息给该设备。当设备重新安装上app的时候，就会接收到之前用户的推送信息，只要这位用户还没有登录自己的账号 ...</p> </div><!-- /.entry-content -->
 
-								<div class="medium primary btn"><a href="http://wangdaiwei.github.io/posts/2014/May/31/threejssai-che-you-xi/" rel="bookmark" title="Permalink to Three.js赛车游戏">Read more <i class="icon-arrow-right"></i></a></div>
+								<div class="medium primary btn"><a href="http://wangdaiwei.github.io/posts/2014/Jun/23/iostui-song-ji-zhi-de-yin-huan/" rel="bookmark" title="Permalink to iOS推送机制的隐患">Read more <i class="icon-arrow-right"></i></a></div>
 
 
 
 								<div class="row tag-row">
 										<span>Tagged as : </span>
-											<a class="danger label" href="http://wangdaiwei.github.io/tag/webgl.html">WebGL</a>
-								</div>
-
-
-
-				        </article></li>
-				        <li><article class="hentry">
-				                <header> <h2 class="entry-title"><a href="http://wangdaiwei.github.io/posts/2014/May/22/yong-webglbian-xie-ge-3dtu-xing-wang-zhan/" rel="bookmark" title="Permalink to 用WebGL编写一个3D图形网站">用WebGL编写一个3D图形网站</a></h2> </header>
-				                <footer class="post-info">
-				                    <abbr class="published" title="2014-05-22T00:00:00"> Thu 22 May 2014 </abbr>
-<address class="vcard author">By <a class="url fn" href="http://wangdaiwei.github.io/author/wangdaiwei.html">wangdaiwei</a></address>				                </footer><!-- /.post-info -->
-				                <div class="entry-content"> <p>自己的学生生涯也差不多结束了，感觉是时候把自己这一年来学的东西做一个总结，顺便回顾一下以前做过的东西。这几天多动动手，争取写多一些内容。</p>
-<h2>WebGL简单介绍</h2>
-<p>如果有听说过OpenGL的话，那么WebGL理解起来就不是那么困难了，简单来说其实就是OpenGL在HTML5的JavaScript移植版。要是OpenGL没听说过，那就把它当成是一个在网页上的图形引擎吧。我们可以在HTML5的网页上创建Canvas（画布）来配置我们的WebGL绘制图形的过程。</p>
-<p>要想从最基本的开始写一个很简单的程序也不是那么容易的，写过OpenGL程序的人肯定都知道，想要显示一个简单的正方形也不是一句代码就能解决的事。你得设置好视角，然后你得定义绘图方式，标出矩形每一个顶点的位置，再转换到世界坐标系等等。总之就是一切都是计算机图形学基础的东西，要想好好用WebGL这个写一个能看的动画估计就得花好长时间了。所以我们还是用点现成的东西吧，目前关于WebGL可用的库有很多，比较常用的就是Three.js。</p>
-<h2>Three.js</h2>
-<p>这个库已经写的比较完整了，已经有很多很炫的例子，可以在<a href="http://threejs.org/">官网</a>上找到。有了Three.js，很多事情变简单了许多。绘制一个3D画面的步骤就变成这样了：</p>
-<ol>
-<li>在HTML网页里配置基本的画布</li>
-<li>在画布上布置WebGL基本元素，比如立方体，球体等等</li>
-<li>配置好Camera（照相机？总觉得怪怪的）加入光源，着色器等等</li>
-<li>如果需要的话，加入对输入设备的检测，比如鼠标的点击动作 ...</li></ol> </div><!-- /.entry-content -->
-
-								<div class="medium primary btn"><a href="http://wangdaiwei.github.io/posts/2014/May/22/yong-webglbian-xie-ge-3dtu-xing-wang-zhan/" rel="bookmark" title="Permalink to 用WebGL编写一个3D图形网站">Read more <i class="icon-arrow-right"></i></a></div>
-
-
-
-								<div class="row tag-row">
-										<span>Tagged as : </span>
-											<a class="danger label" href="http://wangdaiwei.github.io/tag/webgl.html">WebGL</a>
+											<a class="danger label" href="http://wangdaiwei.github.io/tag/ios.html">iOS</a>
 								</div>
 
 
