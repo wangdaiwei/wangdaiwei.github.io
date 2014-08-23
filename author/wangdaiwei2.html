@@ -66,6 +66,31 @@
         <div class="eleven columns">
 		         <ol id="post-list">
 				        <li><article class="hentry">
+				                <header> <h2 class="entry-title"><a href="http://wangdaiwei.github.io/posts/2014/Jan/07/constraint-satisfaction-problem/" rel="bookmark" title="Permalink to Constraint Satisfaction Problem">Constraint Satisfaction Problem</a></h2> </header>
+				                <footer class="post-info">
+				                    <abbr class="published" title="2014-01-07T00:00:00"> Tue 07 January 2014 </abbr>
+<address class="vcard author">By <a class="url fn" href="http://wangdaiwei.github.io/author/wangdaiwei.html">wangdaiwei</a></address>				                </footer><!-- /.post-info -->
+				                <div class="entry-content"> <h2>CSP概述</h2>
+<p>作为对学了一个学期的内容的总结，在这里稍微介绍一下Constraint Satisfaction Problem（CSP）吧。这个题目我也不知道中文叫做什么，也许叫做有约束问题解决模型比较合适。虽然我没有学过数学建模，但或许他们之间是比较类似的，CSP的中心思想就是针对一个特定的问题建立模型，然后解决它。解决问题的具体实现就叫做Constraint Solver（约束处理机）。我认为这个方法还是很实际的，它可以帮助我们快速建立起对一个问题的数学角度的认识，同时在编程方面也有很多的函数库，比如说IBM的CPLEX。这里只介绍Gecode的使用，当然官方文档对于Gecode已经解释的很详细了，我在这里只想梳理一下整个建立模型的步骤和稍微介绍一下Gecode。</p>
+<h2>Gecode</h2>
+<p>Gecode是一个用于解决约束问题的基于C++的函数库，覆盖了Windows，Linux，Mac三个平台。在2012年以前长期霸占着MiniZinc比赛的头名，就现在来说当然性能也不差，而且也一直有更新。关键的是，相比起CPLEX，它是免费开源的。官方主页：<a href="http://www.gecode.org/">Gecode</a>。</p>
+<h2>问题描述</h2>
+<p>在CSP概念里，问题被表示成几个部分：变量（Variable），值域（Domain），约束（Constraint）。变量是问题模型中所有可以改变的量，可以是一组数，也可以是未知的属性，比如说香港的某一所高校 ...</p> </div><!-- /.entry-content -->
+
+								<div class="medium primary btn"><a href="http://wangdaiwei.github.io/posts/2014/Jan/07/constraint-satisfaction-problem/" rel="bookmark" title="Permalink to Constraint Satisfaction Problem">Read more <i class="icon-arrow-right"></i></a></div>
+
+
+
+								<div class="row tag-row">
+										<span>Tagged as : </span>
+											<a class="danger label" href="http://wangdaiwei.github.io/tag/gecode.html">Gecode</a>
+											<a class="danger label" href="http://wangdaiwei.github.io/tag/csp.html">CSP</a>
+								</div>
+
+
+
+				        </article></li>
+				        <li><article class="hentry">
 				                <header> <h2 class="entry-title"><a href="http://wangdaiwei.github.io/posts/2013/Dec/23/di-pian-ri-zhi/" rel="bookmark" title="Permalink to 第一篇日志">第一篇日志</a></h2> </header>
 				                <footer class="post-info">
 				                    <abbr class="published" title="2013-12-23T00:00:00"> Mon 23 December 2013 </abbr>
@@ -109,12 +134,12 @@
 
 <h4>Tags</h4>
 	<ul>
-	    <li class="tag-2"><a href="http://wangdaiwei.github.io/tag/cuhk.html">CUHK</a></li>
-	    <li class="tag-4"><a href="http://wangdaiwei.github.io/tag/ios.html">iOS</a></li>
+	    <li class="tag-2"><a href="http://wangdaiwei.github.io/tag/ios.html">iOS</a></li>
 	    <li class="tag-1"><a href="http://wangdaiwei.github.io/tag/csp.html">CSP</a></li>
 	    <li class="tag-2"><a href="http://wangdaiwei.github.io/tag/webgl.html">WebGL</a></li>
-	    <li class="tag-4"><a href="http://wangdaiwei.github.io/tag/mapreduce.html">Mapreduce</a></li>
 	    <li class="tag-4"><a href="http://wangdaiwei.github.io/tag/gecode.html">Gecode</a></li>
+	    <li class="tag-2"><a href="http://wangdaiwei.github.io/tag/cuhk.html">CUHK</a></li>
+	    <li class="tag-4"><a href="http://wangdaiwei.github.io/tag/mapreduce.html">Mapreduce</a></li>
 </ul>
 
 

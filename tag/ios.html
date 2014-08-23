@@ -66,6 +66,41 @@
         <div class="eleven columns">
 		         <ol id="post-list">
 				        <li><article class="hentry">
+				                <header> <h2 class="entry-title"><a href="http://wangdaiwei.github.io/posts/2014/Aug/23/ioschuang-jian-yan-se-de-ge-jian-dan-fang-fa/" rel="bookmark" title="Permalink to iOS创建颜色的一个简单方法">iOS创建颜色的一个简单方法</a></h2> </header>
+				                <footer class="post-info">
+				                    <abbr class="published" title="2014-08-23T17:00:00"> Sat 23 August 2014 </abbr>
+<address class="vcard author">By <a class="url fn" href="http://wangdaiwei.github.io/author/wangdaiwei.html">wangdaiwei</a></address>				                </footer><!-- /.post-info -->
+				                <div class="entry-content"> <p>Objective-C里面通过RGB值的方式创建一个UIColor的对象很简单，只需要传递给指定的RGB值就可以了：</p>
+<div class="highlight"><pre><span class="o">+</span> <span class="p">(</span><span class="n">UIColor</span> <span class="o">*</span><span class="p">)</span><span class="n">colorWithRed</span><span class="o">:</span><span class="p">(</span><span class="n">CGFloat</span><span class="p">)</span><span class="n">red</span> <span class="n">green</span><span class="o">:</span><span class="p">(</span><span class="n">CGFloat</span><span class="p">)</span><span class="n">green</span> <span class="n">blue</span><span class="o">:</span><span class="p">(</span><span class="n">CGFloat</span><span class="p">)</span><span class="n">blue</span> <span class="n">alpha</span><span class="o">:</span><span class="p">(</span><span class="n">CGFloat</span><span class="p">)</span><span class="n">alpha</span>
+</pre></div>
+
+
+<p>不过这个方法有一个问题，就是这里面的RGB值是用0～1.0的浮点值来表示的，对于常用的0～255的表示方式以及类似FFFFFF的十六进制表示方式并没有对应的方法。我比较喜欢通过Category的方式扩展UIColor，只需要在工程里面添加一个类就行了：</p>
+<p><strong>UIColor+CreateMethods.h</strong></p>
+<div class="highlight"><pre><span class="c1">//</span>
+<span class="c1">//  UIColor+CreateMethods.h</span>
+<span class="c1">//</span>
+
+<span class="cp">#import &lt;UIKit/UIKit.h&gt;</span>
+
+<span class="k">@interface</span> <span class="nc">UIColor</span> <span class="nl">(CreateMethods)</span>
+
+<span class="c1">// wrapper for [UIColor colorWithRed:green:blue:alpha:]</span>
+<span class="c1">// values must be in range 0 - 255 ...</span></pre></div> </div><!-- /.entry-content -->
+
+								<div class="medium primary btn"><a href="http://wangdaiwei.github.io/posts/2014/Aug/23/ioschuang-jian-yan-se-de-ge-jian-dan-fang-fa/" rel="bookmark" title="Permalink to iOS创建颜色的一个简单方法">Read more <i class="icon-arrow-right"></i></a></div>
+
+
+
+								<div class="row tag-row">
+										<span>Tagged as : </span>
+											<a class="danger label" href="http://wangdaiwei.github.io/tag/ios.html">iOS</a>
+								</div>
+
+
+
+				        </article></li>
+				        <li><article class="hentry">
 				                <header> <h2 class="entry-title"><a href="http://wangdaiwei.github.io/posts/2014/Jun/23/iostui-song-ji-zhi-de-yin-huan/" rel="bookmark" title="Permalink to iOS推送机制的隐患">iOS推送机制的隐患</a></h2> </header>
 				                <footer class="post-info">
 				                    <abbr class="published" title="2014-06-23T23:30:00"> Mon 23 June 2014 </abbr>
@@ -108,12 +143,12 @@
 
 <h4>Tags</h4>
 	<ul>
-	    <li class="tag-2"><a href="http://wangdaiwei.github.io/tag/cuhk.html">CUHK</a></li>
-	    <li class="tag-4"><a href="http://wangdaiwei.github.io/tag/ios.html">iOS</a></li>
+	    <li class="tag-2"><a href="http://wangdaiwei.github.io/tag/ios.html">iOS</a></li>
 	    <li class="tag-1"><a href="http://wangdaiwei.github.io/tag/csp.html">CSP</a></li>
 	    <li class="tag-2"><a href="http://wangdaiwei.github.io/tag/webgl.html">WebGL</a></li>
-	    <li class="tag-4"><a href="http://wangdaiwei.github.io/tag/mapreduce.html">Mapreduce</a></li>
 	    <li class="tag-4"><a href="http://wangdaiwei.github.io/tag/gecode.html">Gecode</a></li>
+	    <li class="tag-2"><a href="http://wangdaiwei.github.io/tag/cuhk.html">CUHK</a></li>
+	    <li class="tag-4"><a href="http://wangdaiwei.github.io/tag/mapreduce.html">Mapreduce</a></li>
 </ul>
 
 
