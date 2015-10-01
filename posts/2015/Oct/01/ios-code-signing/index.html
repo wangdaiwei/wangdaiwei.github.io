@@ -2,10 +2,10 @@
 <html lang="cn">
 <head>
 
-        <title>第一篇日志</title>
+        <title>iOS Code Signing</title>
         <meta charset="utf-8" />
         <link href="http://wangdaiwei.github.io/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="CODEFever Full Atom Feed" />
-        <link href="http://wangdaiwei.github.io/feeds/misc.atom.xml" type="application/atom+xml" rel="alternate" title="CODEFever Categories Atom Feed" />
+        <link href="http://wangdaiwei.github.io/feeds/study.atom.xml" type="application/atom+xml" rel="alternate" title="CODEFever Categories Atom Feed" />
 
 
         <!-- Mobile viewport optimized: j.mp/bplateviewport -->
@@ -87,31 +87,72 @@
 
             <header>
               <h2 class="entry-title">
-                <a href="http://wangdaiwei.github.io/posts/2013/Dec/23/di-pian-ri-zhi/" rel="bookmark"
-                   title="Permalink to 第一篇日志">第一篇日志</a></h2>
+                <a href="http://wangdaiwei.github.io/posts/2015/Oct/01/ios-code-signing/" rel="bookmark"
+                   title="Permalink to iOS Code Signing">iOS Code Signing</a></h2>
            
             </header>
             <footer class="post-info">
-              <abbr class="published" title="2013-12-23T00:00:00">
-                Mon 23 December 2013
+              <abbr class="published" title="2015-10-01T11:03:00">
+                Thu 01 October 2015
               </abbr>
               <address class="vcard author">
                 By <a class="url fn" href="http://wangdaiwei.github.io/author/wangdaiwei.html">wangdaiwei</a>
               </address>
             </footer><!-- /.post-info -->
             <div class="entry-content">
-              <h3>写在前面</h3>
-<p>很早就想自己搭一个个人网站了，之前在Wix上写了一个，但是又没有动力去维护了。自从看到了论坛上的帖子有人在Github上搭了一个，一直想试一试，可惜上课的时候太忙了就没怎么开始。现在总算到了放假的时间，自己整一个感觉还挺不错的。有时间把自己之前做的乱七八糟的代码整理一下扔上来，顺便回顾一下以前的东西，希望能够有所帮助吧。</p>
-<h3>这是拿什么做的</h3>
-<p>既然是基于别人写的东西搭建的网站，原作者的文档还是放上来好一些吧。写的还是挺清楚的，不过Windows的用户就可能没有什么参考价值了。博客地址：<a href="http://www.lizherui.com/pages/2013/08/17/build_blog.html">一步一步打造Geek风格的技术博客</a>。同时另外一篇日志也比较有参考价值：<a href="http://terriyu.info/blog/posts/2013/07/pelican-setup/">How I setup Pelican</a>。</p>
-<h3>近期安排</h3>
-<p>这几天在北京闲逛，准备找几个老师学长聊聊。感觉在香港待了一段时间后回来节奏有点不适应了。有机会写一点关于香港学习生活的感悟吧。</p>
+              <p>最近回顾一下iOS的开发，有一些基本的问题都没有搞清楚，于是打算边学习边整理。Code Signing这个问题算是一个很基本的问题了，但是有时候却经常在处理这个问题上面花时间，毕竟这是真机调试必须经过的一关。</p>
+<p>以下内容参考<a href="http://www.raywenderlich.com/2915/ios-code-signing-under-the-hood">raywenderlich.com</a>，也可以直接看中文翻译版：<a href="http://www.cnblogs.com/andyque/archive/2011/08/30/2159086.html">（译）iOS Code Signing: 解惑</a>。</p>
+<h2>Code Signing为何如此重要</h2>
+<p>为了让app能够顺利在手机上安装，code signing是必不可少的一步。如果只想在模拟器或者越狱过的手机上跑，那倒是可以完全忽略这个问题。除此之外，真机测试，发布企业版，发布App Store版本，都需要经过code signing。当然了，有时候在Xcode里面点击一下Fix Issue按钮，Xcode会自动帮你解决问题。在某些情况下，Xcode也会失灵，这种情况绝大多数是因为没有安装开发者私钥。</p>
+<h2>公钥和私钥</h2>
+<p>那么什么是密钥呢？当然就是别人不知道的东西了。用来给内容加密的东西都可以称作密钥。</p>
+<p>在密码学领域，存在着两种加密方式，一种是对称加密，另一种是非对称加密。像我们熟悉的莫尔斯电码用的就是对称加密，只需要知道一种加密方式，就既能用来加密内容，也能用来解读被加密过的内容。</p>
+<p>非对称加密就厉害多了，它的加密方式和解读方式是不一样的。存在两个密钥，一个叫公钥，大家都能看得到，一个叫私钥，只有少数几个人能看到。有时候，我们希望别人知道某些内容是自己发布的，于是就可以用自己的名字附到内容上，然后用私钥加密一下，看到内容的人就可以拿公钥解密，发现里面有你的名字，就知道这个内容是你发布的了。Code signing用的就是这个原理，确保每个app安装到手机上的时候的确是属于开发这个app的开发者。</p>
+<h2>Code Signing对象</h2>
+<p>乍一看，那似乎问题应该很简单，Apple只要给每个发布者注册一个私钥，然后大家都用统一的公钥，自然不就能区分出那个app是谁开发的了吗？当然，注重隐私的Apple公司肯定不会止步于此，还有更多的安全措施包含在里面。比如说每个开发者账号只能登记100个设备，于是设备信息也需要包括在内。或者是，app需要访问Push notification的功能，这时候安装证书又变了，同时app里面包含权限访问信息的字段也需要修改。总而言之，Apple是不会放心给程序员一个简单的开发环境的。</p>
+<p>先把整体结构图放上来</p>
+<p><img alt="Code Signing Objects" src="http://cdn1.raywenderlich.com/wp-content/uploads/2011/04/CodeSigningObjects.jpg" /></p>
+<h4>Private Key</h4>
+<p>这是最关键的一个信息，你可以在本地自己创建一个私钥，新创建的开发者证书都需要有一个私钥对应。如果没有，可以通过钥匙串Keychain Access提交一个申请获取。</p>
+<p><img alt="Private key" src="http://cdn5.raywenderlich.com/wp-content/uploads/2011/04/KeychainAccess.jpg" /></p>
+<p>每台电脑也会生成不一样的私钥，所以如果需要共同开发并且共用一个账号，那么就需要把私钥导出来，在每一台开发机上都安装。离开了私钥，证书无法给app签名。</p>
+<h4>Device</h4>
+<p>Apple拿什么区分不同的设备？就是用UDID。这是一个长度为40的16进制串，每个设备都不一样。这个UDID有什么作用呢？在发布Ad Hoc版本的app时候，设备会检查是否在code signing里面包含的设备列表里面，如果不是，就不能安装。</p>
+<p>有时候我们在用新手机做开发的时候，也会弹出code signing不能用的情况。这种时候就是没有把新手机添加到设备列表里的缘故，可以让Xcode自动添加，也可以获取到UDID之后再到开发者中心里面手动输入UDID。需要注意100台设备的限制，超过的话就无法添加了，而且还不能逐个删除以前的设备，只能一次性全部设备清除，一年只能清楚一次。Apple在这方面真是太细心了。</p>
+<h4>Certificates</h4>
+<p>每台开发机都会有一个开发者证书，标示这个app是属于你开发的。这个证书全称是：<em>Apple Worldwide Developer Relations Certification Authority Certificate</em></p>
+<p>简单来讲，就是先从Keychain Access中生成一个Certificate Signing Request，然后在开发者中心将这个东西发给apple之后就可以在本地存储成一对公钥和私钥保存证书。</p>
+<p>没有私钥的证书，安装在其他电脑上是没有用的，必须和私钥一起安装。</p>
+<h4>Application</h4>
+<p>就是一串DNS标识符，可以分成产品名称和公司标识符，合起来就是Bundle Identifier。可以在Info.plist里面修改。如下图：</p>
+<p><img alt="info.plist" src="http://cdn5.raywenderlich.com/wp-content/uploads/2011/04/InfoPlistBundleIdentifier.jpg" /></p>
+<h4>Provisioning Profile</h4>
+<p>把上面提到的东西合到一起，就是熟悉的Provisioning Profile了。</p>
+<ol>
+<li>App ID</li>
+<li>可以运行的设备列表(UDID)</li>
+<li>可以信赖的开发者(Certificate)</li>
+</ol>
+<p>把这三个东西都放在一个文件里面，这就是Provisioning Profile。发布app的时候，会把profile一起拷贝获取，或者是一起打包成ipa文件。</p>
+<p>所以，私钥和开发者证书都是在钥匙串访问Keychain Access里面管理的，而Provisioning Profile则是在Xcode里面管理。</p>
+<h4>正确的使用姿势</h4>
+<p>现在假设我们还没有现成的Provisioning Profile，我们一步一笔来创建一个。</p>
+<ol>
+<li>检查自己的公钥私钥对，方便起见，起个好名字。</li>
+<li>用<em>钥匙串访问Keychain Access</em>创建一个certificate request，下载并且安装，记得检查一下是否安装成功。</li>
+<li>下载<em>Apple Worldwide Developer Relations Certification Authority Certificate</em>并且安装。</li>
+<li>检查自己的项目Bundle ID，然后在<em>Provisioning Portal</em>里面创建对应的App ID。</li>
+<li>把所有需要测试的设备的UDID添加到<em>Provisioning Portal</em>里面，也可以不先这么做，之后让Xcode自己做，不过那样就得重新生成一次证书了。</li>
+<li>接下来你就可以在<em>Provisioning Portal</em>里面创建自己的Provisioning Profile了。</li>
+<li>下载，安装，你需要在Xcode里面检查一下是否成功安装了，在账户信息一览能看到所有和账户关联的Provisioning Profiles。</li>
+</ol>
+<p>Done！记得备份自己的私钥，以便在不同的电脑上开发。</p>
             </div><!-- /.entry-content -->
             <div class="comments">
               <h3>Comments</h3>
               <div id="disqus_thread"></div>
               <script type="text/javascript">
-                var disqus_identifier = "posts/2013/Dec/23/di-pian-ri-zhi/";
+                var disqus_identifier = "posts/2015/Oct/01/ios-code-signing/";
                 (function() {
                 var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
                 dsq.src = 'http://wangdaiwei.disqus.com/embed.js';

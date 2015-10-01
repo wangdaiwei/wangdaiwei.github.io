@@ -66,6 +66,32 @@
         <div class="eleven columns">
 		         <ol id="post-list">
 				        <li><article class="hentry">
+				                <header> <h2 class="entry-title"><a href="http://wangdaiwei.github.io/posts/2015/Oct/01/ios-code-signing/" rel="bookmark" title="Permalink to iOS Code Signing">iOS Code Signing</a></h2> </header>
+				                <footer class="post-info">
+				                    <abbr class="published" title="2015-10-01T11:03:00"> Thu 01 October 2015 </abbr>
+<address class="vcard author">By <a class="url fn" href="http://wangdaiwei.github.io/author/wangdaiwei.html">wangdaiwei</a></address>				                </footer><!-- /.post-info -->
+				                <div class="entry-content"> <p>最近回顾一下iOS的开发，有一些基本的问题都没有搞清楚，于是打算边学习边整理。Code Signing这个问题算是一个很基本的问题了，但是有时候却经常在处理这个问题上面花时间，毕竟这是真机调试必须经过的一关。</p>
+<p>以下内容参考<a href="http://www.raywenderlich.com/2915/ios-code-signing-under-the-hood">raywenderlich.com</a>，也可以直接看中文翻译版：<a href="http://www.cnblogs.com/andyque/archive/2011/08/30/2159086.html">（译）iOS Code Signing: 解惑</a>。</p>
+<h2>Code Signing为何如此重要</h2>
+<p>为了让app能够顺利在手机上安装，code signing是必不可少的一步。如果只想在模拟器或者越狱过的手机上跑，那倒是可以完全忽略这个问题。除此之外，真机测试，发布企业版，发布App Store版本，都需要经过code signing。当然了，有时候在Xcode里面点击一下Fix Issue按钮，Xcode会自动帮你解决问题。在某些情况下，Xcode也会失灵，这种情况绝大多数是因为没有安装开发者私钥。</p>
+<h2>公钥和私钥</h2>
+<p>那么什么是密钥呢？当然就是别人不知道的东西了。用来给内容加密的东西都可以称作密钥。</p>
+<p>在密码学领域，存在着两种加密方式，一种是对称加密，另一种是非对称加密。像我们熟悉的莫尔斯电码用的就是对称加密，只需要知道一种加密方式，就既能用来加密内容，也能用来解读被加密过的内容。</p>
+<p>非对称加密就厉害多了 ...</p> </div><!-- /.entry-content -->
+
+								<div class="medium primary btn"><a href="http://wangdaiwei.github.io/posts/2015/Oct/01/ios-code-signing/" rel="bookmark" title="Permalink to iOS Code Signing">Read more <i class="icon-arrow-right"></i></a></div>
+
+
+
+								<div class="row tag-row">
+										<span>Tagged as : </span>
+											<a class="danger label" href="http://wangdaiwei.github.io/tag/ios.html">iOS</a>
+								</div>
+
+
+
+				        </article></li>
+				        <li><article class="hentry">
 				                <header> <h2 class="entry-title"><a href="http://wangdaiwei.github.io/posts/2014/Aug/23/ioschuang-jian-yan-se-de-ge-jian-dan-fang-fa/" rel="bookmark" title="Permalink to iOS创建颜色的一个简单方法">iOS创建颜色的一个简单方法</a></h2> </header>
 				                <footer class="post-info">
 				                    <abbr class="published" title="2014-08-23T17:00:00"> Sat 23 August 2014 </abbr>
@@ -143,12 +169,12 @@
 
 <h4>Tags</h4>
 	<ul>
-	    <li class="tag-2"><a href="http://wangdaiwei.github.io/tag/ios.html">iOS</a></li>
 	    <li class="tag-1"><a href="http://wangdaiwei.github.io/tag/csp.html">CSP</a></li>
-	    <li class="tag-2"><a href="http://wangdaiwei.github.io/tag/webgl.html">WebGL</a></li>
-	    <li class="tag-4"><a href="http://wangdaiwei.github.io/tag/gecode.html">Gecode</a></li>
 	    <li class="tag-2"><a href="http://wangdaiwei.github.io/tag/cuhk.html">CUHK</a></li>
 	    <li class="tag-4"><a href="http://wangdaiwei.github.io/tag/mapreduce.html">Mapreduce</a></li>
+	    <li class="tag-2"><a href="http://wangdaiwei.github.io/tag/webgl.html">WebGL</a></li>
+	    <li class="tag-1"><a href="http://wangdaiwei.github.io/tag/ios.html">iOS</a></li>
+	    <li class="tag-4"><a href="http://wangdaiwei.github.io/tag/gecode.html">Gecode</a></li>
 </ul>
 
 
