@@ -39,22 +39,22 @@
 <p>分形这个概念在自然界中很常见，因此这个系列非常适合想创造一个真实的户外环境的所有的美术和游戏开发人员。</p>
 <h2>简介</h2>
 <p>如果你以非常近的距离观察球体，你会发现当距离足够近的时候，它的平面变成平的了。我们在地球上每天都是经历着的，但这个原理在任何一个别的物体上面都生效。即使是最精细的多面体，离得足够近时也依然是平面构成的。简而言之，球体只是在一定的距离观察之下才能称之为球体。虽然这个显而易见，但还是有一些特别的几何体超出了这个概念的范围。这种特殊的形状能够包含无限层次的精细度，我们称之为<strong>分形</strong>。不管我们以多么近的距离去观察它，它的细节丝毫不会损失，反而会越来越多。更为奇特的是，有一些分形会具有一种叫做自相似性的属性。观察某一部分的细节时，会发现这一部分具有跟整体一样的复杂度。这种类似于初始化的图形通常可以通过迭代一个无限次的步骤来创建。</p>
-<p><img alt="Koch Snowflake" src="img/Fractals/170px-Von_Koch_curve.gif"></p>
+<p><img alt="Koch Snowflake" src="http://wangdaiwei.github.io/img/Fractals/170px-Von_Koch_curve.gif"></p>
 <p>这段动画演示的是<a href="https://en.wikipedia.org/wiki/Koch_snowflake">科赫曲线</a>，一个非常简单的分形的例子。它是分步创建的，每一次循环都添加了额外的复杂度。第一步是创建一个三角形，接下来的每一步都用到了上一步创建的三条边，并给每一条边放置一个三角形，创建出一个六角星的形状。科赫曲线的概念只存在在无限循环里面。很明显的，它有无限程度的细节，创建它的步骤本身就在创建无限的复杂度。每一个循环都在一定程度上扩展了曲线的周长，完整的科赫曲线因此具有无限的周长。</p>
 <h2>分形的维度</h2>
 <p>有一些特别的原因给分形起了这个名字。不过了解这一点之前，我们先来看看维度的概念。我们都很熟悉线是1维的，平面是2维的，而具有体积的物体是3维的。但是为什么线是1维的呢？原因是对于1维的物体而言，任何一个点在1维的物体里都只需要一个数字来表示。你可以想象一下这样一个场景：你住在一个街上，每一个房子都有一个唯一的房号标识，换句话说，可以是房子到这条街的开始位置的位置。给出一个固定的原点，每一个1维的线上都能用到原点的距离表示。</p>
-<p><img alt="Dimension of Fractals" src="img/Fractals/fractal-1.png"></p>
+<p><img alt="Dimension of Fractals" src="http://wangdaiwei.github.io/img/Fractals/fractal-1.png"></p>
 <p>对于2维的形状也是如此，这时需要用两个坐标来表示每一个点的位置。不管是处在笛卡尔坐标系还是极坐标系，都需要用到两个数字来表示位置。</p>
 <p>回头再来看看上一节介绍的科赫曲线，我们希望它能够像1维的物体一样，因为它是由线条构成的。然而，一个数字并不足够表示出位于曲线上的点，因为在科赫曲线上的任意两点的距离都是相同的：无穷大。可是它也不是2维的，因为它并没有表面的概念，但也不能用一个坐标表示点的位置。它的维度介于1到2之间。科赫曲线有一个不是整数的维度，而是分数，我们也称之为有<strong>分形维度</strong>。</p>
 <h2>分析复杂度</h2>
-<p><img alt="Hausdorff Dimension" src="img/Fractals/220px-Fractaldimensionexample.png"></p>
+<p><img alt="Hausdorff Dimension" src="http://wangdaiwei.github.io/img/Fractals/220px-Fractaldimensionexample.png"></p>
 <p>有不同的方式去衡量分形的唯独，这取决于分形是如何构造的。在科赫曲线这个例子中，用到了<a href="https://en.wikipedia.org/wiki/Hausdorff_dimension">豪斯多夫维数</a>概念。这是分形在每一个循环中长度，面积或者体积的变化的测度。当你给一条线加上一倍，它的长度也加倍了。当你给矩形的边长加上一倍，它的面积增长了3倍。当你给立方体的边长加上一倍，它的体积增长了8倍。因此，它们的豪斯多夫维数分别是1，2，3。</p>
-<p>创建科赫曲线时，我们需要把每一段曲线取三分之一，然后复制四份，这个过程在每一个新的线段创建时都会重复。所有的分形都用同样的循环步骤生成，根据定义，分形豪斯多夫维数等于%\log_3 4 \approx 1.26%<img alt="Result" src="img/Fractals/quicklatex.png">。</p>
-<p><img alt="Dimension Detail" src="img/Fractals/220px-Blueklineani2.gif"></p>
+<p>创建科赫曲线时，我们需要把每一段曲线取三分之一，然后复制四份，这个过程在每一个新的线段创建时都会重复。所有的分形都用同样的循环步骤生成，根据定义，分形豪斯多夫维数等于<img alt="Result" src="http://wangdaiwei.github.io/img/Fractals/quicklatex.png">。</p>
+<p><img alt="Dimension Detail" src="http://wangdaiwei.github.io/img/Fractals/220px-Blueklineani2.gif"></p>
 <p>维基百科有一些非常有趣的分形，<a href="https://en.wikipedia.org/wiki/List_of_fractals_by_Hausdorff_dimension">点击查看</a>。</p>
 <h2>结论</h2>
 <p>这篇文章是快速简明地介绍了分形的概念，下一篇文章将会探讨为什么自然中分形出现的概率如此之大，并且它们为什么如此重要。</p>
-<p><img alt="Fractal" src="img/Fractals/fractal_10.jpg"></p>                </article>
+<p><img alt="Fractal" src="http://wangdaiwei.github.io/img/Fractals/fractal_10.jpg"></p>                </article>
             </aside><!-- /#featured -->
         <section id="extras" class="body">
                 <div class="blogroll">
