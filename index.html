@@ -1,10 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh">
 <head>
         <meta charset="utf-8" />
         <title>DaiweiWang@Github</title>
-        <link rel="stylesheet" href="http://wangdaiwei.github.io/theme/css/main.css" />
-        <link href="http://wangdaiwei.github.io/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="DaiweiWang@Github Atom Feed" />
+        <link rel="stylesheet" href="/theme/css/main.css" />
 
         <!--[if IE]>
             <script src="https://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
@@ -13,48 +12,59 @@
 
 <body id="index" class="home">
         <header id="banner" class="body">
-                <h1><a href="http://wangdaiwei.github.io/">DaiweiWang@Github </a></h1>
+                <h1><a href="/">DaiweiWang@Github </a></h1>
                 <nav><ul>
-                    <li><a href="http://wangdaiwei.github.io/category/science">Science</a></li>
+                    <li><a href="/category/unity.html">Unity</a></li>
                 </ul></nav>
         </header><!-- /#banner -->
 
             <aside id="featured" class="body">
                 <article>
-                    <h1 class="entry-title"><a href="http://wangdaiwei.github.io/posts/2017/01/Fractal/">Fractal</a></h1>
+                    <h1 class="entry-title"><a href="/uguide-ji-chu-zhi-shi.html">UGUI的基础知识</a></h1>
 <footer class="post-info">
-        <abbr class="published" title="2017-01-07T00:00:00+08:00">
-                Published: 2017 January 07 Sat
+        <abbr class="published" title="2018-01-21T17:00:00+08:00">
+                Published: 周日 21 一月 2018
+        </abbr>
+		<br />
+        <abbr class="modified" title="2018-01-21T17:00:00+08:00">
+                Updated: 周日 21 一月 2018
         </abbr>
 
         <address class="vcard author">
-                By                         <a class="url fn" href="http://wangdaiwei.github.io/author/daiwei-wang.html">Daiwei Wang</a>
+                By                         <a class="url fn" href="/author/daiwei-wang.html">Daiwei Wang</a>
         </address>
-<p>In <a href="http://wangdaiwei.github.io/category/science">Science</a>.</p>
-<p>tags: <a href="http://wangdaiwei.github.io/tag/math/">Math</a> </p>
-</footer><!-- /.post-info --><p>这篇文章来自Alan Zucconi的博客，原文链接：
-<a href="http://www.alanzucconi.com/2016/08/17/fractals-101/">http://www.alanzucconi.com/2016/08/17/fractals-101/</a></p>
-<p>Alan还写了很多关于Unity教程的博客，写的都非常好，推荐大家去看一下。</p>
-<p>这个系列的教程将会说明分形这个概念，为什么它很重要以及我们能够从中学到什么。本文将浅要地概述迭代分形和分形维度的概念。</p>
-<p>分形这个概念在自然界中很常见，因此这个系列非常适合想创造一个真实的户外环境的所有的美术和游戏开发人员。</p>
-<h2>简介</h2>
-<p>如果你以非常近的距离观察球体，你会发现当距离足够近的时候，它的平面变成平的了。我们在地球上每天都是经历着的，但这个原理在任何一个别的物体上面都生效。即使是最精细的多面体，离得足够近时也依然是平面构成的。简而言之，球体只是在一定的距离观察之下才能称之为球体。虽然这个显而易见，但还是有一些特别的几何体超出了这个概念的范围。这种特殊的形状能够包含无限层次的精细度，我们称之为<strong>分形</strong>。不管我们以多么近的距离去观察它，它的细节丝毫不会损失，反而会越来越多。更为奇特的是，有一些分形会具有一种叫做自相似性的属性。观察某一部分的细节时，会发现这一部分具有跟整体一样的复杂度。这种类似于初始化的图形通常可以通过迭代一个无限次的步骤来创建。</p>
-<p><img alt="Koch Snowflake" src="http://wangdaiwei.github.io/img/Fractals/170px-Von_Koch_curve.gif"></p>
-<p>这段动画演示的是<a href="https://en.wikipedia.org/wiki/Koch_snowflake">科赫曲线</a>，一个非常简单的分形的例子。它是分步创建的，每一次循环都添加了额外的复杂度。第一步是创建一个三角形，接下来的每一步都用到了上一步创建的三条边，并给每一条边放置一个三角形，创建出一个六角星的形状。科赫曲线的概念只存在在无限循环里面。很明显的，它有无限程度的细节，创建它的步骤本身就在创建无限的复杂度。每一个循环都在一定程度上扩展了曲线的周长，完整的科赫曲线因此具有无限的周长。</p>
-<h2>分形的维度</h2>
-<p>有一些特别的原因给分形起了这个名字。不过了解这一点之前，我们先来看看维度的概念。我们都很熟悉线是1维的，平面是2维的，而具有体积的物体是3维的。但是为什么线是1维的呢？原因是对于1维的物体而言，任何一个点在1维的物体里都只需要一个数字来表示。你可以想象一下这样一个场景：你住在一个街上，每一个房子都有一个唯一的房号标识，换句话说，可以是房子到这条街的开始位置的位置。给出一个固定的原点，每一个1维的线上都能用到原点的距离表示。</p>
-<p><img alt="Dimension of Fractals" src="http://wangdaiwei.github.io/img/Fractals/fractal-1.png"></p>
-<p>对于2维的形状也是如此，这时需要用两个坐标来表示每一个点的位置。不管是处在笛卡尔坐标系还是极坐标系，都需要用到两个数字来表示位置。</p>
-<p>回头再来看看上一节介绍的科赫曲线，我们希望它能够像1维的物体一样，因为它是由线条构成的。然而，一个数字并不足够表示出位于曲线上的点，因为在科赫曲线上的任意两点的距离都是相同的：无穷大。可是它也不是2维的，因为它并没有表面的概念，但也不能用一个坐标表示点的位置。它的维度介于1到2之间。科赫曲线有一个不是整数的维度，而是分数，我们也称之为有<strong>分形维度</strong>。</p>
-<h2>分析复杂度</h2>
-<p><img alt="Hausdorff Dimension" src="http://wangdaiwei.github.io/img/Fractals/220px-Fractaldimensionexample.png"></p>
-<p>有不同的方式去衡量分形的唯独，这取决于分形是如何构造的。在科赫曲线这个例子中，用到了<a href="https://en.wikipedia.org/wiki/Hausdorff_dimension">豪斯多夫维数</a>概念。这是分形在每一个循环中长度，面积或者体积的变化的测度。当你给一条线加上一倍，它的长度也加倍了。当你给矩形的边长加上一倍，它的面积增长了3倍。当你给立方体的边长加上一倍，它的体积增长了8倍。因此，它们的豪斯多夫维数分别是1，2，3。</p>
-<p>创建科赫曲线时，我们需要把每一段曲线取三分之一，然后复制四份，这个过程在每一个新的线段创建时都会重复。所有的分形都用同样的循环步骤生成，根据定义，分形豪斯多夫维数等于<img alt="Result" src="http://wangdaiwei.github.io/img/Fractals/quicklatex.png">。</p>
-<p><img alt="Dimension Detail" src="http://wangdaiwei.github.io/img/Fractals/220px-Blueklineani2.gif"></p>
-<p>维基百科有一些非常有趣的分形，<a href="https://en.wikipedia.org/wiki/List_of_fractals_by_Hausdorff_dimension">点击查看</a>。</p>
-<h2>结论</h2>
-<p>这篇文章是快速简明地介绍了分形的概念，下一篇文章将会探讨为什么自然中分形出现的概率如此之大，并且它们为什么如此重要。</p>
-<p><img alt="Fractal" src="http://wangdaiwei.github.io/img/Fractals/fractal_10.jpg"></p>                </article>
+<p>In <a href="/category/unity.html">Unity</a>.</p>
+<p>tags: <a href="/tag/unity.html">Unity</a> <a href="/tag/ui.html">UI</a> <a href="/tag/optimization.html">Optimization</a> </p>
+</footer><!-- /.post-info --><p>最近在处理UGUI的效率问题，所以顺便翻译一下Unity UI的相关文档，以供查阅。</p>
+<h1>基本概念</h1>
+<p><em>Canvas</em>（画布）组件是所有UI元素都需要用到的类，通过 <em>Canvas</em> 组件，UI元素的顶点和面得以映射到世界坐标系中，并根据 <em>Canvas</em> 的设置决定如何绘制。一个很神奇的地方就是，当创建一个 <em>Canvas</em> 元素的时候，场景里会出现一个非常硕大的平面，相对于普通的模型而言非常巨大。</p>
+<p><img alt="image_1" src="/img/canvas_and_cube.png"></p>
+<p>图中红框里的立方体的边长是1米，旁边巨大的白色细框是 <em>Canvas</em> 的范围，可以看到比立方体大很多。造成这个现象的原因是UI在 <em>Scene View</em> 视图中绘制时，用的是1个单位对应1个像素绘制的，而在世界坐标系中，1个单位就代表了1米。</p>
+<p><em>Canvas</em> 并不是每一帧都在刷新，而是当底下的UI元素需要<strong>重新合批(rebatch)</strong>的时候才刷新，这个时候 <em>Canvas</em> 被认为是<strong>有修改的(dirty)</strong>。另外，顶点和面的几何信息并不是 <em>Canvas</em> 直接收集的，而是通过 <em>Canvas Renderer</em> 组件。Unity官方文档强烈建议自定义的UI组件物体上面一定要添加一个 <em>Canvas Renderer</em> 组件。</p>
+<p>另外两个比较重要的基础组件包括 <em>Graphic</em> 组件和 <em>Layout</em> 组件，前者是所有UI元素的基类，提供基本的绘制接口；后者是调整UI布局的组件，只跟 <em>RectTransforms</em> 相关，并不依赖于 <em>Graphic</em> 相关的类。它们共同的特征就是在 <em>CanvasUpdateRegistry</em> 类中注册了监听事件，当 <em>CanvasUpdateRegistry</em> 收到一个 <em>willRenderCanvases</em> <strong>重建(rebuild)</strong>事件的时候，会调用相应的函数处理。</p>
+<p>UGUI渲染时有一个特性，就是所有的UI元素都是在Transparent队列中绘制的，并且不会因为被别的UI元素遮挡而剔除出渲染队列。因此，如果有全屏的UI存在的话，如果有被盖住的UI，最好是将其设为Disabled状态，或者是将Canvas组件设为Disabled，后者的效率更高一些，但是无法处理特效的显隐。</p>
+<h1>UI的合批操作</h1>
+<p>在UI重建之前，需要对Canvas组件下的UI元素进行合批，以便按照深度排序，并收集各个UI的Mesh信息。正常情况下，合批操作只会在Canvas被设为Dirty的情况下需要处理。能够导致这种情况的时间包括但不限于子元素的移动，缩放，添加，删除等操作。文档中还提到一点，收集的Mesh信息只包括Canvas底下包含的Canvas Renderer组件传回来的信息，并且不包括子Canvas。因此，如果在同一个界面中有一部分元素需要频繁修改，另一部分保持不变的情况，可以考虑给经常修改的部分单独再添加一个Canvas组件。</p>
+<h1>UI的重建过程</h1>
+<p>完成了合批操作之后，Unity会发送渲染指令给图形管道，以便完成Mesh的重建过程。如前文所述，<em>CanvasUpdateRegistry</em> 负责处理重建过程，关联的函数是<em>PerformUpdate</em>。</p>
+<p>一共有三个步骤：</p>
+<div class="highlight"><pre><span></span>1、被置为dirty状态的Layout组件需要通过ICanvasElement.Rebuild方法重建子UI元素的布局；
+2、ClippingRegistry.Cull方法会根据UI元素的大小裁剪掉所有注册的可裁剪元素；
+3、被置为dirty状态的Graphic元素会重建它们的图形元素（前者Graphic指Graphic类相关的元素，后者的图形指的是实际显示的图形）
+</pre></div>
+
+
+<p>可以看出重建过程分为两部分，分别是Layout重建和Graphic重建。Layout重建有三个部分，分别是PreLayout，Layout和PostLayout。Graphic重建有两个部分，分别是PreRender和LatePreRender。</p>
+<p>Layout重建之前，首先需要按照层级关系进行排序，考虑到更接近根物体的Layout可能会影响到层级更低的物体的Layout，因此必须先计算它们的Layout。因此，UGUI采用的是根据层级关系排序，层级越高则在Layout列表里的位置就越靠前。</p>
+<p>当 <em>ICanvasElement</em> 组件的 <em>Rebuild</em> 方法被调用时，Graphic类会在PreRender这一步检查有哪些Graphic元素需要被重建。需要重建的情况包括：</p>
+<div class="highlight"><pre><span></span>顶点数据被置为dirty (比如RectTransform修改了大小)，则mesh信息会被重建
+材质数据被置为dirty (比如组件的材质球或者贴图被修改了)，则同一个GameObject上挂在的Canvas Renderer的材质也会被更新
+</pre></div>
+
+
+<p>Graphic重建并不需要有任何的顺序，因此也不需要对输入进行排序。</p>
+<p>参考文档：</p>
+<p>https://unity3d.com/cn/learn/tutorials/topics/best-practices/fundamentals-unity-ui</p>                </article>
             </aside><!-- /#featured -->
         <section id="extras" class="body">
                 <div class="blogroll">
@@ -65,13 +75,6 @@
                             <li><a href="http://jinja.pocoo.org/">Jinja2</a></li>
                         </ul>
                 </div><!-- /.blogroll -->
-                <div class="social">
-                        <h2>social</h2>
-                        <ul>
-                            <li><a href="http://wangdaiwei.github.io/feeds/all.atom.xml" type="application/atom+xml" rel="alternate">atom feed</a></li>
-
-                        </ul>
-                </div><!-- /.social -->
         </section><!-- /#extras -->
 
         <footer id="contentinfo" class="body">
