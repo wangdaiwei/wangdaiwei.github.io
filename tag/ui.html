@@ -3,25 +3,22 @@
 <head>
         <meta charset="utf-8" />
         <title>DaiweiWang@Github - UI</title>
-        <link rel="stylesheet" href="/theme/css/main.css" />
-        <link href="/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="DaiweiWang@Github Atom Feed" />
-
-        <!--[if IE]>
-            <script src="https://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-        <![endif]-->
+        <link rel="stylesheet" href="https://wangdaiwei.github.io/theme/css/main.css" />
+        <link href="https://wangdaiwei.github.io/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="DaiweiWang@Github Atom Feed" />
 </head>
 
 <body id="index" class="home">
         <header id="banner" class="body">
-                <h1><a href="/">DaiweiWang@Github </a></h1>
+                <h1><a href="https://wangdaiwei.github.io/">DaiweiWang@Github </a></h1>
                 <nav><ul>
-                    <li><a href="/category/unity.html">Unity</a></li>
+                    <li><a href="https://wangdaiwei.github.io/category/science.html">Science</a></li>
+                    <li><a href="https://wangdaiwei.github.io/category/unity.html">Unity</a></li>
                 </ul></nav>
         </header><!-- /#banner -->
 
             <aside id="featured" class="body">
                 <article>
-                    <h1 class="entry-title"><a href="/uguide-ji-chu-zhi-shi.html">UGUI的基础知识</a></h1>
+                    <h1 class="entry-title"><a href="https://wangdaiwei.github.io/uguide-ji-chu-zhi-shi.html">UGUI的基础知识</a></h1>
 <footer class="post-info">
         <abbr class="published" title="2018-01-21T17:00:00+08:00">
                 Published: 周日 21 一月 2018
@@ -32,14 +29,14 @@
         </abbr>
 
         <address class="vcard author">
-                By                         <a class="url fn" href="/author/daiwei-wang.html">Daiwei Wang</a>
+                By                         <a class="url fn" href="https://wangdaiwei.github.io/author/daiwei-wang.html">Daiwei Wang</a>
         </address>
-<p>In <a href="/category/unity.html">Unity</a>.</p>
-<p>tags: <a href="/tag/unity.html">Unity</a> <a href="/tag/ui.html">UI</a> <a href="/tag/optimization.html">Optimization</a> </p>
+<p>In <a href="https://wangdaiwei.github.io/category/unity.html">Unity</a>.</p>
+<p>tags: <a href="https://wangdaiwei.github.io/tag/unity.html">Unity</a> <a href="https://wangdaiwei.github.io/tag/ui.html">UI</a> <a href="https://wangdaiwei.github.io/tag/optimization.html">Optimization</a> </p>
 </footer><!-- /.post-info --><p>最近在处理UGUI的效率问题，所以顺便翻译一下Unity UI的相关文档，以供查阅。</p>
 <h1>基本概念</h1>
 <p><em>Canvas</em>（画布）组件是所有UI元素都需要用到的类，通过 <em>Canvas</em> 组件，UI元素的顶点和面得以映射到世界坐标系中，并根据 <em>Canvas</em> 的设置决定如何绘制。一个很神奇的地方就是，当创建一个 <em>Canvas</em> 元素的时候，场景里会出现一个非常硕大的平面，相对于普通的模型而言非常巨大。</p>
-<p><img alt="image_1" src="/img/canvas_and_cube.png"></p>
+<p><img alt="image_1" src="https://wangdaiwei.github.io/img/canvas_and_cube.png"></p>
 <p>图中红框里的立方体的边长是1米，旁边巨大的白色细框是 <em>Canvas</em> 的范围，可以看到比立方体大很多。造成这个现象的原因是UI在 <em>Scene View</em> 视图中绘制时，用的是1个单位对应1个像素绘制的，而在世界坐标系中，1个单位就代表了1米。</p>
 <p><em>Canvas</em> 并不是每一帧都在刷新，而是当底下的UI元素需要<strong>重新合批(rebatch)</strong>的时候才刷新，这个时候 <em>Canvas</em> 被认为是<strong>有修改的(dirty)</strong>。另外，顶点和面的几何信息并不是 <em>Canvas</em> 直接收集的，而是通过 <em>Canvas Renderer</em> 组件。Unity官方文档强烈建议自定义的UI组件物体上面一定要添加一个 <em>Canvas Renderer</em> 组件。</p>
 <p>另外两个比较重要的基础组件包括 <em>Graphic</em> 组件和 <em>Layout</em> 组件，前者是所有UI元素的基类，提供基本的绘制接口；后者是调整UI布局的组件，只跟 <em>RectTransforms</em> 相关，并不依赖于 <em>Graphic</em> 相关的类。它们共同的特征就是在 <em>CanvasUpdateRegistry</em> 类中注册了监听事件，当 <em>CanvasUpdateRegistry</em> 收到一个 <em>willRenderCanvases</em> <strong>重建(rebuild)</strong>事件的时候，会调用相应的函数处理。</p>
@@ -65,7 +62,7 @@
 
 <p>Graphic重建并不需要有任何的顺序，因此也不需要对输入进行排序。</p>
 <p>参考文档：</p>
-<p>https://unity3d.com/cn/learn/tutorials/topics/best-practices/fundamentals-unity-ui</p><p>There are <a href="/uguide-ji-chu-zhi-shi.html#disqus_thread">comments</a>.</p>                </article>
+<p>https://unity3d.com/cn/learn/tutorials/topics/best-practices/fundamentals-unity-ui</p><p>There are <a href="https://wangdaiwei.github.io/uguide-ji-chu-zhi-shi.html#disqus_thread">comments</a>.</p>                </article>
             </aside><!-- /#featured -->
         <section id="extras" class="body">
                 <div class="blogroll">
@@ -79,7 +76,7 @@
                 <div class="social">
                         <h2>social</h2>
                         <ul>
-                            <li><a href="/feeds/all.atom.xml" type="application/atom+xml" rel="alternate">atom feed</a></li>
+                            <li><a href="https://wangdaiwei.github.io/feeds/all.atom.xml" type="application/atom+xml" rel="alternate">atom feed</a></li>
 
                         </ul>
                 </div><!-- /.social -->
