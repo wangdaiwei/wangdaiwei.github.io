@@ -2,7 +2,7 @@
 <html lang="zh">
 <head>
         <meta charset="utf-8" />
-        <title>UV采样值域问题</title>
+        <title>DaiweiWang@Github - DirectX Texture</title>
         <link rel="stylesheet" href="https://wangdaiwei.github.io/theme/css/main.css" />
         <link href="https://wangdaiwei.github.io/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="DaiweiWang@Github Atom Feed" />
 </head>
@@ -11,20 +11,15 @@
         <header id="banner" class="body">
                 <h1><a href="https://wangdaiwei.github.io/">DaiweiWang@Github </a></h1>
                 <nav><ul>
-                    <li class="active"><a href="https://wangdaiwei.github.io/category/graphics.html">Graphics</a></li>
+                    <li><a href="https://wangdaiwei.github.io/category/graphics.html">Graphics</a></li>
                     <li><a href="https://wangdaiwei.github.io/category/math.html">Math</a></li>
                     <li><a href="https://wangdaiwei.github.io/category/unity.html">Unity</a></li>
                 </ul></nav>
         </header><!-- /#banner -->
-<section id="content" class="body">
-  <article>
-    <header>
-      <h1 class="entry-title">
-        <a href="https://wangdaiwei.github.io/uvcai-yang-zhi-yu-wen-ti.html" rel="bookmark"
-           title="Permalink to UV采样值域问题">UV采样值域问题</a></h1>
-    </header>
 
-    <div class="entry-content">
+            <aside id="featured" class="body">
+                <article>
+                    <h1 class="entry-title"><a href="https://wangdaiwei.github.io/uvcai-yang-zhi-yu-wen-ti.html">UV采样值域问题</a></h1>
 <footer class="post-info">
         <abbr class="published" title="2018-12-09T13:35:00+08:00">
                 Published: 周日 09 十二月 2018
@@ -39,7 +34,7 @@
         </address>
 <p>In <a href="https://wangdaiwei.github.io/category/graphics.html">Graphics</a>.</p>
 <p>tags: <a href="https://wangdaiwei.github.io/tag/directx-texture.html">DirectX Texture</a> </p>
-</footer><!-- /.post-info -->      <p>试想一下这样的情境，有一个地图需要显示，这个地图需要的精度非常高，常用的做法就是用几个较小的贴图拼在一起，只有镜头里出现需要显示的部分再加载。当这个贴图是高度图时，需要考虑的一点就是如何让相邻的两个高度图完全一致，避免相邻的网格因为高度不一致导致缝隙出现。最近在拼合高度图的时候，就遇到了相邻贴图值对应不上的问题。</p>
+</footer><!-- /.post-info --><p>试想一下这样的情境，有一个地图需要显示，这个地图需要的精度非常高，常用的做法就是用几个较小的贴图拼在一起，只有镜头里出现需要显示的部分再加载。当这个贴图是高度图时，需要考虑的一点就是如何让相邻的两个高度图完全一致，避免相邻的网格因为高度不一致导致缝隙出现。最近在拼合高度图的时候，就遇到了相邻贴图值对应不上的问题。</p>
 <p>首先考虑的是采样方式的问题，因为Unreal引擎默认的双线性采样(Bilinear)会导致图的边缘采样的值不一样，左边图片采样到最右边的时候，只有上下左三个像素点做混合，反之亦然。那么改成点采样的方式呢？确保左边贴图采到最右边的像素点，右边贴图采到最左边的像素点，这两个像素点只要颜色值一致，那么出来的高度信息一定就是一致的。抱着这样的想法，我尝试了一下点采样，然而出来的结果仍然不对，两边的高度还是稍微有一点点缝隙存在。用RenderDoc查看渲染时用到的高度图，对应的贴图位置的颜色都是一致的，左边贴图最右边的颜色值跟右边贴图最左边的颜色值一模一样，这就非常奇怪了。</p>
 <p>经过了数个小时的研究后，我们终于发现了问题的所在，那就是从网格像素点到实际贴图采样点之间的映射实际上并不是直接的坐标对应关系。在实际采样贴图的过程中，不管贴图分辨率多么的大，每一个像素点都是一个固定大小的矩形，而采样的时候只能采样贴图上面一个确定的点，那么这个像素点<a href="https://en.wikipedia.org/wiki/Pixel">Pixel</a>在贴图像素<a href="https://en.wikipedia.org/wiki/Texel_(graphics)">Texel</a>的中心还是在边缘，计算出来的结果显然是不一样的。</p>
 <p><img alt="Mapping Texels to Pixels" src="https://wangdaiwei.github.io/img/TextureUV/maptex-fig2.png"></p>
@@ -47,26 +42,8 @@
 <p><img alt="Pixel Sample" src="https://wangdaiwei.github.io/img/TextureUV/pixel_sample.png"></p>
 <p>之所以要用每个贴图像素(Texel)的左上角采样，是为了方便坐标转换，并且能够确保uv坐标(0, 0)一定最左上角的像素点(Pixel)，(1, 0)一定是最右上角的像素点(Pixel)；而采样贴图像素(Texel)中心点的话，要想采样贴图像素的边缘的话，就必须用到(-0.5, -0.5)像素空间坐标，这也意味着正常的0到1范围的uv坐标，最外围一圈的贴图像素(Texel)比起其他贴图像素(Texel)宽度或者高度都要小一半。</p>
 <p><img alt="d3d10-coordspix9" src="https://wangdaiwei.github.io/img/TextureUV/d3d10-coordspix9.png"></p>
-<p>为了确保左右两个贴图的高度采样值一样，需要将像素采样坐标从贴图像素左上角映射到中心位置，因此需要给uv坐标加上半个贴图像素大小的便宜。做完这个变换并且采用了点采样以后，就能看到相邻的两个地形的高度终于能够完美融合了。</p>
-    </div><!-- /.entry-content -->
-    <div class="comments">
-      <h2>Comments !</h2>
-      <div id="disqus_thread"></div>
-      <script type="text/javascript">
-        var disqus_shortname = 'wangdaiwei-github';
-        var disqus_identifier = 'uvcai-yang-zhi-yu-wen-ti.html';
-        var disqus_url = 'https://wangdaiwei.github.io/uvcai-yang-zhi-yu-wen-ti.html';
-        (function() {
-        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
-        dsq.src = '//wangdaiwei-github.disqus.com/embed.js';
-        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-        })();
-      </script>
-      <noscript>Please enable JavaScript to view the comments.</noscript>
-    </div>
-
-  </article>
-</section>
+<p>为了确保左右两个贴图的高度采样值一样，需要将像素采样坐标从贴图像素左上角映射到中心位置，因此需要给uv坐标加上半个贴图像素大小的便宜。做完这个变换并且采用了点采样以后，就能看到相邻的两个地形的高度终于能够完美融合了。</p><p>There are <a href="https://wangdaiwei.github.io/uvcai-yang-zhi-yu-wen-ti.html#disqus_thread">comments</a>.</p>                </article>
+            </aside><!-- /#featured -->
         <section id="extras" class="body">
                 <div class="blogroll">
                         <h2>links</h2>
