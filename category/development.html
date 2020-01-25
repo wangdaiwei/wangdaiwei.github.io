@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+        <meta charset="utf-8" />
+        <title>DaiweiWang@Github - Development</title>
+        <link rel="stylesheet" href="https://wangdaiwei.github.io/theme/css/main.css" />
+        <link href="https://wangdaiwei.github.io/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="DaiweiWang@Github Atom Feed" />
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <h1><a href="https://wangdaiwei.github.io/">DaiweiWang@Github </a></h1>
+                <nav><ul>
+                    <li class="active"><a href="https://wangdaiwei.github.io/category/development.html">Development</a></li>
+                    <li><a href="https://wangdaiwei.github.io/category/math.html">Math</a></li>
+                    <li><a href="https://wangdaiwei.github.io/category/misc.html">Misc</a></li>
+                    <li><a href="https://wangdaiwei.github.io/category/study.html">Study</a></li>
+                    <li><a href="https://wangdaiwei.github.io/category/unity.html">Unity</a></li>
+                </ul></nav>
+        </header><!-- /#banner -->
+
+            <aside id="featured" class="body">
+                <article>
+                    <h1 class="entry-title"><a href="https://wangdaiwei.github.io/uvcai-yang-zhi-yu-wen-ti.html">UV采样值域问题</a></h1>
+<footer class="post-info">
+        <abbr class="published" title="2018-12-09T13:35:00+08:00">
+                Published: 周日 09 十二月 2018
+        </abbr>
+		<br />
+        <abbr class="modified" title="2018-12-09T13:35:00+08:00">
+                Updated: 周日 09 十二月 2018
+        </abbr>
+
+        <address class="vcard author">
+                By                         <a class="url fn" href="https://wangdaiwei.github.io/author/daiwei-wang.html">Daiwei Wang</a>
+        </address>
+<p>In <a href="https://wangdaiwei.github.io/category/development.html">Development</a>.</p>
+<p>tags: <a href="https://wangdaiwei.github.io/tag/computer-graphics.html">Computer Graphics</a> <a href="https://wangdaiwei.github.io/tag/directx-texture.html">DirectX Texture</a> </p>
+</footer><!-- /.post-info --><p>试想一下这样的情境，有一个地图需要显示，这个地图需要的精度非常高，常用的做法就是用几个较小的贴图拼在一起，只有镜头里出现需要显示的部分再加载。当这个贴图是高度图时，需要考虑的一点就是如何让相邻的两个高度图完全一致，避免相邻的网格因为高度不一致导致缝隙出现。最近在拼合高度图的时候，就遇到了相邻贴图值对应不上的问题。</p>
+<p>首先考虑的是采样方式的问题，因为Unreal引擎默认的双线性采样(Bilinear)会导致图的边缘采样的值不一样，左边图片采样到最右边的时候，只有上下左三个像素点做混合，反之亦然。那么改成点采样的方式呢？确保左边贴图采到最右边的像素点，右边贴图采到最左边的像素点，这两个像素点只要颜色值一致，那么出来的高度信息一定就是一致的。抱着这样的想法，我尝试了一下点采样，然而出来的结果仍然不对，两边的高度还是稍微有一点点缝隙存在。用RenderDoc查看渲染时用到的高度图，对应的贴图位置的颜色都是一致的，左边贴图最右边的颜色值跟右边贴图最左边的颜色值一模一样，这就非常奇怪了。</p>
+<p>经过了数个小时的研究后，我们终于发现了问题的所在，那就是从网格像素点到实际贴图采样点之间的映射实际上并不是直接的坐标对应关系。在实际采样贴图的过程中，不管贴图分辨率多么的大，每一个像素点都是一个固定大小的矩形，而采样的时候只能采样贴图上面一个确定的点，那么这个像素点<a href="https://en.wikipedia.org/wiki/Pixel">Pixel</a>在贴图像素<a href="https://en.wikipedia.org/wiki/Texel_(graphics)">Texel</a>的中心还是在边缘，计算出来的结果显然是不一样的。</p>
+<p><img alt="Mapping Texels to Pixels" src="https://wangdaiwei.github.io/img/TextureUV/maptex-fig2.png"></p>
+<p>翻阅了微软的官方文档，我们可以看到从<a href="https://docs.microsoft.com/en-us/windows/desktop/direct3d10/d3d10-graphics-programming-guide-resources-coordinates">Direct3D 10</a>开始，像素的坐标系统就改为了从贴图像素(Texel)的左上角开始采样，因此，对于左边贴图uv坐标为(1, 0)的贴图而言，其采样到的像素点(Pixel)实质上是最右上角贴图像素(Texel)的右上角；对于右边贴图uv坐标为(0, 0)的贴图而言，其采样到的像素点(Pixel)实质上是最左上角贴图像素(Texel)的左上角。也就是说，两边采样的是同一个贴图像素(Texel)的不同位置。</p>
+<p><img alt="Pixel Sample" src="https://wangdaiwei.github.io/img/TextureUV/pixel_sample.png"></p>
+<p>之所以要用每个贴图像素(Texel)的左上角采样，是为了方便坐标转换，并且能够确保uv坐标(0, 0)一定最左上角的像素点(Pixel)，(1, 0)一定是最右上角的像素点(Pixel)；而采样贴图像素(Texel)中心点的话，要想采样贴图像素的边缘的话，就必须用到(-0.5, -0.5)像素空间坐标，这也意味着正常的0到1范围的uv坐标，最外围一圈的贴图像素(Texel)比起其他贴图像素(Texel)宽度或者高度都要小一半。</p>
+<p><img alt="d3d10-coordspix9" src="https://wangdaiwei.github.io/img/TextureUV/d3d10-coordspix9.png"></p>
+<p>为了确保左右两个贴图的高度采样值一样，需要将像素采样坐标从贴图像素左上角映射到中心位置，因此需要给uv坐标加上半个贴图像素大小的便宜。做完这个变换并且采用了点采样以后，就能看到相邻的两个地形的高度终于能够完美融合了。</p><p>There are <a href="https://wangdaiwei.github.io/uvcai-yang-zhi-yu-wen-ti.html#disqus_thread">comments</a>.</p>                </article>
+            </aside><!-- /#featured -->
+                <section id="content" class="body">
+                    <h1>Other articles</h1>
+                    <hr />
+                    <ol id="posts-list" class="hfeed">
+
+            <li><article class="hentry">
+                <header>
+                    <h1><a href="https://wangdaiwei.github.io/ios-code-signing.html" rel="bookmark"
+                           title="Permalink to iOS Code Signing">iOS Code Signing</a></h1>
+                </header>
+
+                <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2015-10-01T00:00:00+08:00">
+                Published: 周四 01 十月 2015
+        </abbr>
+
+        <address class="vcard author">
+                By                         <a class="url fn" href="https://wangdaiwei.github.io/author/daiwei-wang.html">Daiwei Wang</a>
+        </address>
+<p>In <a href="https://wangdaiwei.github.io/category/development.html">Development</a>.</p>
+<p>tags: <a href="https://wangdaiwei.github.io/tag/ios.html">iOS</a> </p>
+</footer><!-- /.post-info -->                <p>最近回顾一下iOS的开发，有一些基本的问题都没有搞清楚，于是打算边学习边整理。Code Signing这个问题算是一个很基本的问题了，但是有时候却经常在处理这个问题上面花时间，毕竟这是真机调试必须经过的一关。</p>
+<p>以下内容参考<a href="" title="http://www.raywenderlich.com/2915/ios-code-signing-under-the-hood">raywenderlich.com</a>，也可以直接看中文翻译版：<a href="" title="http://www.cnblogs.com/andyque/archive/2011/08/30/2159086.html">（译）iOS Code Signing: 解惑</a>。</p>
+<h2>Code Signing为何如此重要</h2>
+<p>为了让app能够顺利在手机上安装，code signing是必不可少的一步。如果只想在模拟器或者越狱过的手机上跑，那倒是可以完全忽略这个问题。除此之外，真机测试，发布企业版，发布App Store版本，都需要经过code signing。当然了，有时候在Xcode里面点击一下Fix Issue按钮，Xcode会自动帮你解决问题。在某些情况下，Xcode也会失灵，这种情况绝大多数是因为没有安装开发者私钥。</p>
+<h2>公钥和私钥</h2>
+<p>那么什么是密钥呢？当然就是别人不知道的东西了。用来给内容加密的东西都可以称作密钥。</p>
+<p>在密码学领域，存在着两种加密方式，一种是对称加密，另一种是非对称加密。像我们熟悉的莫尔斯电码用的就是对称加密，只需要知道一种加密方式，就既能用来加密内容，也能用来解读被加密过的内容。</p>
+<p>非对称加密就厉害多了 …</p>
+                <a class="readmore" href="https://wangdaiwei.github.io/ios-code-signing.html">read more</a>
+<p>There are <a href="https://wangdaiwei.github.io/ios-code-signing.html#disqus_thread">comments</a>.</p>                </div><!-- /.entry-content -->
+            </article></li>
+
+            <li><article class="hentry">
+                <header>
+                    <h1><a href="https://wangdaiwei.github.io/ioschuang-jian-yan-se-de-yi-ge-jian-dan-fang-fa.html" rel="bookmark"
+                           title="Permalink to iOS创建颜色的一个简单方法">iOS创建颜色的一个简单方法</a></h1>
+                </header>
+
+                <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2014-08-23T00:00:00+08:00">
+                Published: 周六 23 八月 2014
+        </abbr>
+
+        <address class="vcard author">
+                By                         <a class="url fn" href="https://wangdaiwei.github.io/author/daiwei-wang.html">Daiwei Wang</a>
+        </address>
+<p>In <a href="https://wangdaiwei.github.io/category/development.html">Development</a>.</p>
+<p>tags: <a href="https://wangdaiwei.github.io/tag/ios.html">iOS</a> </p>
+</footer><!-- /.post-info -->                <p>Objective-C里面通过RGB值的方式创建一个UIColor的对象很简单，只需要传递给指定的RGB值就可以了：</p>
+<div class="highlight"><pre><span></span><span class="p">+</span> <span class="p">(</span><span class="bp">UIColor</span> <span class="o">*</span><span class="p">)</span><span class="nf">colorWithRed:</span><span class="p">(</span><span class="n">CGFloat</span><span class="p">)</span><span class="nv">red</span> <span class="nf">green:</span><span class="p">(</span><span class="n">CGFloat</span><span class="p">)</span><span class="nv">green</span> <span class="nf">blue:</span><span class="p">(</span><span class="n">CGFloat</span><span class="p">)</span><span class="nv">blue</span> <span class="nf">alpha:</span><span class="p">(</span><span class="n">CGFloat</span><span class="p">)</span><span class="nv">alpha</span>
+</pre></div>
+
+
+<p>不过这个方法有一个问题，就是这里面的RGB值是用0～1.0的浮点值来表示的，对于常用的0～255的表示方式以及类似FFFFFF的十六进制表示方式并没有对应的方法。我比较喜欢通过Category的方式扩展UIColor，只需要在工程里面添加一个类就行了：</p>
+<div class="highlight"><pre><span></span><span class="bp">UIColor</span><span class="o">+</span><span class="n">CreateMethods</span><span class="p">.</span><span class="n">h</span>
+
+<span class="c1">//</span>
+<span class="c1">//  UIColor+CreateMethods.h</span>
+<span class="c1">//</span>
+
+<span class="cp">#import &lt;UIKit/UIKit.h&gt;</span>
+
+<span class="k">@interface</span> <span class="bp">UIColor</span> <span class="nl">(CreateMethods)</span>
+
+<span class="c1">// wrapper for [UIColor colorWithRed:green:blue:alpha:]</span>
+<span class="c1">// values must be in range 0 - 255 …</span></pre></div>
+                <a class="readmore" href="https://wangdaiwei.github.io/ioschuang-jian-yan-se-de-yi-ge-jian-dan-fang-fa.html">read more</a>
+<p>There are <a href="https://wangdaiwei.github.io/ioschuang-jian-yan-se-de-yi-ge-jian-dan-fang-fa.html#disqus_thread">comments</a>.</p>                </div><!-- /.entry-content -->
+            </article></li>
+
+            <li><article class="hentry">
+                <header>
+                    <h1><a href="https://wangdaiwei.github.io/iostui-song-ji-zhi-de-yin-huan.html" rel="bookmark"
+                           title="Permalink to iOS推送机制的隐患">iOS推送机制的隐患</a></h1>
+                </header>
+
+                <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2014-06-23T00:00:00+08:00">
+                Published: 周一 23 六月 2014
+        </abbr>
+
+        <address class="vcard author">
+                By                         <a class="url fn" href="https://wangdaiwei.github.io/author/daiwei-wang.html">Daiwei Wang</a>
+        </address>
+<p>In <a href="https://wangdaiwei.github.io/category/development.html">Development</a>.</p>
+<p>tags: <a href="https://wangdaiwei.github.io/tag/ios.html">iOS</a> </p>
+</footer><!-- /.post-info -->                <p>最近在研究iOS的推送系统，虽然配置起来稍微麻烦了一些，但是实现的原理并不复杂。简单来讲，就是通过app向APNS（Apple Push Notification Service）发送一个注册的请求，等到APNS同意之后便会发回设备的ID。在这个过程中，用户是可以一开始就选择是否接受推送通知的，如果用户不同意接收推送通知的话那么APNS也会收到用户的选择而不再发送推送通知，直到用户修改设置里面的选项。</p>
+<p>现在的一个问题就在于，推送通知在app没有打开的情况（或者打开以后进入后台）下，是iOS系统自己处理的。这就造成什么问题呢？应用在没有使用的情况下，是没有办法处理接收到的推送通知的。比如说一个新闻客户端，如果想在收到推送通知的时候弹出提示框显示最新的新闻，这是无法办到的，除非用户在设置里面将推送的显示修改成提示框形式。这样有一个好处就是，应用程序无需关注程序没有打开情况下对推送的信息的处理，同时也节省了系统的资源，不需要每一个程序都监视推送信息的接收。</p>
+<p>直到现在都一切正常，没有什么大问题。但是最近突然发现了一个很致命的安全隐患，就是<strong>假如用户卸载了app并且重新安装回去，即使用户不打开app也能收到之前用户的推送信息</strong>。这代表什么呢？假使用户卸载了应用程序但是没有删除用户信息，那么接下来的用户如果安装了同一个应用并且并没有登录进应用程序，那么他照样可以收到<strong>之前用户</strong>的推送信息。这是什么原因呢？iOS在卸载用户程序的时候不会告诉给应用程序提供者，因此假如该用户没有在新的设备上登录的话，那么应用程序提供者将会继续发送该用户的推送信息给该设备。当设备重新安装上app的时候，就会接收到之前用户的推送信息，只要这位用户还没有登录自己的账号 …</p>
+                <a class="readmore" href="https://wangdaiwei.github.io/iostui-song-ji-zhi-de-yin-huan.html">read more</a>
+<p>There are <a href="https://wangdaiwei.github.io/iostui-song-ji-zhi-de-yin-huan.html#disqus_thread">comments</a>.</p>                </div><!-- /.entry-content -->
+            </article></li>
+
+            <li><article class="hentry">
+                <header>
+                    <h1><a href="https://wangdaiwei.github.io/threejssai-che-you-xi.html" rel="bookmark"
+                           title="Permalink to Three.js赛车游戏">Three.js赛车游戏</a></h1>
+                </header>
+
+                <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2014-05-31T00:00:00+08:00">
+                Published: 周六 31 五月 2014
+        </abbr>
+
+        <address class="vcard author">
+                By                         <a class="url fn" href="https://wangdaiwei.github.io/author/daiwei-wang.html">Daiwei Wang</a>
+        </address>
+<p>In <a href="https://wangdaiwei.github.io/category/development.html">Development</a>.</p>
+<p>tags: <a href="https://wangdaiwei.github.io/tag/webgl.html">WebGL</a> <a href="https://wangdaiwei.github.io/tag/computer-graphics.html">Computer Graphics</a> </p>
+</footer><!-- /.post-info -->                <h2>赛车坐标系</h2>
+<p>先不讨论场景和光线的配置，光是赛车本身涉及到的一些座标变换就足够复杂的了。先假设汽车模型摆放在坐标轴中心，如下图所示：</p>
+<p><img alt="Car icon" src="https://wangdaiwei.github.io/img/WebGL_RacingGame/car.png"></p>
+<p>一般情况下坐标系为右手系表示，即图中的红，绿，蓝分别代表x，y，z轴。假设汽车要向前移动的话，那么车身和车轮都需要沿着坐标系z轴作平移变换，同时前轮需要绕着前轮车轴为中心沿着x轴方向旋转变换。直白地说，就是车子在往前走的时候轮子也需要滚动。</p>
+<p>直行时的情况比较简单，但是如果需要旋转就比较麻烦了。先来考虑真实的情况，轮子在转动的时候不是一下子就旋转到位的，而是有个缓慢转动的过程，在转动的过程中车身也一直在前进。我们需要记录下来车身此时面对的方向以及轮子此时面对的方向。我们需要将坐标系拆分成两个部分，一个是车子和整个场景所在的世界坐标系，一个是以车子自身位中心的单位坐标系。我们需要在单位坐标系下对轮子做相对于车身的座标变换，在世界坐标系下更新车子当前的座标和面对的方向。</p>
+<h2>前期准备</h2>
+<p>实际上上面的内容Three.js里面的例子已经有现成的代码了，之前还花了好多时间研究诸如cannon.js，Physijs等等JavaSript物理引擎，出来的结果不是车子不停的打转就是动弹不得。还是先考虑没有物理引擎的情况吧。</p>
+<p>Car.js的文件可以在Three.js的github源码中找到，在example目录下的js文件夹里面。也可以在我的github里面这个demo的代码中找到，但是我稍微修改了一下里面的参数。</p>
+<p>首先我们需要将Three.js库以及Car.js添加到源文件当中</p>
+<div class="highlight"><pre><span></span><span class="p">&lt;</span><span class="nt">script</span> <span class="na">src</span><span class="o">=</span><span class="s">&#39;js/libs/three …</span></pre></div>
+                <a class="readmore" href="https://wangdaiwei.github.io/threejssai-che-you-xi.html">read more</a>
+<p>There are <a href="https://wangdaiwei.github.io/threejssai-che-you-xi.html#disqus_thread">comments</a>.</p>                </div><!-- /.entry-content -->
+            </article></li>
+
+            <li><article class="hentry">
+                <header>
+                    <h1><a href="https://wangdaiwei.github.io/yong-webglbian-xie-yi-ge-3dtu-xing-wang-zhan.html" rel="bookmark"
+                           title="Permalink to 用WebGL编写一个3D图形网站">用WebGL编写一个3D图形网站</a></h1>
+                </header>
+
+                <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2014-05-22T00:00:00+08:00">
+                Published: 周四 22 五月 2014
+        </abbr>
+
+        <address class="vcard author">
+                By                         <a class="url fn" href="https://wangdaiwei.github.io/author/daiwei-wang.html">Daiwei Wang</a>
+        </address>
+<p>In <a href="https://wangdaiwei.github.io/category/development.html">Development</a>.</p>
+<p>tags: <a href="https://wangdaiwei.github.io/tag/webgl.html">WebGL</a> <a href="https://wangdaiwei.github.io/tag/computer-graphics.html">Computer Graphics</a> </p>
+</footer><!-- /.post-info -->                <p>自己的学生生涯也差不多结束了，感觉是时候把自己这一年来学的东西做一个总结，顺便回顾一下以前做过的东西。这几天多动动手，争取写多一些内容。</p>
+<h2>WebGL简单介绍</h2>
+<p>如果有听说过OpenGL的话，那么WebGL理解起来就不是那么困难了，简单来说其实就是OpenGL在HTML5的JavaScript移植版。要是OpenGL没听说过，那就把它当成是一个在网页上的图形引擎吧。我们可以在HTML5的网页上创建Canvas（画布）来配置我们的WebGL绘制图形的过程。</p>
+<p>要想从最基本的开始写一个很简单的程序也不是那么容易的，写过OpenGL程序的人肯定都知道，想要显示一个简单的正方形也不是一句代码就能解决的事。你得设置好视角，然后你得定义绘图方式，标出矩形每一个顶点的位置，再转换到世界坐标系等等。总之就是一切都是计算机图形学基础的东西，要想好好用WebGL这个写一个能看的动画估计就得花好长时间了。所以我们还是用点现成的东西吧，目前关于WebGL可用的库有很多，比较常用的就是Three.js。</p>
+<h2>Three.js</h2>
+<p>这个库已经写的比较完整了，已经有很多很炫的例子，可以在<a href="http://threejs.org/">官网</a>上找到。有了Three.js，很多事情变简单了许多。绘制一个3D画面的步骤就变成这样了：</p>
+<ol>
+<li>在HTML网页里配置基本的画布</li>
+<li>在画布上布置WebGL基本元素，比如立方体，球体等等</li>
+<li>配置好Camera，加入光源，着色器等等</li>
+<li>如果需要的话，加入对输入设备的检测，比如鼠标的点击动作</li>
+<li>最后就是加入一个计时器不断地刷新页面，比如动态显示水面的波纹 …</li></ol>
+                <a class="readmore" href="https://wangdaiwei.github.io/yong-webglbian-xie-yi-ge-3dtu-xing-wang-zhan.html">read more</a>
+<p>There are <a href="https://wangdaiwei.github.io/yong-webglbian-xie-yi-ge-3dtu-xing-wang-zhan.html#disqus_thread">comments</a>.</p>                </div><!-- /.entry-content -->
+            </article></li>
+                </ol><!-- /#posts-list -->
+                </section><!-- /#content -->
+        <section id="extras" class="body">
+                <div class="blogroll">
+                        <h2>links</h2>
+                        <ul>
+                            <li><a href="http://getpelican.com/">Pelican</a></li>
+                            <li><a href="http://python.org/">Python.org</a></li>
+                            <li><a href="http://jinja.pocoo.org/">Jinja2</a></li>
+                        </ul>
+                </div><!-- /.blogroll -->
+                <div class="social">
+                        <h2>social</h2>
+                        <ul>
+                            <li><a href="https://wangdaiwei.github.io/feeds/all.atom.xml" type="application/atom+xml" rel="alternate">atom feed</a></li>
+
+                        </ul>
+                </div><!-- /.social -->
+        </section><!-- /#extras -->
+
+        <footer id="contentinfo" class="body">
+                <address id="about" class="vcard body">
+                Proudly powered by <a href="http://getpelican.com/">Pelican</a>, which takes great advantage of <a href="http://python.org">Python</a>.
+                </address><!-- /#about -->
+
+                <p>The theme is by <a href="http://coding.smashingmagazine.com/2009/08/04/designing-a-html-5-layout-from-scratch/">Smashing Magazine</a>, thanks!</p>
+        </footer><!-- /#contentinfo -->
+
+    <script type="text/javascript">
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-46745526-1', 'auto');
+    ga('send', 'pageview');
+    </script>
+<script type="text/javascript">
+    var disqus_shortname = 'wangdaiwei-github';
+    (function () {
+        var s = document.createElement('script'); s.async = true;
+        s.type = 'text/javascript';
+        s.src = 'https://' + disqus_shortname + '.disqus.com/count.js';
+        (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+    }());
+</script>
+</body>
+</html>

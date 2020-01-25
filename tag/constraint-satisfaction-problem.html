@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+        <meta charset="utf-8" />
+        <title>DaiweiWang@Github - Constraint Satisfaction Problem</title>
+        <link rel="stylesheet" href="https://wangdaiwei.github.io/theme/css/main.css" />
+        <link href="https://wangdaiwei.github.io/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="DaiweiWang@Github Atom Feed" />
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <h1><a href="https://wangdaiwei.github.io/">DaiweiWang@Github </a></h1>
+                <nav><ul>
+                    <li><a href="https://wangdaiwei.github.io/category/development.html">Development</a></li>
+                    <li><a href="https://wangdaiwei.github.io/category/math.html">Math</a></li>
+                    <li><a href="https://wangdaiwei.github.io/category/misc.html">Misc</a></li>
+                    <li><a href="https://wangdaiwei.github.io/category/study.html">Study</a></li>
+                    <li><a href="https://wangdaiwei.github.io/category/unity.html">Unity</a></li>
+                </ul></nav>
+        </header><!-- /#banner -->
+
+            <aside id="featured" class="body">
+                <article>
+                    <h1 class="entry-title"><a href="https://wangdaiwei.github.io/abc-path-problem-definition.html">ABC Path Problem Definition</a></h1>
+<footer class="post-info">
+        <abbr class="published" title="2014-02-20T00:00:00+08:00">
+                Published: 周四 20 二月 2014
+        </abbr>
+
+        <address class="vcard author">
+                By                         <a class="url fn" href="https://wangdaiwei.github.io/author/daiwei-wang.html">Daiwei Wang</a>
+        </address>
+<p>In <a href="https://wangdaiwei.github.io/category/study.html">Study</a>.</p>
+<p>tags: <a href="https://wangdaiwei.github.io/tag/constraint-satisfaction-problem.html">Constraint Satisfaction Problem</a> </p>
+</footer><!-- /.post-info --><p>ABC Path is a game that you have to put into the N ×
+N grid such that the total payoff of the game is maximized. If a letter is placed on the desired position, it gets 1 as payoff. Here is an example for the desired position of each letter for a 4×4 grid.￼</p>
+<div class="highlight"><pre><span></span>A   B   C   D
+E   F   G   H
+I   J   K   L
+M   N   O   P
+</pre></div>
+
+
+<p>And the rule is the same for other N values. It follows the alphabetic order from the upper left to the bottom right.</p>
+<p>We can model the problem with a set of 16 variables <span class="math">\(X =\)</span> { <span class="math">\(x_i, j| i, j ∈ [1..4]\)</span> }, each representing a cell of the grid. The domain of each variable <span class="math">\(x_i,j\)</span> is <span class="math">\(D_i,j =\)</span> { <span class="math">\(1, 2, .., 16\)</span> } with each value representing the letter in { <span class="math">\(A,B,..,P\)</span> } respectively. Let <span class="math">\(S_i,j\)</span> be the set of all adjacent cells of <span class="math">\(x_i,j\)</span>. The set of constraints and the associated objective function of the problem are given as follows:</p>
+<ul>
+<li><span class="math">\((x_{i,j} =1) \vee ( \bigvee _{s \in S_{i, j}} x_{i,j} =s+1 ) ,\)</span> for <span class="math">\(i,j∈[1..4]\)</span></li>
+<li><span class="math">\(x_{i,j} \ne x_{u,v},\)</span> for <span class="math">\(i,j,u,v∈[1..4]\)</span> where <span class="math">\(¬(i=u∧j=v)\)</span></li>
+<li>Objective: max <span class="math">\(\sum_{i,j \in [1...4]} (x_{i,j} −(4i+j −4) == 0)\)</span></li>
+</ul>
+<p>An alternative way to model the problem is to represent each letter with a variable <span class="math">\(x_i\)</span> , where <span class="math">\(i ∈ [1..n2 ]\)</span> and the domain of each variable <span class="math">\(x_i\)</span> is <span class="math">\(D_i =\)</span> { <span class="math">\(1, 2, ..., n2\)</span> } representing the position of the corresponding letter in the grid.</p>
+<p>The Gecode implementation has been uploaded to my github repository. You can see the source code at website <a href="https://github.com/wangdaiwei/gecode">wangdaiwei/gecode</a>.</p>
+<p>The program should be run as following command in Mac OSX:</p>
+<div class="highlight"><pre><span></span>./abc_path -model mod <span class="m">5</span>
+</pre></div>
+
+
+<p>Here mod stands for the model you choose. The value is from 1 to 2, which represents the memtioned models. The last parameter defines the size of ABC Path problem.</p>
+<script type="text/javascript">if (!document.getElementById('mathjaxscript_pelican_#%@#$@#')) {
+    var align = "center",
+        indent = "0em",
+        linebreak = "false";
+
+    if (false) {
+        align = (screen.width < 768) ? "left" : align;
+        indent = (screen.width < 768) ? "0em" : indent;
+        linebreak = (screen.width < 768) ? 'true' : linebreak;
+    }
+
+    var mathjaxscript = document.createElement('script');
+    mathjaxscript.id = 'mathjaxscript_pelican_#%@#$@#';
+    mathjaxscript.type = 'text/javascript';
+    mathjaxscript.src = 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.3/latest.js?config=TeX-AMS-MML_HTMLorMML';
+
+    var configscript = document.createElement('script');
+    configscript.type = 'text/x-mathjax-config';
+    configscript[(window.opera ? "innerHTML" : "text")] =
+        "MathJax.Hub.Config({" +
+        "    config: ['MMLorHTML.js']," +
+        "    TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'none' } }," +
+        "    jax: ['input/TeX','input/MathML','output/HTML-CSS']," +
+        "    extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']," +
+        "    displayAlign: '"+ align +"'," +
+        "    displayIndent: '"+ indent +"'," +
+        "    showMathMenu: true," +
+        "    messageStyle: 'normal'," +
+        "    tex2jax: { " +
+        "        inlineMath: [ ['\\\\(','\\\\)'] ], " +
+        "        displayMath: [ ['$$','$$'] ]," +
+        "        processEscapes: true," +
+        "        preview: 'TeX'," +
+        "    }, " +
+        "    'HTML-CSS': { " +
+        "        availableFonts: ['STIX', 'TeX']," +
+        "        preferredFont: 'STIX'," +
+        "        styles: { '.MathJax_Display, .MathJax .mo, .MathJax .mi, .MathJax .mn': {color: 'inherit ! important'} }," +
+        "        linebreaks: { automatic: "+ linebreak +", width: '90% container' }," +
+        "    }, " +
+        "}); " +
+        "if ('default' !== 'default') {" +
+            "MathJax.Hub.Register.StartupHook('HTML-CSS Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax['HTML-CSS'].FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+            "MathJax.Hub.Register.StartupHook('SVG Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax.SVG.FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+        "}";
+
+    (document.body || document.getElementsByTagName('head')[0]).appendChild(configscript);
+    (document.body || document.getElementsByTagName('head')[0]).appendChild(mathjaxscript);
+}
+</script><p>There are <a href="https://wangdaiwei.github.io/abc-path-problem-definition.html#disqus_thread">comments</a>.</p>                </article>
+            </aside><!-- /#featured -->
+                <section id="content" class="body">
+                    <h1>Other articles</h1>
+                    <hr />
+                    <ol id="posts-list" class="hfeed">
+
+            <li><article class="hentry">
+                <header>
+                    <h1><a href="https://wangdaiwei.github.io/n-queens-problem-definition.html" rel="bookmark"
+                           title="Permalink to N-Queens Problem Definition">N-Queens Problem Definition</a></h1>
+                </header>
+
+                <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2014-02-20T00:00:00+08:00">
+                Published: 周四 20 二月 2014
+        </abbr>
+
+        <address class="vcard author">
+                By                         <a class="url fn" href="https://wangdaiwei.github.io/author/daiwei-wang.html">Daiwei Wang</a>
+        </address>
+<p>In <a href="https://wangdaiwei.github.io/category/study.html">Study</a>.</p>
+<p>tags: <a href="https://wangdaiwei.github.io/tag/constraint-satisfaction-problem.html">Constraint Satisfaction Problem</a> </p>
+</footer><!-- /.post-info -->                <p>N-Queens problem is defined as: place n queens on an <span class="math">\(n × n\)</span> chess board so that the queens do not attack each other. Now, we rotate the board clockwisely by 45 degrees as shown in following picture, and use a variable to denote the queen partition (if any) for each …</p>
+                <a class="readmore" href="https://wangdaiwei.github.io/n-queens-problem-definition.html">read more</a>
+<p>There are <a href="https://wangdaiwei.github.io/n-queens-problem-definition.html#disqus_thread">comments</a>.</p>                </div><!-- /.entry-content -->
+            </article></li>
+
+            <li><article class="hentry">
+                <header>
+                    <h1><a href="https://wangdaiwei.github.io/sudoku-problem-definition.html" rel="bookmark"
+                           title="Permalink to Sudoku Problem Definition">Sudoku Problem Definition</a></h1>
+                </header>
+
+                <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2014-02-20T00:00:00+08:00">
+                Published: 周四 20 二月 2014
+        </abbr>
+
+        <address class="vcard author">
+                By                         <a class="url fn" href="https://wangdaiwei.github.io/author/daiwei-wang.html">Daiwei Wang</a>
+        </address>
+<p>In <a href="https://wangdaiwei.github.io/category/study.html">Study</a>.</p>
+<p>tags: <a href="https://wangdaiwei.github.io/tag/constraint-satisfaction-problem.html">Constraint Satisfaction Problem</a> </p>
+</footer><!-- /.post-info -->                <p>Sudoku is a puzzle that requires players to complete a partially filled 9 × 9 grid with digits 1 to 9 such that each row, each column and each of the nine 3 × 3 boxes (shown in Figure 1 in thick border lines) contain different digits.</p>
+<p>The Gecode implementation has hardcoded …</p>
+                <a class="readmore" href="https://wangdaiwei.github.io/sudoku-problem-definition.html">read more</a>
+<p>There are <a href="https://wangdaiwei.github.io/sudoku-problem-definition.html#disqus_thread">comments</a>.</p>                </div><!-- /.entry-content -->
+            </article></li>
+
+            <li><article class="hentry">
+                <header>
+                    <h1><a href="https://wangdaiwei.github.io/constraint-satisfaction-problem.html" rel="bookmark"
+                           title="Permalink to Constraint Satisfaction Problem">Constraint Satisfaction Problem</a></h1>
+                </header>
+
+                <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2014-01-07T00:00:00+08:00">
+                Published: 周二 07 一月 2014
+        </abbr>
+
+        <address class="vcard author">
+                By                         <a class="url fn" href="https://wangdaiwei.github.io/author/daiwei-wang.html">Daiwei Wang</a>
+        </address>
+<p>In <a href="https://wangdaiwei.github.io/category/study.html">Study</a>.</p>
+<p>tags: <a href="https://wangdaiwei.github.io/tag/constraint-satisfaction-problem.html">Constraint Satisfaction Problem</a> </p>
+</footer><!-- /.post-info -->                <h2>CSP概述</h2>
+<p>作为对学了一个学期的内容的总结，在这里稍微介绍一下Constraint Satisfaction Problem（CSP）吧。这个题目我也不知道中文叫做什么，也许叫做有约束问题解决模型比较合适。虽然我没有学过数学建模，但或许他们之间是比较类似的，CSP的中心思想就是针对一个特定的问题建立模型，然后解决它。解决问题的具体实现就叫做Constraint Solver（约束处理机）。我认为这个方法还是很实际的，它可以帮助我们快速建立起对一个问题的数学角度的认识，同时在编程方面也有很多的函数库，比如说IBM的CPLEX。这里只介绍Gecode的使用，当然官方文档对于Gecode已经解释的很详细了，我在这里只想梳理一下整个建立模型的步骤和稍微介绍一下Gecode。</p>
+<h2>Gecode</h2>
+<p>Gecode是一个用于解决约束问题的基于C++的函数库，覆盖了Windows，Linux，Mac三个平台。在2012年以前长期霸占着MiniZinc比赛的头名，就现在来说当然性能也不差，而且也一直有更新。关键的是，相比起CPLEX，它是免费开源的。官方主页：<a href="http://www.gecode.org/">Gecode</a>。</p>
+<h2>问题描述</h2>
+<p>在CSP概念里，问题被表示成几个部分：变量（Variable），值域（Domain），约束（Constraint）。变量是问题模型中所有可以改变的量，可以是一组数，也可以是未知的属性，比如说香港的某一所高校 …</p>
+                <a class="readmore" href="https://wangdaiwei.github.io/constraint-satisfaction-problem.html">read more</a>
+<p>There are <a href="https://wangdaiwei.github.io/constraint-satisfaction-problem.html#disqus_thread">comments</a>.</p>                </div><!-- /.entry-content -->
+            </article></li>
+                </ol><!-- /#posts-list -->
+                </section><!-- /#content -->
+        <section id="extras" class="body">
+                <div class="blogroll">
+                        <h2>links</h2>
+                        <ul>
+                            <li><a href="http://getpelican.com/">Pelican</a></li>
+                            <li><a href="http://python.org/">Python.org</a></li>
+                            <li><a href="http://jinja.pocoo.org/">Jinja2</a></li>
+                        </ul>
+                </div><!-- /.blogroll -->
+                <div class="social">
+                        <h2>social</h2>
+                        <ul>
+                            <li><a href="https://wangdaiwei.github.io/feeds/all.atom.xml" type="application/atom+xml" rel="alternate">atom feed</a></li>
+
+                        </ul>
+                </div><!-- /.social -->
+        </section><!-- /#extras -->
+
+        <footer id="contentinfo" class="body">
+                <address id="about" class="vcard body">
+                Proudly powered by <a href="http://getpelican.com/">Pelican</a>, which takes great advantage of <a href="http://python.org">Python</a>.
+                </address><!-- /#about -->
+
+                <p>The theme is by <a href="http://coding.smashingmagazine.com/2009/08/04/designing-a-html-5-layout-from-scratch/">Smashing Magazine</a>, thanks!</p>
+        </footer><!-- /#contentinfo -->
+
+    <script type="text/javascript">
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-46745526-1', 'auto');
+    ga('send', 'pageview');
+    </script>
+<script type="text/javascript">
+    var disqus_shortname = 'wangdaiwei-github';
+    (function () {
+        var s = document.createElement('script'); s.async = true;
+        s.type = 'text/javascript';
+        s.src = 'https://' + disqus_shortname + '.disqus.com/count.js';
+        (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+    }());
+</script>
+</body>
+</html>

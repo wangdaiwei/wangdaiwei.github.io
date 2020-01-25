@@ -11,8 +11,10 @@
         <header id="banner" class="body">
                 <h1><a href="https://wangdaiwei.github.io/">DaiweiWang@Github </a></h1>
                 <nav><ul>
-                    <li><a href="https://wangdaiwei.github.io/category/graphics.html">Graphics</a></li>
+                    <li><a href="https://wangdaiwei.github.io/category/development.html">Development</a></li>
                     <li><a href="https://wangdaiwei.github.io/category/math.html">Math</a></li>
+                    <li><a href="https://wangdaiwei.github.io/category/misc.html">Misc</a></li>
+                    <li><a href="https://wangdaiwei.github.io/category/study.html">Study</a></li>
                     <li class="active"><a href="https://wangdaiwei.github.io/category/unity.html">Unity</a></li>
                 </ul></nav>
         </header><!-- /#banner -->
@@ -47,23 +49,21 @@
 <h1>UI的重建过程</h1>
 <p>完成了合批操作之后，Unity会发送渲染指令给图形管道，以便完成Mesh的重建过程。如前文所述，<em>CanvasUpdateRegistry</em> 负责处理重建过程，关联的函数是<em>PerformUpdate</em>。</p>
 <p>一共有三个步骤：</p>
-<div class="highlight"><pre><span></span>1、被置为dirty状态的Layout组件需要通过ICanvasElement.Rebuild方法重建子UI元素的布局；
-2、ClippingRegistry.Cull方法会根据UI元素的大小裁剪掉所有注册的可裁剪元素；
-3、被置为dirty状态的Graphic元素会重建它们的图形元素（前者Graphic指Graphic类相关的元素，后者的图形指的是实际显示的图形）
-</pre></div>
-
-
+<ol>
+<li>被置为dirty状态的Layout组件需要通过ICanvasElement.Rebuild方法重建子UI元素的布局；</li>
+<li>ClippingRegistry.Cull方法会根据UI元素的大小裁剪掉所有注册的可裁剪元素；</li>
+<li>被置为dirty状态的Graphic元素会重建它们的图形元素（前者Graphic指Graphic类相关的元素，后者的图形指的是实际显示的图形）</li>
+</ol>
 <p>可以看出重建过程分为两部分，分别是Layout重建和Graphic重建。Layout重建有三个部分，分别是PreLayout，Layout和PostLayout。Graphic重建有两个部分，分别是PreRender和LatePreRender。</p>
 <p>Layout重建之前，首先需要按照层级关系进行排序，考虑到更接近根物体的Layout可能会影响到层级更低的物体的Layout，因此必须先计算它们的Layout。因此，UGUI采用的是根据层级关系排序，层级越高则在Layout列表里的位置就越靠前。</p>
 <p>当 <em>ICanvasElement</em> 组件的 <em>Rebuild</em> 方法被调用时，Graphic类会在PreRender这一步检查有哪些Graphic元素需要被重建。需要重建的情况包括：</p>
-<div class="highlight"><pre><span></span>顶点数据被置为dirty (比如RectTransform修改了大小)，则mesh信息会被重建
-材质数据被置为dirty (比如组件的材质球或者贴图被修改了)，则同一个GameObject上挂在的Canvas Renderer的材质也会被更新
-</pre></div>
-
-
+<ul>
+<li>顶点数据被置为dirty (比如RectTransform修改了大小)，则mesh信息会被重建</li>
+<li>材质数据被置为dirty (比如组件的材质球或者贴图被修改了)，则同一个GameObject上挂在的Canvas Renderer的材质也会被更新</li>
+</ul>
 <p>Graphic重建并不需要有任何的顺序，因此也不需要对输入进行排序。</p>
 <p>参考文档：</p>
-<p>https://unity3d.com/cn/learn/tutorials/topics/best-practices/fundamentals-unity-ui</p><p>There are <a href="https://wangdaiwei.github.io/uguide-ji-chu-zhi-shi.html#disqus_thread">comments</a>.</p>                </article>
+<p><a href="" title="https://unity3d.com/cn/learn/tutorials/topics/best-practices/fundamentals-unity-ui">https://unity3d.com/cn/learn/tutorials/topics/best-practices/fundamentals-unity-ui</a></p><p>There are <a href="https://wangdaiwei.github.io/uguide-ji-chu-zhi-shi.html#disqus_thread">comments</a>.</p>                </article>
             </aside><!-- /#featured -->
         <section id="extras" class="body">
                 <div class="blogroll">

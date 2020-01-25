@@ -11,7 +11,7 @@
 &lt;p&gt;&lt;img alt="Pixel Sample" src="https://wangdaiwei.github.io/img/TextureUV/pixel_sample.png"&gt;&lt;/p&gt;
 &lt;p&gt;之所以要用每个贴图像素(Texel)的左上角采样，是为了方便坐标转换，并且能够确保uv坐标(0, 0)一定最左上角的像素点(Pixel)，(1, 0)一定是最右上角的像素点(Pixel)；而采样贴图像素(Texel)中心点的话，要想采样贴图像素的边缘的话，就必须用到(-0.5, -0.5)像素空间坐标，这也意味着正常的0到1范围的uv坐标，最外围一圈的贴图像素(Texel)比起其他贴图像素(Texel)宽度或者高度都要小一半。&lt;/p&gt;
 &lt;p&gt;&lt;img alt="d3d10-coordspix9" src="https://wangdaiwei.github.io/img/TextureUV/d3d10-coordspix9.png"&gt;&lt;/p&gt;
-&lt;p&gt;为了确保左右两个贴图的高度采样值一样，需要将像素采样坐标从贴图像素左上角映射到中心位置，因此需要给uv坐标加上半个贴图像素大小的便宜。做完这个变换并且采用了点采样以后，就能看到相邻的两个地形的高度终于能够完美融合了。&lt;/p&gt;</content><category term="DirectX Texture"></category></entry><entry><title>UGUI的基础知识</title><link href="https://wangdaiwei.github.io/uguide-ji-chu-zhi-shi.html" rel="alternate"></link><published>2018-01-21T17:00:00+08:00</published><updated>2018-01-21T17:00:00+08:00</updated><author><name>Daiwei Wang</name></author><id>tag:wangdaiwei.github.io,2018-01-21:/uguide-ji-chu-zhi-shi.html</id><summary type="html">&lt;p&gt;最近在处理UGUI的效率问题，所以顺便翻译一下Unity UI的相关文档，以供查阅。&lt;/p&gt;
+&lt;p&gt;为了确保左右两个贴图的高度采样值一样，需要将像素采样坐标从贴图像素左上角映射到中心位置，因此需要给uv坐标加上半个贴图像素大小的便宜。做完这个变换并且采用了点采样以后，就能看到相邻的两个地形的高度终于能够完美融合了。&lt;/p&gt;</content><category term="Development"></category><category term="Computer Graphics"></category><category term="DirectX Texture"></category></entry><entry><title>UGUI的基础知识</title><link href="https://wangdaiwei.github.io/uguide-ji-chu-zhi-shi.html" rel="alternate"></link><published>2018-01-21T17:00:00+08:00</published><updated>2018-01-21T17:00:00+08:00</updated><author><name>Daiwei Wang</name></author><id>tag:wangdaiwei.github.io,2018-01-21:/uguide-ji-chu-zhi-shi.html</id><summary type="html">&lt;p&gt;最近在处理UGUI的效率问题，所以顺便翻译一下Unity UI的相关文档，以供查阅。&lt;/p&gt;
 &lt;h1&gt;基本概念&lt;/h1&gt;
 &lt;p&gt;&lt;em&gt;Canvas&lt;/em&gt;（画布）组件是所有UI元素都需要用到的类，通过 &lt;em&gt;Canvas&lt;/em&gt; 组件，UI元素的顶点和面得以映射到世界坐标系中，并根据 &lt;em&gt;Canvas&lt;/em&gt; 的设置决定如何绘制。一个很神奇的地方就是，当创建一个 &lt;em&gt;Canvas&lt;/em&gt; 元素的时候，场景里会出现一个非常硕大的平面，相对于普通的模型而言非常巨大。&lt;/p&gt;
 &lt;p&gt;&lt;img alt="image_1" src="https://wangdaiwei.github.io/img/UIOptimization/canvas_and_cube.png"&gt;&lt;/p&gt;
@@ -29,23 +29,21 @@
 &lt;h1&gt;UI的重建过程&lt;/h1&gt;
 &lt;p&gt;完成了合批操作之后，Unity会发送渲染指令给图形管道，以便完成Mesh的重建过程。如前文所述，&lt;em&gt;CanvasUpdateRegistry&lt;/em&gt; 负责处理重建过程，关联的函数是&lt;em&gt;PerformUpdate&lt;/em&gt;。&lt;/p&gt;
 &lt;p&gt;一共有三个步骤：&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;1、被置为dirty状态的Layout组件需要通过ICanvasElement.Rebuild方法重建子UI元素的布局；
-2、ClippingRegistry.Cull方法会根据UI元素的大小裁剪掉所有注册的可裁剪元素；
-3、被置为dirty状态的Graphic元素会重建它们的图形元素（前者Graphic指Graphic类相关的元素，后者的图形指的是实际显示的图形）
-&lt;/pre&gt;&lt;/div&gt;
-
-
+&lt;ol&gt;
+&lt;li&gt;被置为dirty状态的Layout组件需要通过ICanvasElement.Rebuild方法重建子UI元素的布局；&lt;/li&gt;
+&lt;li&gt;ClippingRegistry.Cull方法会根据UI元素的大小裁剪掉所有注册的可裁剪元素；&lt;/li&gt;
+&lt;li&gt;被置为dirty状态的Graphic元素会重建它们的图形元素（前者Graphic指Graphic类相关的元素，后者的图形指的是实际显示的图形）&lt;/li&gt;
+&lt;/ol&gt;
 &lt;p&gt;可以看出重建过程分为两部分，分别是Layout重建和Graphic重建。Layout重建有三个部分，分别是PreLayout，Layout和PostLayout。Graphic重建有两个部分，分别是PreRender和LatePreRender。&lt;/p&gt;
 &lt;p&gt;Layout重建之前，首先需要按照层级关系进行排序，考虑到更接近根物体的Layout可能会影响到层级更低的物体的Layout，因此必须先计算它们的Layout。因此，UGUI采用的是根据层级关系排序，层级越高则在Layout列表里的位置就越靠前。&lt;/p&gt;
 &lt;p&gt;当 &lt;em&gt;ICanvasElement&lt;/em&gt; 组件的 &lt;em&gt;Rebuild&lt;/em&gt; 方法被调用时，Graphic类会在PreRender这一步检查有哪些Graphic元素需要被重建。需要重建的情况包括：&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;顶点数据被置为dirty (比如RectTransform修改了大小)，则mesh信息会被重建
-材质数据被置为dirty (比如组件的材质球或者贴图被修改了)，则同一个GameObject上挂在的Canvas Renderer的材质也会被更新
-&lt;/pre&gt;&lt;/div&gt;
-
-
+&lt;ul&gt;
+&lt;li&gt;顶点数据被置为dirty (比如RectTransform修改了大小)，则mesh信息会被重建&lt;/li&gt;
+&lt;li&gt;材质数据被置为dirty (比如组件的材质球或者贴图被修改了)，则同一个GameObject上挂在的Canvas Renderer的材质也会被更新&lt;/li&gt;
+&lt;/ul&gt;
 &lt;p&gt;Graphic重建并不需要有任何的顺序，因此也不需要对输入进行排序。&lt;/p&gt;
 &lt;p&gt;参考文档：&lt;/p&gt;
-&lt;p&gt;https://unity3d.com/cn/learn/tutorials/topics/best-practices/fundamentals-unity-ui&lt;/p&gt;</content><category term="Unity"></category><category term="UI"></category><category term="Optimization"></category></entry><entry><title>Fractal</title><link href="https://wangdaiwei.github.io/Fractal.html" rel="alternate"></link><published>2017-01-07T00:00:00+08:00</published><updated>2017-01-07T00:00:00+08:00</updated><author><name>Daiwei Wang</name></author><id>tag:wangdaiwei.github.io,2017-01-07:/Fractal.html</id><summary type="html">&lt;p&gt;这篇文章来自Alan Zucconi的博客，原文链接：
+&lt;p&gt;&lt;a href="" title="https://unity3d.com/cn/learn/tutorials/topics/best-practices/fundamentals-unity-ui"&gt;https://unity3d.com/cn/learn/tutorials/topics/best-practices/fundamentals-unity-ui&lt;/a&gt;&lt;/p&gt;</content><category term="Unity"></category><category term="Unity"></category><category term="UI"></category><category term="Optimization"></category></entry><entry><title>Fractal</title><link href="https://wangdaiwei.github.io/Fractal.html" rel="alternate"></link><published>2017-01-07T00:00:00+08:00</published><updated>2017-01-07T00:00:00+08:00</updated><author><name>Daiwei Wang</name></author><id>tag:wangdaiwei.github.io,2017-01-07:/Fractal.html</id><summary type="html">&lt;p&gt;这篇文章来自Alan Zucconi的博客，原文链接：
 &lt;a href="http://www.alanzucconi.com/2016/08/17/fractals-101/"&gt;http://www.alanzucconi.com/2016/08/17/fractals-101/&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;Alan还写了很多关于Unity教程的博客，写的都非常好，推荐大家去看一下。&lt;/p&gt;
 &lt;hr&gt;
@@ -75,4 +73,920 @@
 &lt;p&gt;如果你有兴趣的话，维基百科有一些非常有趣的分形，&lt;a href="https://en.wikipedia.org/wiki/List_of_fractals_by_Hausdorff_dimension"&gt;点击查看&lt;/a&gt;。&lt;/p&gt;
 &lt;h2&gt;结论&lt;/h2&gt;
 &lt;p&gt;这篇文章快速简明地介绍了分形的概念，下一篇文章将会探讨为什么自然中分形出现的概率如此之大，并且它们为什么如此重要。&lt;/p&gt;
-&lt;p&gt;&lt;img alt="Fractal" src="https://wangdaiwei.github.io/img/Fractal/fractal_10.jpg"&gt;&lt;/p&gt;</content><category term="Math"></category></entry></feed>
+&lt;p&gt;&lt;img alt="Fractal" src="https://wangdaiwei.github.io/img/Fractal/fractal_10.jpg"&gt;&lt;/p&gt;</content><category term="Math"></category><category term="Math"></category></entry><entry><title>iOS Code Signing</title><link href="https://wangdaiwei.github.io/ios-code-signing.html" rel="alternate"></link><published>2015-10-01T00:00:00+08:00</published><updated>2015-10-01T00:00:00+08:00</updated><author><name>Daiwei Wang</name></author><id>tag:wangdaiwei.github.io,2015-10-01:/ios-code-signing.html</id><summary type="html">&lt;p&gt;最近回顾一下iOS的开发，有一些基本的问题都没有搞清楚，于是打算边学习边整理。Code Signing这个问题算是一个很基本的问题了，但是有时候却经常在处理这个问题上面花时间，毕竟这是真机调试必须经过的一关。&lt;/p&gt;
+&lt;p&gt;以下内容参考&lt;a href="" title="http://www.raywenderlich.com/2915/ios-code-signing-under-the-hood"&gt;raywenderlich.com&lt;/a&gt;，也可以直接看中文翻译版：&lt;a href="" title="http://www.cnblogs.com/andyque/archive/2011/08/30/2159086.html"&gt;（译）iOS Code Signing: 解惑&lt;/a&gt;。&lt;/p&gt;
+&lt;h2&gt;Code Signing为何如此重要&lt;/h2&gt;
+&lt;p&gt;为了让app能够顺利在手机上安装，code signing是必不可少的一步。如果只想在模拟器或者越狱过的手机上跑，那倒是可以完全忽略这个问题。除此之外，真机测试，发布企业版，发布App Store版本，都需要经过code signing。当然了，有时候在Xcode里面点击一下Fix Issue按钮，Xcode会自动帮你解决问题。在某些情况下，Xcode也会失灵，这种情况绝大多数是因为没有安装开发者私钥。&lt;/p&gt;
+&lt;h2&gt;公钥和私钥&lt;/h2&gt;
+&lt;p&gt;那么什么是密钥呢？当然就是别人不知道的东西了。用来给内容加密的东西都可以称作密钥。&lt;/p&gt;
+&lt;p&gt;在密码学领域，存在着两种加密方式，一种是对称加密，另一种是非对称加密。像我们熟悉的莫尔斯电码用的就是对称加密，只需要知道一种加密方式，就既能用来加密内容，也能用来解读被加密过的内容。&lt;/p&gt;
+&lt;p&gt;非对称加密就厉害多了 …&lt;/p&gt;</summary><content type="html">&lt;p&gt;最近回顾一下iOS的开发，有一些基本的问题都没有搞清楚，于是打算边学习边整理。Code Signing这个问题算是一个很基本的问题了，但是有时候却经常在处理这个问题上面花时间，毕竟这是真机调试必须经过的一关。&lt;/p&gt;
+&lt;p&gt;以下内容参考&lt;a href="" title="http://www.raywenderlich.com/2915/ios-code-signing-under-the-hood"&gt;raywenderlich.com&lt;/a&gt;，也可以直接看中文翻译版：&lt;a href="" title="http://www.cnblogs.com/andyque/archive/2011/08/30/2159086.html"&gt;（译）iOS Code Signing: 解惑&lt;/a&gt;。&lt;/p&gt;
+&lt;h2&gt;Code Signing为何如此重要&lt;/h2&gt;
+&lt;p&gt;为了让app能够顺利在手机上安装，code signing是必不可少的一步。如果只想在模拟器或者越狱过的手机上跑，那倒是可以完全忽略这个问题。除此之外，真机测试，发布企业版，发布App Store版本，都需要经过code signing。当然了，有时候在Xcode里面点击一下Fix Issue按钮，Xcode会自动帮你解决问题。在某些情况下，Xcode也会失灵，这种情况绝大多数是因为没有安装开发者私钥。&lt;/p&gt;
+&lt;h2&gt;公钥和私钥&lt;/h2&gt;
+&lt;p&gt;那么什么是密钥呢？当然就是别人不知道的东西了。用来给内容加密的东西都可以称作密钥。&lt;/p&gt;
+&lt;p&gt;在密码学领域，存在着两种加密方式，一种是对称加密，另一种是非对称加密。像我们熟悉的莫尔斯电码用的就是对称加密，只需要知道一种加密方式，就既能用来加密内容，也能用来解读被加密过的内容。&lt;/p&gt;
+&lt;p&gt;非对称加密就厉害多了，它的加密方式和解读方式是不一样的。存在两个密钥，一个叫公钥，大家都能看得到，一个叫私钥，只有少数几个人能看到。有时候，我们希望别人知道某些内容是自己发布的，于是就可以用自己的名字附到内容上，然后用私钥加密一下，看到内容的人就可以拿公钥解密，发现里面有你的名字，就知道这个内容是你发布的了。Code signing用的就是这个原理，确保每个app安装到手机上的时候的确是属于开发这个app的开发者。&lt;/p&gt;
+&lt;h2&gt;Code Signing对象&lt;/h2&gt;
+&lt;p&gt;乍一看，那似乎问题应该很简单，Apple只要给每个发布者注册一个私钥，然后大家都用统一的公钥，自然不就能区分出那个app是谁开发的了吗？当然，注重隐私的Apple公司肯定不会止步于此，还有更多的安全措施包含在里面。比如说每个开发者账号只能登记100个设备，于是设备信息也需要包括在内。或者是，app需要访问Push notification的功能，这时候安装证书又变了，同时app里面包含权限访问信息的字段也需要修改。总而言之，Apple是不会放心给程序员一个简单的开发环境的。&lt;/p&gt;
+&lt;p&gt;先把整体结构图放上来&lt;/p&gt;
+&lt;p&gt;&lt;img alt="Code Signing Objects" src="https://wangdaiwei.github.io/img/ios_code_signing/CodeSigningObjects.jpg"&gt;&lt;/p&gt;
+&lt;h4&gt;Private Key&lt;/h4&gt;
+&lt;p&gt;这是最关键的一个信息，你可以在本地自己创建一个私钥，新创建的开发者证书都需要有一个私钥对应。如果没有，可以通过钥匙串Keychain Access提交一个申请获取。&lt;/p&gt;
+&lt;p&gt;&lt;img alt="Private key" src="https://wangdaiwei.github.io/img/ios_code_signing/KeychainAccess.jpg"&gt;&lt;/p&gt;
+&lt;p&gt;每台电脑也会生成不一样的私钥，所以如果需要共同开发并且共用一个账号，那么就需要把私钥导出来，在每一台开发机上都安装。离开了私钥，证书无法给app签名。&lt;/p&gt;
+&lt;h4&gt;Device&lt;/h4&gt;
+&lt;p&gt;Apple拿什么区分不同的设备？就是用UDID。这是一个长度为40的16进制串，每个设备都不一样。这个UDID有什么作用呢？在发布Ad Hoc版本的app时候，设备会检查是否在code signing里面包含的设备列表里面，如果不是，就不能安装。&lt;/p&gt;
+&lt;p&gt;有时候我们在用新手机做开发的时候，也会弹出code signing不能用的情况。这种时候就是没有把新手机添加到设备列表里的缘故，可以让Xcode自动添加，也可以获取到UDID之后再到开发者中心里面手动输入UDID。需要注意100台设备的限制，超过的话就无法添加了，而且还不能逐个删除以前的设备，只能一次性全部设备清除，一年只能清楚一次。Apple在这方面真是太细心了。&lt;/p&gt;
+&lt;h4&gt;Certificates&lt;/h4&gt;
+&lt;p&gt;每台开发机都会有一个开发者证书，标示这个app是属于你开发的。这个证书全称是：#Apple Worldwide Developer Relations Certification Authority Certificate#&lt;/p&gt;
+&lt;p&gt;简单来讲，就是先从Keychain Access中生成一个Certificate Signing Request，然后在开发者中心将这个东西发给apple之后就可以在本地存储成一对公钥和私钥保存证书。&lt;/p&gt;
+&lt;p&gt;没有私钥的证书，安装在其他电脑上是没有用的，必须和私钥一起安装。&lt;/p&gt;
+&lt;h4&gt;Application&lt;/h4&gt;
+&lt;p&gt;就是一串DNS标识符，可以分成产品名称和公司标识符，合起来就是Bundle Identifier。可以在Info.plist里面修改。如下图：&lt;/p&gt;
+&lt;p&gt;&lt;img alt="info.plist" src="https://wangdaiwei.github.io/img/ios_code_signing/InfoPlistBundleIdentifier.jpg"&gt;&lt;/p&gt;
+&lt;h4&gt;Provisioning Profile&lt;/h4&gt;
+&lt;p&gt;把上面提到的东西合到一起，就是熟悉的Provisioning Profile了。&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;App ID&lt;/li&gt;
+&lt;li&gt;可以运行的设备列表(UDID)&lt;/li&gt;
+&lt;li&gt;可以信赖的开发者(Certificate)&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;把这三个东西都放在一个文件里面，这就是Provisioning Profile。发布app的时候，会把profile一起拷贝获取，或者是一起打包成ipa文件。&lt;/p&gt;
+&lt;p&gt;所以，私钥和开发者证书都是在钥匙串访问Keychain Access里面管理的，而Provisioning Profile则是在Xcode里面管理。&lt;/p&gt;
+&lt;h4&gt;正确的使用姿势&lt;/h4&gt;
+&lt;p&gt;现在假设我们还没有现成的Provisioning Profile，我们一步一步来创建一个。&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;检查自己的公钥私钥对，方便起见，起个好名字。&lt;/li&gt;
+&lt;li&gt;用#钥匙串访问Keychain Access#创建一个certificate request，下载并且安装，记得检查一下是否安装成功。&lt;/li&gt;
+&lt;li&gt;下载#Apple Worldwide Developer Relations Certification Authority Certificate#并且安装。&lt;/li&gt;
+&lt;li&gt;检查自己的项目Bundle ID，然后在#Provisioning Portal#里面创建对应的App ID。&lt;/li&gt;
+&lt;li&gt;把所有需要测试的设备的UDID添加到#Provisioning Portal#里面，也可以不先这么做，之后让Xcode自己做，不过那样就得重新生成一次证书了。&lt;/li&gt;
+&lt;li&gt;接下来你就可以在#Provisioning Portal#里面创建自己的Provisioning Profile了。&lt;/li&gt;
+&lt;li&gt;下载，安装，你需要在Xcode里面检查一下是否成功安装了，在账户信息一览能看到所有和账户关联的Provisioning Profiles。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;Done！记得备份自己的私钥，以便在不同的电脑上开发。&lt;/p&gt;</content><category term="Development"></category><category term="iOS"></category></entry><entry><title>iOS创建颜色的一个简单方法</title><link href="https://wangdaiwei.github.io/ioschuang-jian-yan-se-de-yi-ge-jian-dan-fang-fa.html" rel="alternate"></link><published>2014-08-23T00:00:00+08:00</published><updated>2014-08-23T00:00:00+08:00</updated><author><name>Daiwei Wang</name></author><id>tag:wangdaiwei.github.io,2014-08-23:/ioschuang-jian-yan-se-de-yi-ge-jian-dan-fang-fa.html</id><summary type="html">&lt;p&gt;Objective-C里面通过RGB值的方式创建一个UIColor的对象很简单，只需要传递给指定的RGB值就可以了：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="p"&gt;+&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;UIColor&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="nf"&gt;colorWithRed:&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;CGFloat&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="nv"&gt;red&lt;/span&gt; &lt;span class="nf"&gt;green:&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;CGFloat&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="nv"&gt;green&lt;/span&gt; &lt;span class="nf"&gt;blue:&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;CGFloat&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="nv"&gt;blue&lt;/span&gt; &lt;span class="nf"&gt;alpha:&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;CGFloat&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="nv"&gt;alpha&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;不过这个方法有一个问题，就是这里面的RGB值是用0～1.0的浮点值来表示的，对于常用的0～255的表示方式以及类似FFFFFF的十六进制表示方式并没有对应的方法。我比较喜欢通过Category的方式扩展UIColor，只需要在工程里面添加一个类就行了：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="bp"&gt;UIColor&lt;/span&gt;&lt;span class="o"&gt;+&lt;/span&gt;&lt;span class="n"&gt;CreateMethods&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;h&lt;/span&gt;
+
+&lt;span class="c1"&gt;//&lt;/span&gt;
+&lt;span class="c1"&gt;//  UIColor+CreateMethods.h&lt;/span&gt;
+&lt;span class="c1"&gt;//&lt;/span&gt;
+
+&lt;span class="cp"&gt;#import &amp;lt;UIKit/UIKit.h&amp;gt;&lt;/span&gt;
+
+&lt;span class="k"&gt;@interface&lt;/span&gt; &lt;span class="bp"&gt;UIColor&lt;/span&gt; &lt;span class="nl"&gt;(CreateMethods)&lt;/span&gt;
+
+&lt;span class="c1"&gt;// wrapper for [UIColor colorWithRed:green:blue:alpha:]&lt;/span&gt;
+&lt;span class="c1"&gt;// values must be in range 0 - 255 …&lt;/span&gt;&lt;/pre&gt;&lt;/div&gt;</summary><content type="html">&lt;p&gt;Objective-C里面通过RGB值的方式创建一个UIColor的对象很简单，只需要传递给指定的RGB值就可以了：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="p"&gt;+&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;UIColor&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="nf"&gt;colorWithRed:&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;CGFloat&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="nv"&gt;red&lt;/span&gt; &lt;span class="nf"&gt;green:&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;CGFloat&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="nv"&gt;green&lt;/span&gt; &lt;span class="nf"&gt;blue:&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;CGFloat&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="nv"&gt;blue&lt;/span&gt; &lt;span class="nf"&gt;alpha:&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;CGFloat&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="nv"&gt;alpha&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;不过这个方法有一个问题，就是这里面的RGB值是用0～1.0的浮点值来表示的，对于常用的0～255的表示方式以及类似FFFFFF的十六进制表示方式并没有对应的方法。我比较喜欢通过Category的方式扩展UIColor，只需要在工程里面添加一个类就行了：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="bp"&gt;UIColor&lt;/span&gt;&lt;span class="o"&gt;+&lt;/span&gt;&lt;span class="n"&gt;CreateMethods&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;h&lt;/span&gt;
+
+&lt;span class="c1"&gt;//&lt;/span&gt;
+&lt;span class="c1"&gt;//  UIColor+CreateMethods.h&lt;/span&gt;
+&lt;span class="c1"&gt;//&lt;/span&gt;
+
+&lt;span class="cp"&gt;#import &amp;lt;UIKit/UIKit.h&amp;gt;&lt;/span&gt;
+
+&lt;span class="k"&gt;@interface&lt;/span&gt; &lt;span class="bp"&gt;UIColor&lt;/span&gt; &lt;span class="nl"&gt;(CreateMethods)&lt;/span&gt;
+
+&lt;span class="c1"&gt;// wrapper for [UIColor colorWithRed:green:blue:alpha:]&lt;/span&gt;
+&lt;span class="c1"&gt;// values must be in range 0 - 255&lt;/span&gt;
+&lt;span class="p"&gt;+&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;UIColor&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="nf"&gt;colorWith8BitRed:&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;NSInteger&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="nv"&gt;red&lt;/span&gt; &lt;span class="nf"&gt;green:&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;NSInteger&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="nv"&gt;green&lt;/span&gt; &lt;span class="nf"&gt;blue:&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;NSInteger&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="nv"&gt;blue&lt;/span&gt; &lt;span class="nf"&gt;alpha:&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;CGFloat&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="nv"&gt;alpha&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+
+&lt;span class="c1"&gt;// Creates color using hex representation&lt;/span&gt;
+&lt;span class="c1"&gt;// hex - must be in format: #FF00CC &lt;/span&gt;
+&lt;span class="c1"&gt;// alpha - must be in range 0.0 - 1.0&lt;/span&gt;
+&lt;span class="p"&gt;+&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;UIColor&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="nf"&gt;colorWithHex:&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;NSString&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="nv"&gt;hex&lt;/span&gt; &lt;span class="nf"&gt;alpha:&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;CGFloat&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="nv"&gt;alpha&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+
+&lt;span class="k"&gt;@end&lt;/span&gt;
+
+&lt;span class="bp"&gt;UIColor&lt;/span&gt;&lt;span class="o"&gt;+&lt;/span&gt;&lt;span class="n"&gt;CreateMethods&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;m&lt;/span&gt;
+
+&lt;span class="c1"&gt;//&lt;/span&gt;
+&lt;span class="c1"&gt;//  UIColor+CreateMethods.m&lt;/span&gt;
+&lt;span class="c1"&gt;//&lt;/span&gt;
+
+&lt;span class="cp"&gt;#import &amp;quot;UIColor+CreateMethods.h&amp;quot;&lt;/span&gt;
+
+&lt;span class="k"&gt;@implementation&lt;/span&gt; &lt;span class="bp"&gt;UIColor&lt;/span&gt; &lt;span class="nl"&gt;(CreateMethods)&lt;/span&gt;
+
+&lt;span class="p"&gt;+&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;UIColor&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="nf"&gt;colorWith8BitRed:&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;NSInteger&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="nv"&gt;red&lt;/span&gt; &lt;span class="nf"&gt;green:&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;NSInteger&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="nv"&gt;green&lt;/span&gt; &lt;span class="nf"&gt;blue:&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;NSInteger&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="nv"&gt;blue&lt;/span&gt; &lt;span class="nf"&gt;alpha:&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;CGFloat&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="nv"&gt;alpha&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="bp"&gt;UIColor&lt;/span&gt; &lt;span class="nl"&gt;colorWithRed&lt;/span&gt;&lt;span class="p"&gt;:(&lt;/span&gt;&lt;span class="n"&gt;red&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="mf"&gt;255.0&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="nl"&gt;green&lt;/span&gt;&lt;span class="p"&gt;:(&lt;/span&gt;&lt;span class="n"&gt;green&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="mf"&gt;255.0&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="nl"&gt;blue&lt;/span&gt;&lt;span class="p"&gt;:(&lt;/span&gt;&lt;span class="n"&gt;blue&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="mf"&gt;255.0&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="nl"&gt;alpha&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="n"&gt;alpha&lt;/span&gt;&lt;span class="p"&gt;];&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+
+&lt;span class="p"&gt;+&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;UIColor&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="nf"&gt;colorWithHex:&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;NSString&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="nv"&gt;hex&lt;/span&gt; &lt;span class="nf"&gt;alpha:&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;CGFloat&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="nv"&gt;alpha&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+
+    &lt;span class="n"&gt;assert&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;7&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;hex&lt;/span&gt; &lt;span class="n"&gt;length&lt;/span&gt;&lt;span class="p"&gt;]);&lt;/span&gt;
+    &lt;span class="n"&gt;assert&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="sc"&gt;&amp;#39;#&amp;#39;&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;hex&lt;/span&gt; &lt;span class="nl"&gt;characterAtIndex&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;]);&lt;/span&gt;
+
+    &lt;span class="bp"&gt;NSString&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="n"&gt;redHex&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="bp"&gt;NSString&lt;/span&gt; &lt;span class="nl"&gt;stringWithFormat&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="s"&gt;@&amp;quot;0x%@&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;hex&lt;/span&gt; &lt;span class="nl"&gt;substringWithRange&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="n"&gt;NSMakeRange&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;)]];&lt;/span&gt;
+    &lt;span class="bp"&gt;NSString&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="n"&gt;greenHex&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="bp"&gt;NSString&lt;/span&gt; &lt;span class="nl"&gt;stringWithFormat&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="s"&gt;@&amp;quot;0x%@&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;hex&lt;/span&gt; &lt;span class="nl"&gt;substringWithRange&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="n"&gt;NSMakeRange&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;3&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;)]];&lt;/span&gt;
+    &lt;span class="bp"&gt;NSString&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="n"&gt;blueHex&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="bp"&gt;NSString&lt;/span&gt; &lt;span class="nl"&gt;stringWithFormat&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="s"&gt;@&amp;quot;0x%@&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;hex&lt;/span&gt; &lt;span class="nl"&gt;substringWithRange&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="n"&gt;NSMakeRange&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;5&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;)]];&lt;/span&gt;
+
+    &lt;span class="kt"&gt;unsigned&lt;/span&gt; &lt;span class="n"&gt;redInt&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+    &lt;span class="bp"&gt;NSScanner&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="n"&gt;rScanner&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="bp"&gt;NSScanner&lt;/span&gt; &lt;span class="nl"&gt;scannerWithString&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="n"&gt;redHex&lt;/span&gt;&lt;span class="p"&gt;];&lt;/span&gt;
+    &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;rScanner&lt;/span&gt; &lt;span class="nl"&gt;scanHexInt&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&lt;/span&gt;&lt;span class="n"&gt;redInt&lt;/span&gt;&lt;span class="p"&gt;];&lt;/span&gt;
+
+    &lt;span class="kt"&gt;unsigned&lt;/span&gt; &lt;span class="n"&gt;greenInt&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+    &lt;span class="bp"&gt;NSScanner&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="n"&gt;gScanner&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="bp"&gt;NSScanner&lt;/span&gt; &lt;span class="nl"&gt;scannerWithString&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="n"&gt;greenHex&lt;/span&gt;&lt;span class="p"&gt;];&lt;/span&gt;
+    &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;gScanner&lt;/span&gt; &lt;span class="nl"&gt;scanHexInt&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&lt;/span&gt;&lt;span class="n"&gt;greenInt&lt;/span&gt;&lt;span class="p"&gt;];&lt;/span&gt;
+
+    &lt;span class="kt"&gt;unsigned&lt;/span&gt; &lt;span class="n"&gt;blueInt&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+    &lt;span class="bp"&gt;NSScanner&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="n"&gt;bScanner&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="bp"&gt;NSScanner&lt;/span&gt; &lt;span class="nl"&gt;scannerWithString&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="n"&gt;blueHex&lt;/span&gt;&lt;span class="p"&gt;];&lt;/span&gt;
+    &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;bScanner&lt;/span&gt; &lt;span class="nl"&gt;scanHexInt&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&lt;/span&gt;&lt;span class="n"&gt;blueInt&lt;/span&gt;&lt;span class="p"&gt;];&lt;/span&gt;
+
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="bp"&gt;UIColor&lt;/span&gt; &lt;span class="nl"&gt;colorWith8BitRed&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="n"&gt;redInt&lt;/span&gt; &lt;span class="nl"&gt;green&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="n"&gt;greenInt&lt;/span&gt; &lt;span class="nl"&gt;blue&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="n"&gt;blueInt&lt;/span&gt; &lt;span class="nl"&gt;alpha&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="n"&gt;alpha&lt;/span&gt;&lt;span class="p"&gt;];&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+
+&lt;span class="k"&gt;@end&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;该方法来自&lt;a href="http://stackoverflow.com/questions/6207329/how-to-set-hex-color-code-for-background"&gt;StackOverflow&lt;/a&gt;。&lt;/p&gt;</content><category term="Development"></category><category term="iOS"></category></entry><entry><title>iOS推送机制的隐患</title><link href="https://wangdaiwei.github.io/iostui-song-ji-zhi-de-yin-huan.html" rel="alternate"></link><published>2014-06-23T00:00:00+08:00</published><updated>2014-06-23T00:00:00+08:00</updated><author><name>Daiwei Wang</name></author><id>tag:wangdaiwei.github.io,2014-06-23:/iostui-song-ji-zhi-de-yin-huan.html</id><summary type="html">&lt;p&gt;最近在研究iOS的推送系统，虽然配置起来稍微麻烦了一些，但是实现的原理并不复杂。简单来讲，就是通过app向APNS（Apple Push Notification Service）发送一个注册的请求，等到APNS同意之后便会发回设备的ID。在这个过程中，用户是可以一开始就选择是否接受推送通知的，如果用户不同意接收推送通知的话那么APNS也会收到用户的选择而不再发送推送通知，直到用户修改设置里面的选项。&lt;/p&gt;
+&lt;p&gt;现在的一个问题就在于，推送通知在app没有打开的情况（或者打开以后进入后台）下，是iOS系统自己处理的。这就造成什么问题呢？应用在没有使用的情况下，是没有办法处理接收到的推送通知的。比如说一个新闻客户端，如果想在收到推送通知的时候弹出提示框显示最新的新闻，这是无法办到的，除非用户在设置里面将推送的显示修改成提示框形式。这样有一个好处就是，应用程序无需关注程序没有打开情况下对推送的信息的处理，同时也节省了系统的资源，不需要每一个程序都监视推送信息的接收。&lt;/p&gt;
+&lt;p&gt;直到现在都一切正常，没有什么大问题。但是最近突然发现了一个很致命的安全隐患，就是&lt;strong&gt;假如用户卸载了app并且重新安装回去，即使用户不打开app也能收到之前用户的推送信息&lt;/strong&gt;。这代表什么呢？假使用户卸载了应用程序但是没有删除用户信息，那么接下来的用户如果安装了同一个应用并且并没有登录进应用程序，那么他照样可以收到&lt;strong&gt;之前用户&lt;/strong&gt;的推送信息。这是什么原因呢？iOS在卸载用户程序的时候不会告诉给应用程序提供者，因此假如该用户没有在新的设备上登录的话，那么应用程序提供者将会继续发送该用户的推送信息给该设备。当设备重新安装上app的时候，就会接收到之前用户的推送信息，只要这位用户还没有登录自己的账号 …&lt;/p&gt;</summary><content type="html">&lt;p&gt;最近在研究iOS的推送系统，虽然配置起来稍微麻烦了一些，但是实现的原理并不复杂。简单来讲，就是通过app向APNS（Apple Push Notification Service）发送一个注册的请求，等到APNS同意之后便会发回设备的ID。在这个过程中，用户是可以一开始就选择是否接受推送通知的，如果用户不同意接收推送通知的话那么APNS也会收到用户的选择而不再发送推送通知，直到用户修改设置里面的选项。&lt;/p&gt;
+&lt;p&gt;现在的一个问题就在于，推送通知在app没有打开的情况（或者打开以后进入后台）下，是iOS系统自己处理的。这就造成什么问题呢？应用在没有使用的情况下，是没有办法处理接收到的推送通知的。比如说一个新闻客户端，如果想在收到推送通知的时候弹出提示框显示最新的新闻，这是无法办到的，除非用户在设置里面将推送的显示修改成提示框形式。这样有一个好处就是，应用程序无需关注程序没有打开情况下对推送的信息的处理，同时也节省了系统的资源，不需要每一个程序都监视推送信息的接收。&lt;/p&gt;
+&lt;p&gt;直到现在都一切正常，没有什么大问题。但是最近突然发现了一个很致命的安全隐患，就是&lt;strong&gt;假如用户卸载了app并且重新安装回去，即使用户不打开app也能收到之前用户的推送信息&lt;/strong&gt;。这代表什么呢？假使用户卸载了应用程序但是没有删除用户信息，那么接下来的用户如果安装了同一个应用并且并没有登录进应用程序，那么他照样可以收到&lt;strong&gt;之前用户&lt;/strong&gt;的推送信息。这是什么原因呢？iOS在卸载用户程序的时候不会告诉给应用程序提供者，因此假如该用户没有在新的设备上登录的话，那么应用程序提供者将会继续发送该用户的推送信息给该设备。当设备重新安装上app的时候，就会接收到之前用户的推送信息，只要这位用户还没有登录自己的账号。&lt;/p&gt;
+&lt;p&gt;我在WhatsApp上测试了一下，这种情况的确是存在的。WhatApp每次卸载之后都要重新安装，但只要重新安装之后不登陆新的账号，那么之前用户的推送信息都能全部收到。虽然说这种情况并不常见，但是还是有一定的风险的，以后如果使用app的时候在卸载程序的时候最好都记得把登录信息删除掉。如果忘记删除了，其实也不太要紧，可以有两个选择：一是重新登录一次再删除掉登录信息或者在新的设备上登录，二是保证设备在删除该app后24小时内没有重新安装回去，在这种情况下设备也不会接收到推送信息，实测有效。不过突然想到要是变成了24小时之后收不到推送信息，然后再把手机的时间拨回去会怎么样，因为只是将手机的时间往后拨就能模拟删除应用24小时了。有机会尝试一下吧。&lt;/p&gt;
+&lt;p&gt;Android倒是没有这样的问题，因为推送信息是交由app自己处理的。因此只要不是程序故意想把推送信息显示出来，只要app检测到用户没有登录便不把推送信息显示出来即可。&lt;/p&gt;</content><category term="Development"></category><category term="iOS"></category></entry><entry><title>Three.js赛车游戏</title><link href="https://wangdaiwei.github.io/threejssai-che-you-xi.html" rel="alternate"></link><published>2014-05-31T00:00:00+08:00</published><updated>2014-05-31T00:00:00+08:00</updated><author><name>Daiwei Wang</name></author><id>tag:wangdaiwei.github.io,2014-05-31:/threejssai-che-you-xi.html</id><summary type="html">&lt;h2&gt;赛车坐标系&lt;/h2&gt;
+&lt;p&gt;先不讨论场景和光线的配置，光是赛车本身涉及到的一些座标变换就足够复杂的了。先假设汽车模型摆放在坐标轴中心，如下图所示：&lt;/p&gt;
+&lt;p&gt;&lt;img alt="Car icon" src="https://wangdaiwei.github.io/img/WebGL_RacingGame/car.png"&gt;&lt;/p&gt;
+&lt;p&gt;一般情况下坐标系为右手系表示，即图中的红，绿，蓝分别代表x，y，z轴。假设汽车要向前移动的话，那么车身和车轮都需要沿着坐标系z轴作平移变换，同时前轮需要绕着前轮车轴为中心沿着x轴方向旋转变换。直白地说，就是车子在往前走的时候轮子也需要滚动。&lt;/p&gt;
+&lt;p&gt;直行时的情况比较简单，但是如果需要旋转就比较麻烦了。先来考虑真实的情况，轮子在转动的时候不是一下子就旋转到位的，而是有个缓慢转动的过程，在转动的过程中车身也一直在前进。我们需要记录下来车身此时面对的方向以及轮子此时面对的方向。我们需要将坐标系拆分成两个部分，一个是车子和整个场景所在的世界坐标系，一个是以车子自身位中心的单位坐标系。我们需要在单位坐标系下对轮子做相对于车身的座标变换，在世界坐标系下更新车子当前的座标和面对的方向。&lt;/p&gt;
+&lt;h2&gt;前期准备&lt;/h2&gt;
+&lt;p&gt;实际上上面的内容Three.js里面的例子已经有现成的代码了，之前还花了好多时间研究诸如cannon.js，Physijs等等JavaSript物理引擎，出来的结果不是车子不停的打转就是动弹不得。还是先考虑没有物理引擎的情况吧。&lt;/p&gt;
+&lt;p&gt;Car.js的文件可以在Three.js的github源码中找到，在example目录下的js文件夹里面。也可以在我的github里面这个demo的代码中找到，但是我稍微修改了一下里面的参数。&lt;/p&gt;
+&lt;p&gt;首先我们需要将Three.js库以及Car.js添加到源文件当中&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="p"&gt;&amp;lt;&lt;/span&gt;&lt;span class="nt"&gt;script&lt;/span&gt; &lt;span class="na"&gt;src&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s"&gt;&amp;#39;js/libs/three …&lt;/span&gt;&lt;/pre&gt;&lt;/div&gt;</summary><content type="html">&lt;h2&gt;赛车坐标系&lt;/h2&gt;
+&lt;p&gt;先不讨论场景和光线的配置，光是赛车本身涉及到的一些座标变换就足够复杂的了。先假设汽车模型摆放在坐标轴中心，如下图所示：&lt;/p&gt;
+&lt;p&gt;&lt;img alt="Car icon" src="https://wangdaiwei.github.io/img/WebGL_RacingGame/car.png"&gt;&lt;/p&gt;
+&lt;p&gt;一般情况下坐标系为右手系表示，即图中的红，绿，蓝分别代表x，y，z轴。假设汽车要向前移动的话，那么车身和车轮都需要沿着坐标系z轴作平移变换，同时前轮需要绕着前轮车轴为中心沿着x轴方向旋转变换。直白地说，就是车子在往前走的时候轮子也需要滚动。&lt;/p&gt;
+&lt;p&gt;直行时的情况比较简单，但是如果需要旋转就比较麻烦了。先来考虑真实的情况，轮子在转动的时候不是一下子就旋转到位的，而是有个缓慢转动的过程，在转动的过程中车身也一直在前进。我们需要记录下来车身此时面对的方向以及轮子此时面对的方向。我们需要将坐标系拆分成两个部分，一个是车子和整个场景所在的世界坐标系，一个是以车子自身位中心的单位坐标系。我们需要在单位坐标系下对轮子做相对于车身的座标变换，在世界坐标系下更新车子当前的座标和面对的方向。&lt;/p&gt;
+&lt;h2&gt;前期准备&lt;/h2&gt;
+&lt;p&gt;实际上上面的内容Three.js里面的例子已经有现成的代码了，之前还花了好多时间研究诸如cannon.js，Physijs等等JavaSript物理引擎，出来的结果不是车子不停的打转就是动弹不得。还是先考虑没有物理引擎的情况吧。&lt;/p&gt;
+&lt;p&gt;Car.js的文件可以在Three.js的github源码中找到，在example目录下的js文件夹里面。也可以在我的github里面这个demo的代码中找到，但是我稍微修改了一下里面的参数。&lt;/p&gt;
+&lt;p&gt;首先我们需要将Three.js库以及Car.js添加到源文件当中&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="p"&gt;&amp;lt;&lt;/span&gt;&lt;span class="nt"&gt;script&lt;/span&gt; &lt;span class="na"&gt;src&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s"&gt;&amp;#39;js/libs/three.min.js&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;&amp;gt;&amp;lt;/&lt;/span&gt;&lt;span class="nt"&gt;script&lt;/span&gt;&lt;span class="p"&gt;&amp;gt;&lt;/span&gt;
+&lt;span class="p"&gt;&amp;lt;&lt;/span&gt;&lt;span class="nt"&gt;script&lt;/span&gt; &lt;span class="na"&gt;src&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s"&gt;&amp;#39;js/Car.js&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;&amp;gt;&amp;lt;/&lt;/span&gt;&lt;span class="nt"&gt;script&lt;/span&gt;&lt;span class="p"&gt;&amp;gt;&lt;/span&gt;
+&lt;span class="p"&gt;&amp;lt;&lt;/span&gt;&lt;span class="nt"&gt;script&lt;/span&gt; &lt;span class="na"&gt;src&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;js/Detector.js&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;&amp;gt;&amp;lt;/&lt;/span&gt;&lt;span class="nt"&gt;script&lt;/span&gt;&lt;span class="p"&gt;&amp;gt;&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;为了实现对键盘输入的检测还需要一个简单的方法监测键盘输入&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kd"&gt;var&lt;/span&gt; &lt;span class="nx"&gt;carControl&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="nx"&gt;moveForward&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="kc"&gt;false&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="nx"&gt;moveBackward&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="kc"&gt;false&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="nx"&gt;moveLeft&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="kc"&gt;false&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="nx"&gt;moveRight&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="kc"&gt;false&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+
+&lt;span class="kd"&gt;function&lt;/span&gt; &lt;span class="nx"&gt;onKeyDown&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;event&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; 
+&lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="k"&gt;switch&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;event&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;keyCode&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; 
+    &lt;span class="p"&gt;{&lt;/span&gt;
+        &lt;span class="k"&gt;case&lt;/span&gt; &lt;span class="mi"&gt;87&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="cm"&gt;/*W*/&lt;/span&gt;
+        &lt;span class="k"&gt;case&lt;/span&gt; &lt;span class="mi"&gt;38&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="cm"&gt;/*up*/&lt;/span&gt; &lt;span class="nx"&gt;carControl&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;moveForward&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="kc"&gt;true&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="k"&gt;break&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+
+        &lt;span class="k"&gt;case&lt;/span&gt; &lt;span class="mi"&gt;83&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="cm"&gt;/*S*/&lt;/span&gt;
+        &lt;span class="k"&gt;case&lt;/span&gt; &lt;span class="mi"&gt;40&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="cm"&gt;/*down*/&lt;/span&gt;&lt;span class="nx"&gt;carControl&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;moveBackward&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="kc"&gt;true&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="k"&gt;break&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+
+        &lt;span class="k"&gt;case&lt;/span&gt; &lt;span class="mi"&gt;65&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="cm"&gt;/*A*/&lt;/span&gt;
+        &lt;span class="k"&gt;case&lt;/span&gt; &lt;span class="mi"&gt;37&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="cm"&gt;/*left*/&lt;/span&gt;&lt;span class="nx"&gt;carControl&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;moveLeft&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="kc"&gt;true&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="k"&gt;break&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+
+        &lt;span class="k"&gt;case&lt;/span&gt; &lt;span class="mi"&gt;68&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="cm"&gt;/*D*/&lt;/span&gt;
+        &lt;span class="k"&gt;case&lt;/span&gt; &lt;span class="mi"&gt;39&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="cm"&gt;/*right*/&lt;/span&gt;&lt;span class="nx"&gt;carControl&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;moveRight&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="kc"&gt;true&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="k"&gt;break&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+    &lt;span class="p"&gt;}&lt;/span&gt;
+&lt;span class="p"&gt;};&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;好了，接下来我们可以编写我们具体实现的js代码了。&lt;/p&gt;
+&lt;h2&gt;构建场景元素&lt;/h2&gt;
+&lt;p&gt;首先把WebGL元素添加到HTML画布中&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt; &lt;span class="o"&gt;!&lt;/span&gt; &lt;span class="nx"&gt;Detector&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;webgl&lt;/span&gt; &lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+
+    &lt;span class="nx"&gt;Detector&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;addGetWebGLMessage&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
+    &lt;span class="nb"&gt;document&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;getElementById&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;container&amp;#39;&lt;/span&gt; &lt;span class="p"&gt;).&lt;/span&gt;&lt;span class="nx"&gt;innerHTML&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+
+&lt;span class="p"&gt;}&lt;/span&gt;
+
+&lt;span class="c1"&gt;// set the scene size&lt;/span&gt;
+&lt;span class="kd"&gt;var&lt;/span&gt; &lt;span class="nx"&gt;WIDTH&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nb"&gt;window&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;innerWidth&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;span class="nx"&gt;HEIGHT&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;500&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+
+&lt;span class="nx"&gt;container&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nb"&gt;document&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;getElementById&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;gameCanvas&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+
+&lt;span class="nx"&gt;renderer&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="nx"&gt;THREE&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;WebGLRenderer&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
+&lt;span class="nx"&gt;renderer&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;setSize&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt; &lt;span class="nb"&gt;window&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;innerWidth&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nx"&gt;HEIGHT&lt;/span&gt; &lt;span class="p"&gt;);&lt;/span&gt;
+&lt;span class="nx"&gt;container&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;appendChild&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt; &lt;span class="nx"&gt;renderer&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;domElement&lt;/span&gt; &lt;span class="p"&gt;);&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;加入摄像机元素，这里之所以将摄像机的远截面设置得那么远是希望能够让摄像机能够捕捉到远处的场景。我们采用skybox的方式来模拟天空的场景，具体如何实现下面会提到。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="nx"&gt;scene&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="nx"&gt;THREE&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;Scene&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
+
+&lt;span class="nx"&gt;camera&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="nx"&gt;THREE&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;PerspectiveCamera&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt; &lt;span class="mi"&gt;55&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nb"&gt;window&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;innerWidth&lt;/span&gt; &lt;span class="o"&gt;/&lt;/span&gt; &lt;span class="nx"&gt;HEIGHT&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mf"&gt;0.1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;30000&lt;/span&gt; &lt;span class="p"&gt;);&lt;/span&gt;
+&lt;span class="nx"&gt;camera&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;position&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;set&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;7&lt;/span&gt; &lt;span class="p"&gt;);&lt;/span&gt;
+&lt;span class="nx"&gt;camera&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;lookAt&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="nx"&gt;THREE&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;Vector3&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt; &lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;);&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2&gt;模拟天空场景&lt;/h2&gt;
+&lt;p&gt;如何在利用Three.js模拟天空？假如直接将一个平面放置在场景的正上方，那当我们平视整个场景的时候必然是看不到任何东西的，我们需要有一种天空“包裹”住整个场景的感觉，这也许是称作skybox的原因了，可以使得画面感觉显示的范围更大。&lt;/p&gt;
+&lt;p&gt;首先要创建一个skybox的图案，用three.js的loader读取文件&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c1"&gt;// load skybox&lt;/span&gt;
+&lt;span class="kd"&gt;var&lt;/span&gt; &lt;span class="nx"&gt;cubeMap&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="nx"&gt;THREE&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;Texture&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt; &lt;span class="p"&gt;[]&lt;/span&gt; &lt;span class="p"&gt;);&lt;/span&gt;
+&lt;span class="nx"&gt;cubeMap&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;format&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nx"&gt;THREE&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;RGBFormat&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="nx"&gt;cubeMap&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;flipY&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="kc"&gt;false&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+
+&lt;span class="kd"&gt;var&lt;/span&gt; &lt;span class="nx"&gt;loader&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="nx"&gt;THREE&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;ImageLoader&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
+&lt;span class="nx"&gt;loader&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;load&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;textures/skyboxsun25degtest.png&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="kd"&gt;function&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt; &lt;span class="nx"&gt;image&lt;/span&gt; &lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+
+    &lt;span class="kd"&gt;var&lt;/span&gt; &lt;span class="nx"&gt;getSide&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="kd"&gt;function&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt; &lt;span class="nx"&gt;x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nx"&gt;y&lt;/span&gt; &lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+
+        &lt;span class="kd"&gt;var&lt;/span&gt; &lt;span class="nx"&gt;size&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;1024&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+
+        &lt;span class="kd"&gt;var&lt;/span&gt; &lt;span class="nx"&gt;canvas&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nb"&gt;document&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;createElement&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;canvas&amp;#39;&lt;/span&gt; &lt;span class="p"&gt;);&lt;/span&gt;
+        &lt;span class="nx"&gt;canvas&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;width&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nx"&gt;size&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+        &lt;span class="nx"&gt;canvas&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;height&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nx"&gt;size&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+
+        &lt;span class="kd"&gt;var&lt;/span&gt; &lt;span class="nx"&gt;context&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nx"&gt;canvas&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;getContext&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;2d&amp;#39;&lt;/span&gt; &lt;span class="p"&gt;);&lt;/span&gt;
+        &lt;span class="nx"&gt;context&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;drawImage&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt; &lt;span class="nx"&gt;image&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="nx"&gt;x&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="nx"&gt;size&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="nx"&gt;y&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="nx"&gt;size&lt;/span&gt; &lt;span class="p"&gt;);&lt;/span&gt;
+
+        &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="nx"&gt;canvas&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+
+    &lt;span class="p"&gt;};&lt;/span&gt;
+
+    &lt;span class="nx"&gt;cubeMap&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;image&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt; &lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nx"&gt;getSide&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt; &lt;span class="p"&gt;);&lt;/span&gt; &lt;span class="c1"&gt;// px&lt;/span&gt;
+    &lt;span class="nx"&gt;cubeMap&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;image&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt; &lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nx"&gt;getSide&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt; &lt;span class="p"&gt;);&lt;/span&gt; &lt;span class="c1"&gt;// nx&lt;/span&gt;
+    &lt;span class="nx"&gt;cubeMap&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;image&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt; &lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nx"&gt;getSide&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt; &lt;span class="p"&gt;);&lt;/span&gt; &lt;span class="c1"&gt;// py&lt;/span&gt;
+    &lt;span class="nx"&gt;cubeMap&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;image&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt; &lt;span class="mi"&gt;3&lt;/span&gt; &lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nx"&gt;getSide&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt; &lt;span class="p"&gt;);&lt;/span&gt; &lt;span class="c1"&gt;// ny&lt;/span&gt;
+    &lt;span class="nx"&gt;cubeMap&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;image&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt; &lt;span class="mi"&gt;4&lt;/span&gt; &lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nx"&gt;getSide&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt; &lt;span class="p"&gt;);&lt;/span&gt; &lt;span class="c1"&gt;// pz&lt;/span&gt;
+    &lt;span class="nx"&gt;cubeMap&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;image&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt; &lt;span class="mi"&gt;5&lt;/span&gt; &lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nx"&gt;getSide&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt; &lt;span class="mi"&gt;3&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt; &lt;span class="p"&gt;);&lt;/span&gt; &lt;span class="c1"&gt;// nz&lt;/span&gt;
+    &lt;span class="nx"&gt;cubeMap&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;needsUpdate&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="kc"&gt;true&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+
+&lt;span class="p"&gt;}&lt;/span&gt; &lt;span class="p"&gt;);&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;在回调函数中，创建了getSide函数来获取skybox立方体六个面的图案。文件本身是4096 × 3072大小的图片，利用HTML画布的绘图函数来返回每一个面图形信息，接下来就可以用Three.js自带的着色器为整个天空的skybox着色&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kd"&gt;var&lt;/span&gt; &lt;span class="nx"&gt;cubeShader&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nx"&gt;THREE&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;ShaderLib&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;cube&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;];&lt;/span&gt;
+&lt;span class="nx"&gt;cubeShader&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;uniforms&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;tCube&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;].&lt;/span&gt;&lt;span class="nx"&gt;value&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nx"&gt;cubeMap&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;利用生成的着色器创建skybox的材质&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kd"&gt;var&lt;/span&gt; &lt;span class="nx"&gt;skyBoxMaterial&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="nx"&gt;THREE&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;ShaderMaterial&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="nx"&gt;fragmentShader&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="nx"&gt;cubeShader&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;fragmentShader&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="nx"&gt;vertexShader&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="nx"&gt;cubeShader&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;vertexShader&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="nx"&gt;uniforms&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="nx"&gt;cubeShader&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;uniforms&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="nx"&gt;depthWrite&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="kc"&gt;false&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="nx"&gt;side&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="nx"&gt;THREE&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;BackSide&lt;/span&gt;
+&lt;span class="p"&gt;});&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;接下来就可以创建skybox物体并添加到场景当中去了&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kd"&gt;var&lt;/span&gt; &lt;span class="nx"&gt;skyBox&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="nx"&gt;THREE&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;Mesh&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;
+    &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="nx"&gt;THREE&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;BoxGeometry&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt; &lt;span class="mi"&gt;10000&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;10000&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;10000&lt;/span&gt; &lt;span class="p"&gt;),&lt;/span&gt;
+    &lt;span class="nx"&gt;skyBoxMaterial&lt;/span&gt;
+&lt;span class="p"&gt;);&lt;/span&gt;
+
+&lt;span class="nx"&gt;scene&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;add&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt; &lt;span class="nx"&gt;skyBox&lt;/span&gt; &lt;span class="p"&gt;);&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2&gt;添加地面&lt;/h2&gt;
+&lt;p&gt;城市模型大小有限，难以覆盖到整个画面，因此需要在场景中加入一个平面。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c1"&gt;//add ground &lt;/span&gt;
+&lt;span class="kd"&gt;var&lt;/span&gt; &lt;span class="nx"&gt;grassTex&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nx"&gt;THREE&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;ImageUtils&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;loadTexture&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;textures/grass.png&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt; 
+&lt;span class="nx"&gt;grassTex&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;wrapS&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nx"&gt;THREE&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;RepeatWrapping&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; 
+&lt;span class="nx"&gt;grassTex&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;wrapT&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nx"&gt;THREE&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;RepeatWrapping&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; 
+&lt;span class="nx"&gt;grassTex&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;repeat&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;x&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;256&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; 
+&lt;span class="nx"&gt;grassTex&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;repeat&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;y&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;256&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; 
+&lt;span class="kd"&gt;var&lt;/span&gt; &lt;span class="nx"&gt;groundMat&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="nx"&gt;THREE&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;MeshBasicMaterial&lt;/span&gt;&lt;span class="p"&gt;({&lt;/span&gt;&lt;span class="nx"&gt;map&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="nx"&gt;grassTex&lt;/span&gt;&lt;span class="p"&gt;});&lt;/span&gt;
+
+&lt;span class="kd"&gt;var&lt;/span&gt; &lt;span class="nx"&gt;groundGeo&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="nx"&gt;THREE&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;PlaneGeometry&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;4000&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="mi"&gt;4000&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+
+&lt;span class="nx"&gt;ground&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="nx"&gt;THREE&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;Mesh&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;groundGeo&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="nx"&gt;groundMat&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt; 
+&lt;span class="nx"&gt;ground&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;position&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;y&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;3&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="c1"&gt;//lower it &lt;/span&gt;
+&lt;span class="nx"&gt;ground&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;rotation&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;x&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="nb"&gt;Math&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;PI&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="c1"&gt;//-90 degrees around the xaxis &lt;/span&gt;
+&lt;span class="nx"&gt;ground&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;doubleSided&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="kc"&gt;true&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; 
+&lt;span class="nx"&gt;ground&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;receivedShadow&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="kc"&gt;true&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="nx"&gt;scene&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;add&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;ground&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;由于地面需要极大的图片，而grass.png大小比较小，这里需要设置图片自身要重复多次，因此wrapS和wrapT的值都设为真，同时设置在x，和y，方向上均需要重复256次。地面的geometry由THREE.PlaneGeometry创建，并且在y轴上往负方向平移了－3个单位，给车的模型留出空位。而之所以绕着x轴旋转90度是因为原始平面是沿着x，y轴平面的，需要旋转至x，z轴平面。&lt;/p&gt;
+&lt;h2&gt;加入汽车和城市模型&lt;/h2&gt;
+&lt;p&gt;添加汽车到场景中的方式很简单，只需要给函数需要的信息就够了，同时也需要写好回调函数&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="nx"&gt;car&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="nx"&gt;THREE&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;Car&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
+&lt;span class="nx"&gt;car&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;modelScale&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="nx"&gt;car&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;backWheelOffset&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="nx"&gt;car&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;callback&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="kd"&gt;function&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt; &lt;span class="nx"&gt;object&lt;/span&gt; &lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="kd"&gt;var&lt;/span&gt; &lt;span class="nx"&gt;x&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;270&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+    &lt;span class="kd"&gt;var&lt;/span&gt; &lt;span class="nx"&gt;y&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mf"&gt;0.1&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+    &lt;span class="kd"&gt;var&lt;/span&gt; &lt;span class="nx"&gt;z&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;330&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+    &lt;span class="c1"&gt;// var s = 0.01;&lt;/span&gt;
+    &lt;span class="nx"&gt;object&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;root&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;position&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;set&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt; &lt;span class="nx"&gt;x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nx"&gt;y&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nx"&gt;z&lt;/span&gt; &lt;span class="p"&gt;);&lt;/span&gt;
+    &lt;span class="nx"&gt;scene&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;add&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt; &lt;span class="nx"&gt;object&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;root&lt;/span&gt; &lt;span class="p"&gt;);&lt;/span&gt;
+
+    &lt;span class="nx"&gt;object&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;root&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;add&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt; &lt;span class="nx"&gt;camera&lt;/span&gt; &lt;span class="p"&gt;);&lt;/span&gt;
+
+    &lt;span class="nx"&gt;camera&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;position&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;set&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;10&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;30&lt;/span&gt; &lt;span class="p"&gt;);&lt;/span&gt;
+
+    &lt;span class="nx"&gt;object&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;bodyMesh&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;geometry&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;dynamic&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="kc"&gt;true&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+    &lt;span class="nx"&gt;object&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;bodyMesh&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;geometry&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;computeFaceNormals&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;span class="nx"&gt;car&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;setVisible&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt; &lt;span class="kc"&gt;true&lt;/span&gt; &lt;span class="p"&gt;);&lt;/span&gt;
+&lt;span class="nx"&gt;car&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;loadPartsJSON&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;./models/Audi_Car/audi_body.js&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;./models/Audi_Car/wheel_left.js&amp;#39;&lt;/span&gt; &lt;span class="p"&gt;);&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;这里的回调函数起着设定汽车的初试状态的作用，因为要配合城市模型，所以x，y，z起始座标都需要更改。同时为了保证摄像头能够一直跟踪汽车，将摄像头加入到汽车的单位坐标系当中，位置也设置好。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="nx"&gt;object&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;bodyMesh&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;geometry&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;computeFaceNormals&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;这一句代码的作用是计算汽车每个面的法向量，根据这个法向量Three.js在着色的时候就不用Flat Shading，而是采用更为平滑的Smooth Shading。&lt;/p&gt;
+&lt;p&gt;oadPartJSON函数读取js格式下的模型，可以利用官方Three.js写好的python脚本将常用的.obj，.fbx等等格式转换成.js格式，脚本文件存放在Three.js源代码目录下的utils/converters文件夹里面。这里面要注意，车身的模型存放在在audi_body.js文件里，wheel_left.js只存放了车子的左前轮模型。Car.js会自己计算剩下的三个轮子的座标，只需要保证左前轮的模型仍然保持在车子模型的坐标系里面左前轮的位置，不要将轮子的座标放到坐标原点。&lt;/p&gt;
+&lt;p&gt;将城市的模型也放到场景当中，整个游戏的场景就算是差不多搭建完成了。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="nx"&gt;THREE&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;JSONLoader&lt;/span&gt;&lt;span class="p"&gt;().&lt;/span&gt;&lt;span class="nx"&gt;load&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;./models/City_4/City.js&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="kd"&gt;function&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt; &lt;span class="nx"&gt;geometry&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nx"&gt;material&lt;/span&gt; &lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="nx"&gt;geometry&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;computeVertexNormals&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
+    &lt;span class="kd"&gt;var&lt;/span&gt; &lt;span class="nx"&gt;cityMesh&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="nx"&gt;THREE&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;Mesh&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt; &lt;span class="nx"&gt;geometry&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="nx"&gt;THREE&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;MeshFaceMaterial&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt; &lt;span class="nx"&gt;material&lt;/span&gt; &lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;);&lt;/span&gt;
+    &lt;span class="nx"&gt;cityMesh&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;scale&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;set&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt; &lt;span class="mi"&gt;4&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;4&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;4&lt;/span&gt; &lt;span class="p"&gt;);&lt;/span&gt;
+    &lt;span class="nx"&gt;cityMesh&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;rotation&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;set&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nb"&gt;Math&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;PI&lt;/span&gt; &lt;span class="o"&gt;/&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt; &lt;span class="p"&gt;);&lt;/span&gt;
+    &lt;span class="nx"&gt;cityMesh&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;position&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;set&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mf"&gt;2.9&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;400&lt;/span&gt; &lt;span class="p"&gt;);&lt;/span&gt;
+    &lt;span class="nx"&gt;scene&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;add&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt; &lt;span class="nx"&gt;cityMesh&lt;/span&gt; &lt;span class="p"&gt;);&lt;/span&gt;
+&lt;span class="p"&gt;});&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;接下来只需要完成定时刷新网页的函数并加入到执行函数当中。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kd"&gt;function&lt;/span&gt; &lt;span class="nx"&gt;animate&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="nx"&gt;requestAnimationFrame&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;animate&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+    &lt;span class="nx"&gt;car&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;updateCarModel&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt; &lt;span class="nb"&gt;Date&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;now&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="nx"&gt;time&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nx"&gt;carControl&lt;/span&gt; &lt;span class="p"&gt;);&lt;/span&gt;
+    &lt;span class="nx"&gt;render&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
+
+    &lt;span class="nx"&gt;time&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nb"&gt;Date&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;now&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
+
+&lt;span class="p"&gt;}&lt;/span&gt;
+
+&lt;span class="kd"&gt;function&lt;/span&gt; &lt;span class="nx"&gt;render&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="nx"&gt;renderer&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;render&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt; &lt;span class="nx"&gt;scene&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nx"&gt;camera&lt;/span&gt; &lt;span class="p"&gt;);&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2&gt;最终效果&lt;/h2&gt;
+&lt;p&gt;游戏截图如下：&lt;/p&gt;
+&lt;p&gt;&lt;img alt="Game icon" src="https://wangdaiwei.github.io/img/WebGL_RacingGame/game.png"&gt;&lt;/p&gt;
+&lt;p&gt;模型的加载时间对于网页而言可能有些慢，并且由于需要渲染的场景比较大会有一定的延时，不过看到自己的完成的模型能够在画面中跑起来还是挺有趣的。我已经上传了这个程序的源代码到github上，网址是：&lt;a href="" title="https://github.com/wangdaiwei/wangdaiwei.github.io/tree/master/CityRun"&gt;CityRun&lt;/a&gt;。也可以直接点击&lt;a href="http://wangdaiwei.github.io/CityRun/game.html"&gt;这个链接&lt;/a&gt;直接尝试一下最后的做出来的游戏。&lt;/p&gt;</content><category term="Development"></category><category term="WebGL"></category><category term="Computer Graphics"></category></entry><entry><title>用WebGL编写一个3D图形网站</title><link href="https://wangdaiwei.github.io/yong-webglbian-xie-yi-ge-3dtu-xing-wang-zhan.html" rel="alternate"></link><published>2014-05-22T00:00:00+08:00</published><updated>2014-05-22T00:00:00+08:00</updated><author><name>Daiwei Wang</name></author><id>tag:wangdaiwei.github.io,2014-05-22:/yong-webglbian-xie-yi-ge-3dtu-xing-wang-zhan.html</id><summary type="html">&lt;p&gt;自己的学生生涯也差不多结束了，感觉是时候把自己这一年来学的东西做一个总结，顺便回顾一下以前做过的东西。这几天多动动手，争取写多一些内容。&lt;/p&gt;
+&lt;h2&gt;WebGL简单介绍&lt;/h2&gt;
+&lt;p&gt;如果有听说过OpenGL的话，那么WebGL理解起来就不是那么困难了，简单来说其实就是OpenGL在HTML5的JavaScript移植版。要是OpenGL没听说过，那就把它当成是一个在网页上的图形引擎吧。我们可以在HTML5的网页上创建Canvas（画布）来配置我们的WebGL绘制图形的过程。&lt;/p&gt;
+&lt;p&gt;要想从最基本的开始写一个很简单的程序也不是那么容易的，写过OpenGL程序的人肯定都知道，想要显示一个简单的正方形也不是一句代码就能解决的事。你得设置好视角，然后你得定义绘图方式，标出矩形每一个顶点的位置，再转换到世界坐标系等等。总之就是一切都是计算机图形学基础的东西，要想好好用WebGL这个写一个能看的动画估计就得花好长时间了。所以我们还是用点现成的东西吧，目前关于WebGL可用的库有很多，比较常用的就是Three.js。&lt;/p&gt;
+&lt;h2&gt;Three.js&lt;/h2&gt;
+&lt;p&gt;这个库已经写的比较完整了，已经有很多很炫的例子，可以在&lt;a href="http://threejs.org/"&gt;官网&lt;/a&gt;上找到。有了Three.js，很多事情变简单了许多。绘制一个3D画面的步骤就变成这样了：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;在HTML网页里配置基本的画布&lt;/li&gt;
+&lt;li&gt;在画布上布置WebGL基本元素，比如立方体，球体等等&lt;/li&gt;
+&lt;li&gt;配置好Camera，加入光源，着色器等等&lt;/li&gt;
+&lt;li&gt;如果需要的话，加入对输入设备的检测，比如鼠标的点击动作&lt;/li&gt;
+&lt;li&gt;最后就是加入一个计时器不断地刷新页面，比如动态显示水面的波纹 …&lt;/li&gt;&lt;/ol&gt;</summary><content type="html">&lt;p&gt;自己的学生生涯也差不多结束了，感觉是时候把自己这一年来学的东西做一个总结，顺便回顾一下以前做过的东西。这几天多动动手，争取写多一些内容。&lt;/p&gt;
+&lt;h2&gt;WebGL简单介绍&lt;/h2&gt;
+&lt;p&gt;如果有听说过OpenGL的话，那么WebGL理解起来就不是那么困难了，简单来说其实就是OpenGL在HTML5的JavaScript移植版。要是OpenGL没听说过，那就把它当成是一个在网页上的图形引擎吧。我们可以在HTML5的网页上创建Canvas（画布）来配置我们的WebGL绘制图形的过程。&lt;/p&gt;
+&lt;p&gt;要想从最基本的开始写一个很简单的程序也不是那么容易的，写过OpenGL程序的人肯定都知道，想要显示一个简单的正方形也不是一句代码就能解决的事。你得设置好视角，然后你得定义绘图方式，标出矩形每一个顶点的位置，再转换到世界坐标系等等。总之就是一切都是计算机图形学基础的东西，要想好好用WebGL这个写一个能看的动画估计就得花好长时间了。所以我们还是用点现成的东西吧，目前关于WebGL可用的库有很多，比较常用的就是Three.js。&lt;/p&gt;
+&lt;h2&gt;Three.js&lt;/h2&gt;
+&lt;p&gt;这个库已经写的比较完整了，已经有很多很炫的例子，可以在&lt;a href="http://threejs.org/"&gt;官网&lt;/a&gt;上找到。有了Three.js，很多事情变简单了许多。绘制一个3D画面的步骤就变成这样了：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;在HTML网页里配置基本的画布&lt;/li&gt;
+&lt;li&gt;在画布上布置WebGL基本元素，比如立方体，球体等等&lt;/li&gt;
+&lt;li&gt;配置好Camera，加入光源，着色器等等&lt;/li&gt;
+&lt;li&gt;如果需要的话，加入对输入设备的检测，比如鼠标的点击动作&lt;/li&gt;
+&lt;li&gt;最后就是加入一个计时器不断地刷新页面，比如动态显示水面的波纹，需要随时更新水平面上点的新的法面向量&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;现在我们已经不需要考虑物体中每一个点的坐标变换，我们可以对整个物体进行旋转平移操作。我们也不需要编写着色器来为每一个顶点着色，设置缓存来计算每一顶点的RGB值。&lt;/p&gt;
+&lt;h2&gt;前期准备&lt;/h2&gt;
+&lt;p&gt;首先当然是把Three.js库下载下来，可以在Github上找到&lt;a href="https://github.com/mrdoob/three.js/&amp;quot;&amp;gt;https://github.com/mrdoob/three.js/"&gt;Three.js&lt;/a&gt;，也可一在&lt;a href="http://threejs.org/docs/index.html#Manual/Introduction/Creating_a_scene"&gt;官网的教程&lt;/a&gt;上下载到。我们只需要three.min.js文件就够了。&lt;/p&gt;
+&lt;p&gt;创建一个html文件，把下面的内容粘贴进去：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="p"&gt;&amp;lt;&lt;/span&gt;&lt;span class="nt"&gt;html&lt;/span&gt;&lt;span class="p"&gt;&amp;gt;&lt;/span&gt;
+    &lt;span class="p"&gt;&amp;lt;&lt;/span&gt;&lt;span class="nt"&gt;head&lt;/span&gt;&lt;span class="p"&gt;&amp;gt;&lt;/span&gt;
+        &lt;span class="p"&gt;&amp;lt;&lt;/span&gt;&lt;span class="nt"&gt;title&lt;/span&gt;&lt;span class="p"&gt;&amp;gt;&lt;/span&gt;My first Three.js app&lt;span class="p"&gt;&amp;lt;/&lt;/span&gt;&lt;span class="nt"&gt;title&lt;/span&gt;&lt;span class="p"&gt;&amp;gt;&lt;/span&gt;
+        &lt;span class="p"&gt;&amp;lt;&lt;/span&gt;&lt;span class="nt"&gt;style&lt;/span&gt;&lt;span class="p"&gt;&amp;gt;&lt;/span&gt;&lt;span class="nt"&gt;canvas&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="k"&gt;width&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;100&lt;/span&gt;&lt;span class="kt"&gt;%&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="k"&gt;height&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;100&lt;/span&gt;&lt;span class="kt"&gt;%&lt;/span&gt; &lt;span class="p"&gt;}&amp;lt;/&lt;/span&gt;&lt;span class="nt"&gt;style&lt;/span&gt;&lt;span class="p"&gt;&amp;gt;&lt;/span&gt;
+    &lt;span class="p"&gt;&amp;lt;/&lt;/span&gt;&lt;span class="nt"&gt;head&lt;/span&gt;&lt;span class="p"&gt;&amp;gt;&lt;/span&gt;
+    &lt;span class="p"&gt;&amp;lt;&lt;/span&gt;&lt;span class="nt"&gt;body&lt;/span&gt;&lt;span class="p"&gt;&amp;gt;&lt;/span&gt;
+        &lt;span class="p"&gt;&amp;lt;&lt;/span&gt;&lt;span class="nt"&gt;script&lt;/span&gt; &lt;span class="na"&gt;src&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;js/three.min.js&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;&amp;gt;&amp;lt;/&lt;/span&gt;&lt;span class="nt"&gt;script&lt;/span&gt;&lt;span class="p"&gt;&amp;gt;&lt;/span&gt;
+        &lt;span class="p"&gt;&amp;lt;&lt;/span&gt;&lt;span class="nt"&gt;script&lt;/span&gt;&lt;span class="p"&gt;&amp;gt;&lt;/span&gt;
+            &lt;span class="c1"&gt;// Our Javascript will go here.&lt;/span&gt;
+        &lt;span class="p"&gt;&amp;lt;/&lt;/span&gt;&lt;span class="nt"&gt;script&lt;/span&gt;&lt;span class="p"&gt;&amp;gt;&lt;/span&gt;
+    &lt;span class="p"&gt;&amp;lt;/&lt;/span&gt;&lt;span class="nt"&gt;body&lt;/span&gt;&lt;span class="p"&gt;&amp;gt;&lt;/span&gt;
+&lt;span class="p"&gt;&amp;lt;/&lt;/span&gt;&lt;span class="nt"&gt;html&lt;/span&gt;&lt;span class="p"&gt;&amp;gt;&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2&gt;创建场景&lt;/h2&gt;
+&lt;p&gt;接下来我们要在script标签里面创建我们的场景，我们需要获取到网页窗口的大小然后告诉给渲染器&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kd"&gt;var&lt;/span&gt; &lt;span class="nx"&gt;scene&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="nx"&gt;THREE&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;Scene&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
+&lt;span class="kd"&gt;var&lt;/span&gt; &lt;span class="nx"&gt;camera&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="nx"&gt;THREE&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;PerspectiveCamera&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt; &lt;span class="mi"&gt;75&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nb"&gt;window&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;innerWidth&lt;/span&gt; &lt;span class="o"&gt;/&lt;/span&gt; &lt;span class="nb"&gt;window&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;innerHeight&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mf"&gt;0.1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;1000&lt;/span&gt; &lt;span class="p"&gt;);&lt;/span&gt;
+
+&lt;span class="kd"&gt;var&lt;/span&gt; &lt;span class="nx"&gt;renderer&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="nx"&gt;THREE&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;WebGLRenderer&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
+&lt;span class="nx"&gt;renderer&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;setSize&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt; &lt;span class="nb"&gt;window&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;innerWidth&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nb"&gt;window&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;innerHeight&lt;/span&gt; &lt;span class="p"&gt;);&lt;/span&gt;
+&lt;span class="nb"&gt;document&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;body&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;appendChild&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt; &lt;span class="nx"&gt;renderer&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;domElement&lt;/span&gt; &lt;span class="p"&gt;);&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;在这里选择了投影变换的Camera，另外一种情况是正交投影的Camera，一般只在CAD工具里面会用到。&lt;/p&gt;
+&lt;p&gt;THREE.PerspectiveCamera里面的参数有四个。第一个是视角范围，这里是75度的夹角。第二个是视角比例，就是长宽比，设置成这样的值可以保证接下来创建的物体不变形，如果需要拉伸整个场景的长度或者宽度的话才需要修改这个值。&lt;/p&gt;
+&lt;p&gt;第三个和第四个值分别表示近平面和远平面的距离，这两个值决定了小于和大于多少的距离的物体会被剔除出视野外。近平面一般都设置得比较小，但绝对不能是零，因为当计算物体大小得时候是按照和Camera原点的距离比值计算的，当无限接近于Camera原点的时候物体的大小会变成无穷大。&lt;/p&gt;
+&lt;p&gt;渲染器需要知道它需要渲染的窗口大小，因此在这里设置成整个网页窗口。我们需要把设置好的元素加入到html里面。&lt;/p&gt;
+&lt;p&gt;接下来让我们创建一个立方体：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kd"&gt;var&lt;/span&gt; &lt;span class="nx"&gt;geometry&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="nx"&gt;THREE&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;CubeGeometry&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;span class="kd"&gt;var&lt;/span&gt; &lt;span class="nx"&gt;material&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="nx"&gt;THREE&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;MeshBasicMaterial&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="nx"&gt;color&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="mh"&gt;0x00ff00&lt;/span&gt; &lt;span class="p"&gt;}&lt;/span&gt; &lt;span class="p"&gt;);&lt;/span&gt;
+&lt;span class="kd"&gt;var&lt;/span&gt; &lt;span class="nx"&gt;cube&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="nx"&gt;THREE&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;Mesh&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt; &lt;span class="nx"&gt;geometry&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nx"&gt;material&lt;/span&gt; &lt;span class="p"&gt;);&lt;/span&gt;
+&lt;span class="nx"&gt;scene&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;add&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt; &lt;span class="nx"&gt;cube&lt;/span&gt; &lt;span class="p"&gt;);&lt;/span&gt;
+
+&lt;span class="nx"&gt;camera&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;position&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;z&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;5&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;我们只需要调用CubeGeometry方法就能创建一个立方体形状，同时我们需要配置这个立方体的外观，这里用MeshBasicMaterial创建，这是一个单色的材质。每一个添加到场景的物体都需要形状和材质创建，这样我们就生成了一个Mesh。&lt;/p&gt;
+&lt;p&gt;这里Camera的位置被设置成了（0，0，5），假如仍然在原点的话，网页是无法显示这个立方体的，因为Camera被放置在了立方体内部。&lt;/p&gt;
+&lt;h2&gt;场景渲染&lt;/h2&gt;
+&lt;p&gt;这时候我们的网页还不能显示任何东西，因为关键的渲染步骤还没有完成，我们要让网页自己定时刷新页面来显示图形。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kd"&gt;function&lt;/span&gt; &lt;span class="nx"&gt;render&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="nx"&gt;requestAnimationFrame&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;render&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+    &lt;span class="nx"&gt;renderer&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;render&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;scene&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nx"&gt;camera&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;span class="nx"&gt;render&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;requestAnimationFram函数会在用户切换到其他页面时停止刷新当前页面。&lt;/p&gt;
+&lt;h2&gt;让立方体动起来&lt;/h2&gt;
+&lt;p&gt;这时候打开网页，看到的只是在黑色背景里面一个绿色的正方形。因为是正对着立方体看的，所以看不出有任何的3D效果。我们可以让立方体动起来观察它，在render函数里面加入：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="nx"&gt;cube&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;rotation&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;x&lt;/span&gt; &lt;span class="o"&gt;+=&lt;/span&gt; &lt;span class="mf"&gt;0.1&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="nx"&gt;cube&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;rotation&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;y&lt;/span&gt; &lt;span class="o"&gt;+=&lt;/span&gt; &lt;span class="mf"&gt;0.1&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;我们就可以在网页里看到一个疯狂转动的立方体了。&lt;/p&gt;
+&lt;h2&gt;完整代码&lt;/h2&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="p"&gt;&amp;lt;&lt;/span&gt;&lt;span class="nt"&gt;html&lt;/span&gt;&lt;span class="p"&gt;&amp;gt;&lt;/span&gt;
+    &lt;span class="p"&gt;&amp;lt;&lt;/span&gt;&lt;span class="nt"&gt;head&lt;/span&gt;&lt;span class="p"&gt;&amp;gt;&lt;/span&gt;
+        &lt;span class="p"&gt;&amp;lt;&lt;/span&gt;&lt;span class="nt"&gt;title&lt;/span&gt;&lt;span class="p"&gt;&amp;gt;&lt;/span&gt;My first Three.js app&lt;span class="p"&gt;&amp;lt;/&lt;/span&gt;&lt;span class="nt"&gt;title&lt;/span&gt;&lt;span class="p"&gt;&amp;gt;&lt;/span&gt;
+        &lt;span class="p"&gt;&amp;lt;&lt;/span&gt;&lt;span class="nt"&gt;style&lt;/span&gt;&lt;span class="p"&gt;&amp;gt;&lt;/span&gt;&lt;span class="nt"&gt;canvas&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="k"&gt;width&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;100&lt;/span&gt;&lt;span class="kt"&gt;%&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="k"&gt;height&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;100&lt;/span&gt;&lt;span class="kt"&gt;%&lt;/span&gt; &lt;span class="p"&gt;}&amp;lt;/&lt;/span&gt;&lt;span class="nt"&gt;style&lt;/span&gt;&lt;span class="p"&gt;&amp;gt;&lt;/span&gt;
+    &lt;span class="p"&gt;&amp;lt;/&lt;/span&gt;&lt;span class="nt"&gt;head&lt;/span&gt;&lt;span class="p"&gt;&amp;gt;&lt;/span&gt;
+    &lt;span class="p"&gt;&amp;lt;&lt;/span&gt;&lt;span class="nt"&gt;body&lt;/span&gt;&lt;span class="p"&gt;&amp;gt;&lt;/span&gt;
+        &lt;span class="p"&gt;&amp;lt;&lt;/span&gt;&lt;span class="nt"&gt;script&lt;/span&gt; &lt;span class="na"&gt;src&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;js/three.min.js&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;&amp;gt;&amp;lt;/&lt;/span&gt;&lt;span class="nt"&gt;script&lt;/span&gt;&lt;span class="p"&gt;&amp;gt;&lt;/span&gt;
+        &lt;span class="p"&gt;&amp;lt;&lt;/span&gt;&lt;span class="nt"&gt;script&lt;/span&gt;&lt;span class="p"&gt;&amp;gt;&lt;/span&gt;
+            &lt;span class="kd"&gt;var&lt;/span&gt; &lt;span class="nx"&gt;scene&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="nx"&gt;THREE&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;Scene&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
+            &lt;span class="kd"&gt;var&lt;/span&gt; &lt;span class="nx"&gt;camera&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="nx"&gt;THREE&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;PerspectiveCamera&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;75&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nb"&gt;window&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;innerWidth&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="nb"&gt;window&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;innerHeight&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mf"&gt;0.1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;1000&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+
+            &lt;span class="kd"&gt;var&lt;/span&gt; &lt;span class="nx"&gt;renderer&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="nx"&gt;THREE&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;WebGLRenderer&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
+            &lt;span class="nx"&gt;renderer&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;setSize&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;window&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;innerWidth&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nb"&gt;window&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;innerHeight&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+            &lt;span class="nb"&gt;document&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;body&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;appendChild&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;renderer&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;domElement&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+
+            &lt;span class="kd"&gt;var&lt;/span&gt; &lt;span class="nx"&gt;geometry&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="nx"&gt;THREE&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;CubeGeometry&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+            &lt;span class="kd"&gt;var&lt;/span&gt; &lt;span class="nx"&gt;material&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="nx"&gt;THREE&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;MeshBasicMaterial&lt;/span&gt;&lt;span class="p"&gt;({&lt;/span&gt;&lt;span class="nx"&gt;color&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="mh"&gt;0x00ff00&lt;/span&gt;&lt;span class="p"&gt;});&lt;/span&gt;
+            &lt;span class="kd"&gt;var&lt;/span&gt; &lt;span class="nx"&gt;cube&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="nx"&gt;THREE&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;Mesh&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;geometry&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nx"&gt;material&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+            &lt;span class="nx"&gt;scene&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;add&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;cube&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+
+            &lt;span class="nx"&gt;camera&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;position&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;z&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;5&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+
+            &lt;span class="kd"&gt;var&lt;/span&gt; &lt;span class="nx"&gt;render&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="kd"&gt;function&lt;/span&gt; &lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+                &lt;span class="nx"&gt;requestAnimationFrame&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;render&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+
+                &lt;span class="nx"&gt;cube&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;rotation&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;x&lt;/span&gt; &lt;span class="o"&gt;+=&lt;/span&gt; &lt;span class="mf"&gt;0.1&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+                &lt;span class="nx"&gt;cube&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;rotation&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;y&lt;/span&gt; &lt;span class="o"&gt;+=&lt;/span&gt; &lt;span class="mf"&gt;0.1&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+
+                &lt;span class="nx"&gt;renderer&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;render&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;scene&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nx"&gt;camera&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+            &lt;span class="p"&gt;};&lt;/span&gt;
+
+            &lt;span class="nx"&gt;render&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
+        &lt;span class="p"&gt;&amp;lt;/&lt;/span&gt;&lt;span class="nt"&gt;script&lt;/span&gt;&lt;span class="p"&gt;&amp;gt;&lt;/span&gt;
+    &lt;span class="p"&gt;&amp;lt;/&lt;/span&gt;&lt;span class="nt"&gt;body&lt;/span&gt;&lt;span class="p"&gt;&amp;gt;&lt;/span&gt;
+&lt;span class="p"&gt;&amp;lt;/&lt;/span&gt;&lt;span class="nt"&gt;html&lt;/span&gt;&lt;span class="p"&gt;&amp;gt;&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2&gt;可能遇到的问题&lt;/h2&gt;
+&lt;p&gt;如果打开网页看到空白的页面，那是因为浏览器关闭了访问本地文件的权限，或者是three.min.js放置在了错误的目录。一定要保证three.min.js放置在html文件目录下的js文件夹内。想要避开浏览器对访问本地文件的限制，可以配置chrome绕开限制，或者在目录下开启一个http服务器。如果电脑有安装python，只需要在该目录下输入指令：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;python -m SimpleHTTPServer
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;如果是python3的话&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;python3 -m http.server
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2&gt;其他&lt;/h2&gt;
+&lt;p&gt;上面的内容主要来自Three.js官方教程，请参考网址&lt;a href="" title="http://threejs.org/docs/index.html#Manual/Introduction/Creating_a_scene"&gt;Creating_a_scene&lt;/a&gt;。如果想了解WebGL，可以学习&lt;a href="" title="http://learningwebgl.com/blog/?page_id=1217"&gt;WebGL教程&lt;/a&gt;。想了解OpenGL，可以学习比较常用的&lt;a href="" title="http://nehe.gamedev.net/"&gt;NeHe系列教程&lt;/a&gt;，NeHe系列已经有中文版了。&lt;/p&gt;</content><category term="Development"></category><category term="WebGL"></category><category term="Computer Graphics"></category></entry><entry><title>在香港求学的日子</title><link href="https://wangdaiwei.github.io/zai-xiang-gang-qiu-xue-de-ri-zi.html" rel="alternate"></link><published>2014-02-22T00:00:00+08:00</published><updated>2014-02-22T00:00:00+08:00</updated><author><name>Daiwei Wang</name></author><id>tag:wangdaiwei.github.io,2014-02-22:/zai-xiang-gang-qiu-xue-de-ri-zi.html</id><summary type="html">&lt;p&gt;早就说要写点有关香港这段日子的东西，一直没有提笔。难得前段时间把网站的架构重新整理了一下，修复了一点bug。趁此机会就写点感悟吧。主要还是针对在CUHK的学习方面。&lt;/p&gt;
+&lt;h2&gt;初到香港&lt;/h2&gt;
+&lt;p&gt;作为一个土生土长的广东人来说，香港一直在我眼里停留在电视上播的各种电视剧上，也多亏了这一点我才能听得懂并且勉强能讲一下粤语。实际去的时候肯定还是和电视上有很大不同，比如说香港的地铁实在是太旧了，感觉和北京的十三号线有的一拼，不过这是东铁线的情况。&lt;/p&gt;
+&lt;p&gt;然后就是紧张的签合同买家具的过程了。幸亏是在红磡，楼下就有家居市场，但是符合我们理想价位的店实在不多。也就是从买家具的时候开始，我们认识到了香港的物价水平略微有点高，于是没钱就成了我们生活的主旋律。&lt;/p&gt;
+&lt;h2&gt;香港对于留学生的意义&lt;/h2&gt;
+&lt;p&gt;我觉得生活方面实在是没什么可写的了，还是讲讲留学香港的东西吧，正好之前也有人问我这方面的事。首先要说的一点就是学位的事情，香港这里的学位主要分为三种：PhD，MPhill，MSc，这是针对工科的。因为PhD和MPhill要套瓷，还可能要写点research proposal之类的，对于主要想读个硕士的人来说可能不太合适，很多人更关注MSc的含金量。因为本人也是读的MSc，我想讲一讲我的看法。&lt;/p&gt;
+&lt;p&gt;对于大部分专业的full time MSc来说，一般课程只需要上一年，然后在次年的年底拿到毕业证。于是在课程结束的5月，或者如果有summer term的话就是7月，一直到拿毕业证的12月之间都是没有课的。加上办理留服的学位认证，可能这些东西要到毕业第二年的1月才能拿齐。所以在找工作的时候一般会有两种选择 …&lt;/p&gt;</summary><content type="html">&lt;p&gt;早就说要写点有关香港这段日子的东西，一直没有提笔。难得前段时间把网站的架构重新整理了一下，修复了一点bug。趁此机会就写点感悟吧。主要还是针对在CUHK的学习方面。&lt;/p&gt;
+&lt;h2&gt;初到香港&lt;/h2&gt;
+&lt;p&gt;作为一个土生土长的广东人来说，香港一直在我眼里停留在电视上播的各种电视剧上，也多亏了这一点我才能听得懂并且勉强能讲一下粤语。实际去的时候肯定还是和电视上有很大不同，比如说香港的地铁实在是太旧了，感觉和北京的十三号线有的一拼，不过这是东铁线的情况。&lt;/p&gt;
+&lt;p&gt;然后就是紧张的签合同买家具的过程了。幸亏是在红磡，楼下就有家居市场，但是符合我们理想价位的店实在不多。也就是从买家具的时候开始，我们认识到了香港的物价水平略微有点高，于是没钱就成了我们生活的主旋律。&lt;/p&gt;
+&lt;h2&gt;香港对于留学生的意义&lt;/h2&gt;
+&lt;p&gt;我觉得生活方面实在是没什么可写的了，还是讲讲留学香港的东西吧，正好之前也有人问我这方面的事。首先要说的一点就是学位的事情，香港这里的学位主要分为三种：PhD，MPhill，MSc，这是针对工科的。因为PhD和MPhill要套瓷，还可能要写点research proposal之类的，对于主要想读个硕士的人来说可能不太合适，很多人更关注MSc的含金量。因为本人也是读的MSc，我想讲一讲我的看法。&lt;/p&gt;
+&lt;p&gt;对于大部分专业的full time MSc来说，一般课程只需要上一年，然后在次年的年底拿到毕业证。于是在课程结束的5月，或者如果有summer term的话就是7月，一直到拿毕业证的12月之间都是没有课的。加上办理留服的学位认证，可能这些东西要到毕业第二年的1月才能拿齐。所以在找工作的时候一般会有两种选择，在还没毕业的时候说自己是5，6月毕业的，或者是在课程结束后说自己是年底12月毕业。毕业日期主要是写给企业看的，前者着重说明自己在5月以后就能开始工作，后者说明自己可以在12月拿到毕业证，都没有什么问题。并且国家对于留学生回国就业的政策，在两年内没有工作的话是不区分应届不应届的（这个我是仅凭记忆写下来的，最好找一找最新的政策确认一下）。所以其实对于来到香港的学生来说，回国就业也并不是那么难。&lt;/p&gt;
+&lt;p&gt;但是网上可能有些说法说香港的学位含金量下降了，对于找工作意义不大甚至还有负面作用。诚然，香港最近是一直在扩招内地的学生，不仅是MSc包括本科也在扩招。随着人越来越多，难免有些基础不够扎实的，于是这些人就开始批评MSc了。MSc对于那些如果只是想来镀金的人来说，恐怕不是一个合适的选择。&lt;/p&gt;
+&lt;h2&gt;和内地的区别&lt;/h2&gt;
+&lt;p&gt;从入学的时候开始，CUHK的邮箱就不断有邮件提示Job fair和讲座的信息，这些资源在国内绝对是很难见得到的。并且由于交了学费，学院还送给我们每个月500个打印的quota，三个计算机机房，还有好几个Linux服务器。要是来读本科，可能待遇还会更好，我们实验室一个善衡书院的学生每周二到周四都有学院的聚餐，把整个饭堂包场。要是一个个展开来说的话可能就太啰嗦了，接下来就说一下学校的课程。&lt;/p&gt;
+&lt;h2&gt;中大的课程&lt;/h2&gt;
+&lt;p&gt;计算机方面的课程，分为两个类型：CMSC和CSCI。前者是晚上针对MSc专门开的，偏向应用，所以你可以看到几乎所有的part time和大部分local都会选晚上的课。后者是和PhD和MPhill一起上，偏研究，主要是在白天上课。选课方面小米给的建议是一个学期不要选两门以上的CSCI，我第一学期不自量力地选了三门，所以当时就被虐惨了。这学期就很干脆地选了三门CMSC的课。授课语言都是英语，除了讲machine learning的大神Lei Xu一直在用普通话授课。&lt;/p&gt;
+&lt;p&gt;如果说想来申请CUHK的PhD或者MPill的话，可以考虑申请Computer Graphics方向。T.T Wong在这方面很牛，当然是指授课方面，学术听说也不差。Dr. Heng是我选的project的instructor，但基本没管过我们，也没管过他的PhD，基本上已经处于修身养性的状态。要是想搞纯理论的话可以考虑Lei Xu，不过十年内他只招了三个学生，还不知道毕业了几个。不过他应该是我们学院在学术方面最NB的老师了吧。还有一个我很喜欢的老师Jimmy Lee，研究组合优化方向，对学生要求很严，但从他身上能学到很多东西。感觉Data mining方向在CUHK做的不是很多，King本人感觉比较水，但又老喜欢push学生。Micheal中规中矩吧。Yufei Tao还是挺不错的，讲课很棒。&lt;/p&gt;
+&lt;h2&gt;题外话&lt;/h2&gt;
+&lt;p&gt;虽然能用上1Gbps带宽的网，但你能体会到连优酷都会卡的感受吗！&lt;/p&gt;</content><category term="Misc"></category><category term="Misc"></category></entry><entry><title>ABC Path Problem Definition</title><link href="https://wangdaiwei.github.io/abc-path-problem-definition.html" rel="alternate"></link><published>2014-02-20T00:00:00+08:00</published><updated>2014-02-20T00:00:00+08:00</updated><author><name>Daiwei Wang</name></author><id>tag:wangdaiwei.github.io,2014-02-20:/abc-path-problem-definition.html</id><summary type="html">&lt;p&gt;ABC Path is a game that you have to put into the N ×
+N grid such that the total payoff of the game is maximized. If a letter is placed on the desired position, it gets 1 as payoff. Here is an example for the desired position of each letter …&lt;/p&gt;</summary><content type="html">&lt;p&gt;ABC Path is a game that you have to put into the N ×
+N grid such that the total payoff of the game is maximized. If a letter is placed on the desired position, it gets 1 as payoff. Here is an example for the desired position of each letter for a 4×4 grid.￼&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;A   B   C   D
+E   F   G   H
+I   J   K   L
+M   N   O   P
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;And the rule is the same for other N values. It follows the alphabetic order from the upper left to the bottom right.&lt;/p&gt;
+&lt;p&gt;We can model the problem with a set of 16 variables &lt;span class="math"&gt;\(X =\)&lt;/span&gt; { &lt;span class="math"&gt;\(x_i, j| i, j ∈ [1..4]\)&lt;/span&gt; }, each representing a cell of the grid. The domain of each variable &lt;span class="math"&gt;\(x_i,j\)&lt;/span&gt; is &lt;span class="math"&gt;\(D_i,j =\)&lt;/span&gt; { &lt;span class="math"&gt;\(1, 2, .., 16\)&lt;/span&gt; } with each value representing the letter in { &lt;span class="math"&gt;\(A,B,..,P\)&lt;/span&gt; } respectively. Let &lt;span class="math"&gt;\(S_i,j\)&lt;/span&gt; be the set of all adjacent cells of &lt;span class="math"&gt;\(x_i,j\)&lt;/span&gt;. The set of constraints and the associated objective function of the problem are given as follows:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;span class="math"&gt;\((x_{i,j} =1) \vee ( \bigvee _{s \in S_{i, j}} x_{i,j} =s+1 ) ,\)&lt;/span&gt; for &lt;span class="math"&gt;\(i,j∈[1..4]\)&lt;/span&gt;&lt;/li&gt;
+&lt;li&gt;&lt;span class="math"&gt;\(x_{i,j} \ne x_{u,v},\)&lt;/span&gt; for &lt;span class="math"&gt;\(i,j,u,v∈[1..4]\)&lt;/span&gt; where &lt;span class="math"&gt;\(¬(i=u∧j=v)\)&lt;/span&gt;&lt;/li&gt;
+&lt;li&gt;Objective: max &lt;span class="math"&gt;\(\sum_{i,j \in [1...4]} (x_{i,j} −(4i+j −4) == 0)\)&lt;/span&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;An alternative way to model the problem is to represent each letter with a variable &lt;span class="math"&gt;\(x_i\)&lt;/span&gt; , where &lt;span class="math"&gt;\(i ∈ [1..n2 ]\)&lt;/span&gt; and the domain of each variable &lt;span class="math"&gt;\(x_i\)&lt;/span&gt; is &lt;span class="math"&gt;\(D_i =\)&lt;/span&gt; { &lt;span class="math"&gt;\(1, 2, ..., n2\)&lt;/span&gt; } representing the position of the corresponding letter in the grid.&lt;/p&gt;
+&lt;p&gt;The Gecode implementation has been uploaded to my github repository. You can see the source code at website &lt;a href="https://github.com/wangdaiwei/gecode"&gt;wangdaiwei/gecode&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;The program should be run as following command in Mac OSX:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;./abc_path -model mod &lt;span class="m"&gt;5&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Here mod stands for the model you choose. The value is from 1 to 2, which represents the memtioned models. The last parameter defines the size of ABC Path problem.&lt;/p&gt;
+&lt;script type="text/javascript"&gt;if (!document.getElementById('mathjaxscript_pelican_#%@#$@#')) {
+    var align = "center",
+        indent = "0em",
+        linebreak = "false";
+
+    if (false) {
+        align = (screen.width &lt; 768) ? "left" : align;
+        indent = (screen.width &lt; 768) ? "0em" : indent;
+        linebreak = (screen.width &lt; 768) ? 'true' : linebreak;
+    }
+
+    var mathjaxscript = document.createElement('script');
+    mathjaxscript.id = 'mathjaxscript_pelican_#%@#$@#';
+    mathjaxscript.type = 'text/javascript';
+    mathjaxscript.src = 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.3/latest.js?config=TeX-AMS-MML_HTMLorMML';
+
+    var configscript = document.createElement('script');
+    configscript.type = 'text/x-mathjax-config';
+    configscript[(window.opera ? "innerHTML" : "text")] =
+        "MathJax.Hub.Config({" +
+        "    config: ['MMLorHTML.js']," +
+        "    TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'none' } }," +
+        "    jax: ['input/TeX','input/MathML','output/HTML-CSS']," +
+        "    extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']," +
+        "    displayAlign: '"+ align +"'," +
+        "    displayIndent: '"+ indent +"'," +
+        "    showMathMenu: true," +
+        "    messageStyle: 'normal'," +
+        "    tex2jax: { " +
+        "        inlineMath: [ ['\\\\(','\\\\)'] ], " +
+        "        displayMath: [ ['$$','$$'] ]," +
+        "        processEscapes: true," +
+        "        preview: 'TeX'," +
+        "    }, " +
+        "    'HTML-CSS': { " +
+        "        availableFonts: ['STIX', 'TeX']," +
+        "        preferredFont: 'STIX'," +
+        "        styles: { '.MathJax_Display, .MathJax .mo, .MathJax .mi, .MathJax .mn': {color: 'inherit ! important'} }," +
+        "        linebreaks: { automatic: "+ linebreak +", width: '90% container' }," +
+        "    }, " +
+        "}); " +
+        "if ('default' !== 'default') {" +
+            "MathJax.Hub.Register.StartupHook('HTML-CSS Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax['HTML-CSS'].FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+            "MathJax.Hub.Register.StartupHook('SVG Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax.SVG.FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+        "}";
+
+    (document.body || document.getElementsByTagName('head')[0]).appendChild(configscript);
+    (document.body || document.getElementsByTagName('head')[0]).appendChild(mathjaxscript);
+}
+&lt;/script&gt;</content><category term="Study"></category><category term="Constraint Satisfaction Problem"></category></entry><entry><title>N-Queens Problem Definition</title><link href="https://wangdaiwei.github.io/n-queens-problem-definition.html" rel="alternate"></link><published>2014-02-20T00:00:00+08:00</published><updated>2014-02-20T00:00:00+08:00</updated><author><name>Daiwei Wang</name></author><id>tag:wangdaiwei.github.io,2014-02-20:/n-queens-problem-definition.html</id><summary type="html">&lt;p&gt;N-Queens problem is defined as: place n queens on an &lt;span class="math"&gt;\(n × n\)&lt;/span&gt; chess board so that the queens do not attack each other. Now, we rotate the board clockwisely by 45 degrees as shown in following picture, and use a variable to denote the queen partition (if any) for each …&lt;/p&gt;</summary><content type="html">&lt;p&gt;N-Queens problem is defined as: place n queens on an &lt;span class="math"&gt;\(n × n\)&lt;/span&gt; chess board so that the queens do not attack each other. Now, we rotate the board clockwisely by 45 degrees as shown in following picture, and use a variable to denote the queen partition (if any) for each row (a diagonal in the original board).&lt;/p&gt;
+&lt;p&gt;&lt;img alt="N-Queens" src="https://wangdaiwei.github.io/img/NQueens/queens.jpg"&gt;&lt;/p&gt;
+&lt;p&gt;Thus the variables are &lt;span class="math"&gt;\(y_{1-n}, y_{2-n},..., y_{0},..., y_{n-2}, y_{n-1}.\)&lt;/span&gt; While each variable takes values according to the new coordinate system, we use the value &lt;span class="math"&gt;\(−n\)&lt;/span&gt; to denote that there are no queens on a particular row. The domain of each variable &lt;span class="math"&gt;\(y_i\)&lt;/span&gt; is thus &lt;span class="math"&gt;\(D_i = { |i|+1,|i|+3,...,2n−|i|−1 } ∪ {−n}\)&lt;/span&gt; for &lt;span class="math"&gt;\(i \in [1−n,n−1]\)&lt;/span&gt;. The set of constraints are given as follows:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;for &lt;span class="math"&gt;\(i \in [1−n,n−1]: \sum_i(y_i \ne −n)=n\)&lt;/span&gt;&lt;/li&gt;
+&lt;li&gt;for &lt;span class="math"&gt;\(i \in [1−n,n−1]\)&lt;/span&gt; and &lt;span class="math"&gt;\(j \in [1,2n−1]: \sum_i(y_i =j) \leq 1\)&lt;/span&gt;&lt;/li&gt;
+&lt;li&gt;for &lt;span class="math"&gt;\(i,j \in [1−n,n−1]\)&lt;/span&gt; and &lt;span class="math"&gt;\(i \ne j:|y_i−y_j| \ne |i−j|\)&lt;/span&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;The model is modeled in three ways: arithmetic constraint, tuple sets and DFA.&lt;/p&gt;
+&lt;p&gt;The Gecode implementation has been uploaded to my github repository. You can see the source code at &lt;a href="https://github.com/wangdaiwei/gecode"&gt;wangdaiwei/gecode&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;The program should be run as following command in Mac OSX:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="err"&gt;queens -model mod 5&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Here mod stands for the model you choose. The value is from 1 to 3. The last parameter defines the size of N-Queens problem.&lt;/p&gt;
+&lt;script type="text/javascript"&gt;if (!document.getElementById('mathjaxscript_pelican_#%@#$@#')) {
+    var align = "center",
+        indent = "0em",
+        linebreak = "false";
+
+    if (false) {
+        align = (screen.width &lt; 768) ? "left" : align;
+        indent = (screen.width &lt; 768) ? "0em" : indent;
+        linebreak = (screen.width &lt; 768) ? 'true' : linebreak;
+    }
+
+    var mathjaxscript = document.createElement('script');
+    mathjaxscript.id = 'mathjaxscript_pelican_#%@#$@#';
+    mathjaxscript.type = 'text/javascript';
+    mathjaxscript.src = 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.3/latest.js?config=TeX-AMS-MML_HTMLorMML';
+
+    var configscript = document.createElement('script');
+    configscript.type = 'text/x-mathjax-config';
+    configscript[(window.opera ? "innerHTML" : "text")] =
+        "MathJax.Hub.Config({" +
+        "    config: ['MMLorHTML.js']," +
+        "    TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'none' } }," +
+        "    jax: ['input/TeX','input/MathML','output/HTML-CSS']," +
+        "    extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']," +
+        "    displayAlign: '"+ align +"'," +
+        "    displayIndent: '"+ indent +"'," +
+        "    showMathMenu: true," +
+        "    messageStyle: 'normal'," +
+        "    tex2jax: { " +
+        "        inlineMath: [ ['\\\\(','\\\\)'] ], " +
+        "        displayMath: [ ['$$','$$'] ]," +
+        "        processEscapes: true," +
+        "        preview: 'TeX'," +
+        "    }, " +
+        "    'HTML-CSS': { " +
+        "        availableFonts: ['STIX', 'TeX']," +
+        "        preferredFont: 'STIX'," +
+        "        styles: { '.MathJax_Display, .MathJax .mo, .MathJax .mi, .MathJax .mn': {color: 'inherit ! important'} }," +
+        "        linebreaks: { automatic: "+ linebreak +", width: '90% container' }," +
+        "    }, " +
+        "}); " +
+        "if ('default' !== 'default') {" +
+            "MathJax.Hub.Register.StartupHook('HTML-CSS Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax['HTML-CSS'].FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+            "MathJax.Hub.Register.StartupHook('SVG Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax.SVG.FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+        "}";
+
+    (document.body || document.getElementsByTagName('head')[0]).appendChild(configscript);
+    (document.body || document.getElementsByTagName('head')[0]).appendChild(mathjaxscript);
+}
+&lt;/script&gt;</content><category term="Study"></category><category term="Constraint Satisfaction Problem"></category></entry><entry><title>Sudoku Problem Definition</title><link href="https://wangdaiwei.github.io/sudoku-problem-definition.html" rel="alternate"></link><published>2014-02-20T00:00:00+08:00</published><updated>2014-02-20T00:00:00+08:00</updated><author><name>Daiwei Wang</name></author><id>tag:wangdaiwei.github.io,2014-02-20:/sudoku-problem-definition.html</id><summary type="html">&lt;p&gt;Sudoku is a puzzle that requires players to complete a partially filled 9 × 9 grid with digits 1 to 9 such that each row, each column and each of the nine 3 × 3 boxes (shown in Figure 1 in thick border lines) contain different digits.&lt;/p&gt;
+&lt;p&gt;The Gecode implementation has hardcoded …&lt;/p&gt;</summary><content type="html">&lt;p&gt;Sudoku is a puzzle that requires players to complete a partially filled 9 × 9 grid with digits 1 to 9 such that each row, each column and each of the nine 3 × 3 boxes (shown in Figure 1 in thick border lines) contain different digits.&lt;/p&gt;
+&lt;p&gt;The Gecode implementation has hardcoded the sudoku problem. You can modify the sudokuArray in order to solve different sudoku problems.&lt;/p&gt;
+&lt;p&gt;The Gecode implementation has been uploaded to my github repository. You can see the source code at &lt;a href="https://github.com/wangdaiwei/gecode"&gt;wangdaiwei/gecode&lt;/a&gt;.&lt;/p&gt;</content><category term="Study"></category><category term="Constraint Satisfaction Problem"></category></entry><entry><title>理解Hadoop和MapReduce</title><link href="https://wangdaiwei.github.io/li-jie-hadoophe-mapreduce.html" rel="alternate"></link><published>2014-01-25T00:00:00+08:00</published><updated>2014-01-25T00:00:00+08:00</updated><author><name>Daiwei Wang</name></author><id>tag:wangdaiwei.github.io,2014-01-25:/li-jie-hadoophe-mapreduce.html</id><summary type="html">&lt;h2&gt;为什么需要用到Hadoop&lt;/h2&gt;
+&lt;p&gt;Hadoop是Apache开源基金会下的一个项目，针对处理大数据的特性设计的分布式编程模型工具。Hadoop的核心思想来源于Google的MapReduce和Google File System（GFS）。通俗来讲，就是将处理的问题分为两个子问题，一个负责将问题分割成一个一个小的部分，另一个负责将前一个步骤的每一部分都合并在一起。&lt;/p&gt;
+&lt;p&gt;最常见的例子就是单词统计。假设我们需要统计一个文档里的单词，最简单的方式就是用一个dictionary或者map来存储一个key-value对。一旦发现一个新的单词，我们就在这个dictionary里面添加一个条目，value设为1。如果这个单词已经存在，那么取出这个key对应的value，将其加1。这种方式对于一个小的文档来说固然合适，但如果我们处理的是一个TB，PB级别的数据呢？如果我们想在1秒钟之内就处理完这些数据？这就需要用到分布式处理了，也就是多台机器同时运算。对于数单词这样一个简单的工作，要解决的就是如何分配任务，每一台机器需要处理文档的哪个部分，以及如何将这些结果整合在一起。有了这样的思想，我们可以给这两个部分的工作分配给两个模块，一个是mapper，一个是reducer。mapper负责把问题分割成很小的一部分，每一部分都会产生一个问题的输出；reducer负责把所有若干个mapper产生的输出汇总，再计算出所需的输出。由于这种模型涉及到的数据量都比较大，而建立在大数据上的数据处理一般来说都相对比较简单，因此将这种模型一般化，使用户只需要关注mapper和reducer的具体实现，而不用考虑异常处理，问题分割等等细节问题，这就是Hadoop需要解决的问题。&lt;/p&gt;
+&lt;p&gt;但是，并不是所有问题都适合用MapReduce模型解决，比如说PageRank。当问题涉及到图结构的时候，一个很普遍的现象就是活跃节点和不活跃节点差异非常明显 …&lt;/p&gt;</summary><content type="html">&lt;h2&gt;为什么需要用到Hadoop&lt;/h2&gt;
+&lt;p&gt;Hadoop是Apache开源基金会下的一个项目，针对处理大数据的特性设计的分布式编程模型工具。Hadoop的核心思想来源于Google的MapReduce和Google File System（GFS）。通俗来讲，就是将处理的问题分为两个子问题，一个负责将问题分割成一个一个小的部分，另一个负责将前一个步骤的每一部分都合并在一起。&lt;/p&gt;
+&lt;p&gt;最常见的例子就是单词统计。假设我们需要统计一个文档里的单词，最简单的方式就是用一个dictionary或者map来存储一个key-value对。一旦发现一个新的单词，我们就在这个dictionary里面添加一个条目，value设为1。如果这个单词已经存在，那么取出这个key对应的value，将其加1。这种方式对于一个小的文档来说固然合适，但如果我们处理的是一个TB，PB级别的数据呢？如果我们想在1秒钟之内就处理完这些数据？这就需要用到分布式处理了，也就是多台机器同时运算。对于数单词这样一个简单的工作，要解决的就是如何分配任务，每一台机器需要处理文档的哪个部分，以及如何将这些结果整合在一起。有了这样的思想，我们可以给这两个部分的工作分配给两个模块，一个是mapper，一个是reducer。mapper负责把问题分割成很小的一部分，每一部分都会产生一个问题的输出；reducer负责把所有若干个mapper产生的输出汇总，再计算出所需的输出。由于这种模型涉及到的数据量都比较大，而建立在大数据上的数据处理一般来说都相对比较简单，因此将这种模型一般化，使用户只需要关注mapper和reducer的具体实现，而不用考虑异常处理，问题分割等等细节问题，这就是Hadoop需要解决的问题。&lt;/p&gt;
+&lt;p&gt;但是，并不是所有问题都适合用MapReduce模型解决，比如说PageRank。当问题涉及到图结构的时候，一个很普遍的现象就是活跃节点和不活跃节点差异非常明显。比如说Yahoo网页的PageRank值要计算很多次才能收敛，因为它链接的网页实在是太多了。而小一点的网站可能一下子就收敛了，因为其本身链接的网站并不多，也并没有很高的影响力。而且在图问题中，绝大部分的节点都是不活跃的，也就是说可能整个MapReduce计算一次，只有少数几个节点的值发生了变化，这严重影响到了处理时间。Google针对这个问题提出了Pregel模型，GraphLab就是参考这个模型实现的，相关的论文里面可以看出在PageRank和三角形计数算法上GraphLab完胜基于MapReduce的Hadoop。&lt;/p&gt;
+&lt;h2&gt;理解Mapper和Reducer&lt;/h2&gt;
+&lt;p&gt;如果只从输入输出来看，mapper和reducer的输入输出都是一个key-valud对。当然，具体实现来说key和value并不是必须的，比如说统计所有文档的单词数，mapper的输入就可以是key：文件名，value：文件内容，文件名在这里不需要用到。&lt;/p&gt;
+&lt;p&gt;对于数单词这个问题，mapper需要做的就是把自己负责的那部分文档的单词都统计出来，输出key-value对。这里的key就是单词，value就是1，代表的含义就是在这部分的文档中这个单词出现了1次。当然，也可以在mapper里面就把所有重复的单词都统计一次，汇总之后再设为这个单词key的value。而reducer就会收到mapper的单词key-value对。假如一开始mapper输入的文档内容是这样的：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;foo&lt;/span&gt; &lt;span class="n"&gt;other&lt;/span&gt; &lt;span class="n"&gt;more&lt;/span&gt; &lt;span class="n"&gt;data&lt;/span&gt; &lt;span class="n"&gt;foo&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;那么mapper的输出就是如下形式：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;foo&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;
+&lt;span class="n"&gt;other&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;
+&lt;span class="n"&gt;more&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;
+&lt;span class="n"&gt;data&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;
+&lt;span class="n"&gt;foo&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;此时reducer接收到的输入是按照key排列号的，因此实际上reducer的输入是如下的顺序输入的：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;data&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;
+&lt;span class="n"&gt;foo&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;
+&lt;span class="n"&gt;foo&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;
+&lt;span class="n"&gt;more&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;
+&lt;span class="n"&gt;other&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;于是reducer可以这么写，这里用伪代码实现：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;let&lt;/span&gt; &lt;span class="n"&gt;reduce&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;k&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;values&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; 
+    &lt;span class="nb"&gt;sum&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;
+    &lt;span class="n"&gt;foreach&lt;/span&gt; &lt;span class="nb"&gt;int&lt;/span&gt; &lt;span class="n"&gt;i&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;vals&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+        &lt;span class="nb"&gt;sum&lt;/span&gt; &lt;span class="o"&gt;+=&lt;/span&gt; &lt;span class="n"&gt;i&lt;/span&gt;
+    &lt;span class="n"&gt;emit&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;k&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nb"&gt;sum&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;这样得到的最终reducer的输出应该是这样的：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;data&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;
+&lt;span class="n"&gt;foo&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt;
+&lt;span class="n"&gt;more&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;
+&lt;span class="n"&gt;other&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2&gt;具体实现&lt;/h2&gt;
+&lt;p&gt;鉴于网上hadoop的教程都比较多，就不在这里写出来了，用Python实现的可以参考&lt;a href="http://www.michael-noll.com/tutorials/writing-an-hadoop-mapreduce-program-in-python/"&gt;Writing an Hadoop MapReduce Program in Python&lt;/a&gt;，还有用Java实现的例子：&lt;a href="http://www.cnblogs.com/xia520pi/archive/2012/06/04/2534533.html"&gt;Hadoop集群（第9期）_MapReduce初级案例&lt;/a&gt;。&lt;/p&gt;</content><category term="Study"></category><category term="Big Data"></category></entry><entry><title>Constraint Satisfaction Problem</title><link href="https://wangdaiwei.github.io/constraint-satisfaction-problem.html" rel="alternate"></link><published>2014-01-07T00:00:00+08:00</published><updated>2014-01-07T00:00:00+08:00</updated><author><name>Daiwei Wang</name></author><id>tag:wangdaiwei.github.io,2014-01-07:/constraint-satisfaction-problem.html</id><summary type="html">&lt;h2&gt;CSP概述&lt;/h2&gt;
+&lt;p&gt;作为对学了一个学期的内容的总结，在这里稍微介绍一下Constraint Satisfaction Problem（CSP）吧。这个题目我也不知道中文叫做什么，也许叫做有约束问题解决模型比较合适。虽然我没有学过数学建模，但或许他们之间是比较类似的，CSP的中心思想就是针对一个特定的问题建立模型，然后解决它。解决问题的具体实现就叫做Constraint Solver（约束处理机）。我认为这个方法还是很实际的，它可以帮助我们快速建立起对一个问题的数学角度的认识，同时在编程方面也有很多的函数库，比如说IBM的CPLEX。这里只介绍Gecode的使用，当然官方文档对于Gecode已经解释的很详细了，我在这里只想梳理一下整个建立模型的步骤和稍微介绍一下Gecode。&lt;/p&gt;
+&lt;h2&gt;Gecode&lt;/h2&gt;
+&lt;p&gt;Gecode是一个用于解决约束问题的基于C++的函数库，覆盖了Windows，Linux，Mac三个平台。在2012年以前长期霸占着MiniZinc比赛的头名，就现在来说当然性能也不差，而且也一直有更新。关键的是，相比起CPLEX，它是免费开源的。官方主页：&lt;a href="http://www.gecode.org/"&gt;Gecode&lt;/a&gt;。&lt;/p&gt;
+&lt;h2&gt;问题描述&lt;/h2&gt;
+&lt;p&gt;在CSP概念里，问题被表示成几个部分：变量（Variable），值域（Domain），约束（Constraint）。变量是问题模型中所有可以改变的量，可以是一组数，也可以是未知的属性，比如说香港的某一所高校 …&lt;/p&gt;</summary><content type="html">&lt;h2&gt;CSP概述&lt;/h2&gt;
+&lt;p&gt;作为对学了一个学期的内容的总结，在这里稍微介绍一下Constraint Satisfaction Problem（CSP）吧。这个题目我也不知道中文叫做什么，也许叫做有约束问题解决模型比较合适。虽然我没有学过数学建模，但或许他们之间是比较类似的，CSP的中心思想就是针对一个特定的问题建立模型，然后解决它。解决问题的具体实现就叫做Constraint Solver（约束处理机）。我认为这个方法还是很实际的，它可以帮助我们快速建立起对一个问题的数学角度的认识，同时在编程方面也有很多的函数库，比如说IBM的CPLEX。这里只介绍Gecode的使用，当然官方文档对于Gecode已经解释的很详细了，我在这里只想梳理一下整个建立模型的步骤和稍微介绍一下Gecode。&lt;/p&gt;
+&lt;h2&gt;Gecode&lt;/h2&gt;
+&lt;p&gt;Gecode是一个用于解决约束问题的基于C++的函数库，覆盖了Windows，Linux，Mac三个平台。在2012年以前长期霸占着MiniZinc比赛的头名，就现在来说当然性能也不差，而且也一直有更新。关键的是，相比起CPLEX，它是免费开源的。官方主页：&lt;a href="http://www.gecode.org/"&gt;Gecode&lt;/a&gt;。&lt;/p&gt;
+&lt;h2&gt;问题描述&lt;/h2&gt;
+&lt;p&gt;在CSP概念里，问题被表示成几个部分：变量（Variable），值域（Domain），约束（Constraint）。变量是问题模型中所有可以改变的量，可以是一组数，也可以是未知的属性，比如说香港的某一所高校。对应于每一个变量有一个相应的值域，变量的取值范围只能从值域中取。约束限制了问题里的变量的取值范围，比如说，变量&lt;span class="math"&gt;\(x\)&lt;/span&gt;不能等于&lt;span class="math"&gt;\(y\)&lt;/span&gt;。这三个是CSP必备的元素，Constraint Programming（CP）就是用于找出所有满足着三个元素的可能解的编程方法。对于某些问题，我们可能对于所有的可能解不感兴趣，而更想最小化某一个值，这个值是部分变量经过一些数学方程运算得出的结果，称之为目标函数（Objective）。比如说假如&lt;span class="math"&gt;\(x\)&lt;/span&gt;和&lt;span class="math"&gt;\(y\)&lt;/span&gt;代表房子的长和宽，我们希望最大化房子的面积，也就是&lt;span class="math"&gt;\(x \times y\)&lt;/span&gt;的值。在这个问题里，我们的目标函数就是&lt;span class="math"&gt;\(-(x \times y)\)&lt;/span&gt;。需要注意的是我们关注的是目标函数的最小值，而不是最大值，因此需要求解最大值时需要取负来实现。对应于不同的编程环境，目标函数可能有不同的理解。在Gecode中，目标函数既可以求最大值也可以求最小值。&lt;/p&gt;
+&lt;p&gt;举一个熟悉的例子，我们给数独建立一个CSP模型。该模型可以表述如下：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;变量&lt;/strong&gt;：&lt;span class="math"&gt;\(x_{11}，x_{12}，x_{13}，……x_{98}，x_{99}\)&lt;/span&gt;，每一个&lt;span class="math"&gt;\(x_{ij}（0 &amp;lt; i，j &amp;lt; 10)\)&lt;/span&gt;表示数独问题中每一个位置的数字，其中&lt;span class="math"&gt;\(i\)&lt;/span&gt;表示行数，&lt;span class="math"&gt;\(j\)&lt;/span&gt;表示列数。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;值域&lt;/strong&gt;：&lt;span class="math"&gt;\([1，9]\)&lt;/span&gt;。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;约束&lt;/strong&gt;：&lt;span class="math"&gt;\(\forall i，j，m，n \in [1，9]，i \neq m，j \neq n\)&lt;/span&gt;
+&lt;span class="math"&gt;\(\implies x_{ij} \neq x_{in}, x_{ij} \neq x_{mj}\)&lt;/span&gt;。
+并且如果&lt;span class="math"&gt;\(({i-1 \over 3} = {m-1 \over 3}) \land ({j-1 \over 3} = {n-1 \over 3})\)&lt;/span&gt;，则&lt;span class="math"&gt;\(x_{ij} \neq x_{mn}\)&lt;/span&gt;。&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;对于特定的数独问题，某些空格的值已经固定，因此还要针对该问题限制这些空格的值为固定值。&lt;/p&gt;
+&lt;p&gt;约束条件分为三个部分，第一个和第二个不等式分别表示的是数独矩阵里面行和列的元素不能重复，第三个不等式表示的是在数独矩阵中，被分割出来的一个小的&lt;span class="math"&gt;\(3 \times 3\)&lt;/span&gt;矩阵里面的元素也不能重复。&lt;/p&gt;
+&lt;p&gt;对于同一个问题，我们可以有不同的建模方式。比如同样是数独问题，我们可以把原来的一个&lt;span class="math"&gt;\(9\times9\)&lt;/span&gt;的矩阵分解成9个大小一样的&lt;span class="math"&gt;\(3\times3\)&lt;/span&gt;矩阵，于是变量&lt;span class="math"&gt;\(x_{11}\)&lt;/span&gt;表示数字1在第一个矩阵出现的位置，变量&lt;span class="math"&gt;\(x_{12}\)&lt;/span&gt;表示数字2在第二个矩阵出现的位置，依此类推。对同一个问题的不同模型在编写程序时有可能会出现很大的性能差异，当时在处理Langford问题时不同的模型随着问题的增大，时间差距呈指数增长。所以，对于模型的选取一定要慎重考虑，而且并不是说容易理解的模型就一定优于难懂的模型，一定要考虑所用的函数库的特点。&lt;/p&gt;
+&lt;h2&gt;寻找问题的解&lt;/h2&gt;
+&lt;p&gt;现在我们已经有了一个问题的模型，那么如何找到这个模型的解呢？最简单的办法就是对于所有变量，我们都给它赋予满足值域的一个值，然后看看满不满足约束条件。当这个取值满足所有条件时，我们就找到了一个解，否则就从可能的取值范围里剔除掉这个情况。于是我们可以这么解决数独问题，一个一个空都填上数字，看看填满空格之后的矩阵是否满足数独问题的条件，没有满足的话就改变其中一个变量的值，或者多个变量的值，直到找到一个解或者所有解为止。这是一种最原始的方法，对于规模比较小的问题，这种方法表现还算可以，并且足够简单。但假如问题稍微增大一点，这种方法就变得力不从心了。&lt;/p&gt;
+&lt;p&gt;假设我们有10个变量，每个变量有20个值可以取，那么我们需要和约束条件测试&lt;span class="math"&gt;\(20^{10}\)&lt;/span&gt;次才能找到所有的可能解。即使现在的电脑运算速度已经非常快了，需要计算的次数对一般的电脑来说也是十分费时的。要是你不介意时间的话，当然就无所谓了。但要是有20个变量，100个变量，估计你就无法在有生之年看到所有的结果了。&lt;/p&gt;
+&lt;p&gt;如何减少计算量？最直观的方法就是减少需要测试是否满足约束条件的可能解的个数。那如何保证没有经过测试的取值一定不满足约束条件，换句话说，如何保证没有一个解被遗漏掉？假如一个问题只有一个解，遗漏掉这个解的结果就是使得我们误认为这个问题没有任何解。因此，最好的方式就是从约束问题着手，我们不需要那些测试那些明显不满足约束条件的取值，把这些取值剔除掉，所需要测试的取值范围就会大大减小。&lt;/p&gt;
+&lt;h2&gt;缩小取值范围&lt;/h2&gt;
+&lt;p&gt;那么什么样的取值才叫做“明显不满足约束条件”呢？这就要看具体实现的权衡了。如果我们把所有不满足约束条件的取值全部剔除，那么在这一过程完成的同时，我们也找到了问题的解，因为所有剩下的取值都满足约束条件。如果我们什么都不做，那么我们就回到了前面最原始的方法，一个一个测试所有可能的取值组合。实际上，问题的关键在于有多少约束条件需要在给变量取值之前测试，有多少约束条件需要在取值之后测试。在Gecode环境里，相对应的就是代码里面将开始搜索取值的函数branch放在设置约束条件的函数之后还是之前。&lt;/p&gt;
+&lt;p&gt;在这里需要定义一个概念，Consistency，即一致性。在前面讲到在剔除掉可能的取值组合时我们想保证不会将潜在的解给剔除掉，这样可以保证在缩小取值范围前后的解是一致的。所有剔除掉的取值都满足一致性的要求。在一致性的要求下，又衍生出了Node Consistency，Arc Consistency等概念，分别针对一个变量，两个变量等等。这方面已经有很多paper研究过了，现在大部分研究都关注Global Constraint的实现和定义新的Global Constraint。&lt;/p&gt;
+&lt;p&gt;这个问题扩展开来可以有很多内容，实际上大部分CSP的工作都是在这里完成的。这一部分还是先暂时打住，里面涉及到的都是具体的算法了。&lt;/p&gt;
+&lt;h2&gt;数独Gecode实现&lt;/h2&gt;
+&lt;p&gt;在Gecode环境下，对变量，值域和约束条件的设置都在类的初始函数里面设置。初始函数必须继承自Gecode里面的一个类，Script，IntMaximizeScript等等。具体如何完整编写一个约束问题的Constraint Solver，可以参考&lt;a href="http://www.gecode.org/doc-latest/MPG.pdf"&gt;官方文档&lt;/a&gt;。&lt;/p&gt;
+&lt;p&gt;Gecode中用IntVarArray表示数组变量，于是数独的变量被初始化为：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;IntVarArray&lt;/span&gt; &lt;span class="n"&gt;l&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="p"&gt;...&lt;/span&gt;
+&lt;span class="n"&gt;l&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;9&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="mi"&gt;9&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;9&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;建立一个矩阵数据结构来表示数独矩阵，便于对行和列分别设置约束条件&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;Matrix&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;IntVarArray&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;mat&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;l&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;9&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;9&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;这样对于每一行和每一列都用一个distinct constraint限定行列的元素都不重复&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c1"&gt;// constraint of row and column&lt;/span&gt;
+&lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="kt"&gt;int&lt;/span&gt; &lt;span class="n"&gt;index&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="n"&gt;index&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&lt;/span&gt; &lt;span class="mi"&gt;9&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="o"&gt;++&lt;/span&gt;&lt;span class="n"&gt;index&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="n"&gt;distinct&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;mat&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;row&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;index&lt;/span&gt;&lt;span class="p"&gt;));&lt;/span&gt;
+    &lt;span class="n"&gt;distinct&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;mat&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;col&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;index&lt;/span&gt;&lt;span class="p"&gt;));&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;原始的数独问题我们用一个数组来表示&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kt"&gt;int&lt;/span&gt; &lt;span class="n"&gt;sudokuArray&lt;/span&gt;&lt;span class="p"&gt;[]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;9&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;5&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;7&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;8&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="mi"&gt;8&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;7&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;8&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;9&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="mi"&gt;5&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;4&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;6&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="mi"&gt;4&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;7&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;8&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="mi"&gt;6&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;9&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;5&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;7&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="mi"&gt;9&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;4&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;8&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;5&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;6&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;};&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;于是接下来对于第三个约束条件以及限定矩阵中部分元素的值和问题一致可以按照如下实现&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c1"&gt;// constraint of each 3 * 3 box and the specific box&lt;/span&gt;
+&lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="kt"&gt;int&lt;/span&gt; &lt;span class="n"&gt;index1&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="n"&gt;index1&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&lt;/span&gt; &lt;span class="mi"&gt;9&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="mi"&gt;9&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="o"&gt;++&lt;/span&gt;&lt;span class="n"&gt;index1&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="kt"&gt;int&lt;/span&gt; &lt;span class="n"&gt;index2&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;index1&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="n"&gt;index2&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&lt;/span&gt; &lt;span class="mi"&gt;9&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="mi"&gt;9&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="o"&gt;++&lt;/span&gt;&lt;span class="n"&gt;index2&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+        &lt;span class="c1"&gt;// index/9 is the row number, index%9 is the column number&lt;/span&gt;
+        &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="p"&gt;((&lt;/span&gt;&lt;span class="n"&gt;index1&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;9&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="mi"&gt;3&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="n"&gt;index2&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;9&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="mi"&gt;3&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class="p"&gt;((&lt;/span&gt;&lt;span class="n"&gt;index1&lt;/span&gt;&lt;span class="o"&gt;%&lt;/span&gt;&lt;span class="mi"&gt;9&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="mi"&gt;3&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;index2&lt;/span&gt;&lt;span class="o"&gt;%&lt;/span&gt;&lt;span class="mi"&gt;9&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="mi"&gt;3&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+            &lt;span class="n"&gt;rel&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;l&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;index1&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt; &lt;span class="n"&gt;IRT_NQ&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;l&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;index2&lt;/span&gt;&lt;span class="p"&gt;]);&lt;/span&gt;
+        &lt;span class="p"&gt;}&lt;/span&gt;
+    &lt;span class="p"&gt;}&lt;/span&gt;
+    &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;sudokuArray&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;index1&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;!=&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+        &lt;span class="n"&gt;rel&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;l&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;index1&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt; &lt;span class="n"&gt;IRT_EQ&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;sudokuArray&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;index1&lt;/span&gt;&lt;span class="p"&gt;]);&lt;/span&gt;
+    &lt;span class="p"&gt;}&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;设置了branch的参数之后，Constraint Solver的构造函数就算是完成了&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c1"&gt;// post branching&lt;/span&gt;
+&lt;span class="n"&gt;branch&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;l&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;INT_VAR_SIZE_MIN&lt;/span&gt;&lt;span class="p"&gt;(),&lt;/span&gt; &lt;span class="n"&gt;INT_VAL_SPLIT_MIN&lt;/span&gt;&lt;span class="p"&gt;());&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;接下来补全sudoku类的剩余部分，一个Solver类的编写就算是完成了。&lt;/p&gt;
+&lt;script type="text/javascript"&gt;if (!document.getElementById('mathjaxscript_pelican_#%@#$@#')) {
+    var align = "center",
+        indent = "0em",
+        linebreak = "false";
+
+    if (false) {
+        align = (screen.width &lt; 768) ? "left" : align;
+        indent = (screen.width &lt; 768) ? "0em" : indent;
+        linebreak = (screen.width &lt; 768) ? 'true' : linebreak;
+    }
+
+    var mathjaxscript = document.createElement('script');
+    mathjaxscript.id = 'mathjaxscript_pelican_#%@#$@#';
+    mathjaxscript.type = 'text/javascript';
+    mathjaxscript.src = 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.3/latest.js?config=TeX-AMS-MML_HTMLorMML';
+
+    var configscript = document.createElement('script');
+    configscript.type = 'text/x-mathjax-config';
+    configscript[(window.opera ? "innerHTML" : "text")] =
+        "MathJax.Hub.Config({" +
+        "    config: ['MMLorHTML.js']," +
+        "    TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'none' } }," +
+        "    jax: ['input/TeX','input/MathML','output/HTML-CSS']," +
+        "    extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']," +
+        "    displayAlign: '"+ align +"'," +
+        "    displayIndent: '"+ indent +"'," +
+        "    showMathMenu: true," +
+        "    messageStyle: 'normal'," +
+        "    tex2jax: { " +
+        "        inlineMath: [ ['\\\\(','\\\\)'] ], " +
+        "        displayMath: [ ['$$','$$'] ]," +
+        "        processEscapes: true," +
+        "        preview: 'TeX'," +
+        "    }, " +
+        "    'HTML-CSS': { " +
+        "        availableFonts: ['STIX', 'TeX']," +
+        "        preferredFont: 'STIX'," +
+        "        styles: { '.MathJax_Display, .MathJax .mo, .MathJax .mi, .MathJax .mn': {color: 'inherit ! important'} }," +
+        "        linebreaks: { automatic: "+ linebreak +", width: '90% container' }," +
+        "    }, " +
+        "}); " +
+        "if ('default' !== 'default') {" +
+            "MathJax.Hub.Register.StartupHook('HTML-CSS Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax['HTML-CSS'].FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+            "MathJax.Hub.Register.StartupHook('SVG Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax.SVG.FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+        "}";
+
+    (document.body || document.getElementsByTagName('head')[0]).appendChild(configscript);
+    (document.body || document.getElementsByTagName('head')[0]).appendChild(mathjaxscript);
+}
+&lt;/script&gt;</content><category term="Study"></category><category term="Constraint Satisfaction Problem"></category></entry><entry><title>第一篇日志</title><link href="https://wangdaiwei.github.io/di-yi-pian-ri-zhi.html" rel="alternate"></link><published>2013-12-23T00:00:00+08:00</published><updated>2013-12-23T00:00:00+08:00</updated><author><name>Daiwei Wang</name></author><id>tag:wangdaiwei.github.io,2013-12-23:/di-yi-pian-ri-zhi.html</id><content type="html">&lt;h2&gt;写在前面&lt;/h2&gt;
+&lt;p&gt;很早就想自己搭一个个人网站了，之前在Wix上写了一个，但是又没有动力去维护了。自从看到了论坛上的帖子有人在Github上搭了一个，一直想试一试，可惜上课的时候太忙了就没怎么开始。现在总算到了放假的时间，自己整一个感觉还挺不错的。有时间把自己之前做的乱七八糟的代码整理一下扔上来，顺便回顾一下以前的东西，希望能够有所帮助吧。&lt;/p&gt;
+&lt;h2&gt;这是拿什么做的&lt;/h2&gt;
+&lt;p&gt;既然是基于别人写的东西搭建的网站，原作者的文档还是放上来好一些吧。写的还是挺清楚的，不过Windows的用户就可能没有什么参考价值了。博客地址：&lt;a href="http://www.lizherui.com/pages/2013/08/17/build_blog.html"&gt;一步一步打造Geek风格的技术博客&lt;/a&gt;。同时另外一篇日志也比较有参考价值：&lt;a href="http://terriyu.info/blog/posts/2013/07/pelican-setup/"&gt;How I setup Pelican&lt;/a&gt;。&lt;/p&gt;
+&lt;h2&gt;近期安排&lt;/h2&gt;
+&lt;p&gt;这几天在北京闲逛，准备找几个老师学长聊聊。感觉在香港待了一段时间后回来节奏有点不适应了。有机会写一点关于香港学习生活的感悟吧。&lt;/p&gt;</content><category term="Misc"></category><category term="Misc"></category></entry></feed>

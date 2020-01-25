@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+        <meta charset="utf-8" />
+        <title>DaiweiWang@Github - WebGL</title>
+        <link rel="stylesheet" href="https://wangdaiwei.github.io/theme/css/main.css" />
+        <link href="https://wangdaiwei.github.io/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="DaiweiWang@Github Atom Feed" />
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <h1><a href="https://wangdaiwei.github.io/">DaiweiWang@Github </a></h1>
+                <nav><ul>
+                    <li><a href="https://wangdaiwei.github.io/category/development.html">Development</a></li>
+                    <li><a href="https://wangdaiwei.github.io/category/math.html">Math</a></li>
+                    <li><a href="https://wangdaiwei.github.io/category/misc.html">Misc</a></li>
+                    <li><a href="https://wangdaiwei.github.io/category/study.html">Study</a></li>
+                    <li><a href="https://wangdaiwei.github.io/category/unity.html">Unity</a></li>
+                </ul></nav>
+        </header><!-- /#banner -->
+
+            <aside id="featured" class="body">
+                <article>
+                    <h1 class="entry-title"><a href="https://wangdaiwei.github.io/threejssai-che-you-xi.html">Three.js赛车游戏</a></h1>
+<footer class="post-info">
+        <abbr class="published" title="2014-05-31T00:00:00+08:00">
+                Published: 周六 31 五月 2014
+        </abbr>
+
+        <address class="vcard author">
+                By                         <a class="url fn" href="https://wangdaiwei.github.io/author/daiwei-wang.html">Daiwei Wang</a>
+        </address>
+<p>In <a href="https://wangdaiwei.github.io/category/development.html">Development</a>.</p>
+<p>tags: <a href="https://wangdaiwei.github.io/tag/webgl.html">WebGL</a> <a href="https://wangdaiwei.github.io/tag/computer-graphics.html">Computer Graphics</a> </p>
+</footer><!-- /.post-info --><h2>赛车坐标系</h2>
+<p>先不讨论场景和光线的配置，光是赛车本身涉及到的一些座标变换就足够复杂的了。先假设汽车模型摆放在坐标轴中心，如下图所示：</p>
+<p><img alt="Car icon" src="https://wangdaiwei.github.io/img/WebGL_RacingGame/car.png"></p>
+<p>一般情况下坐标系为右手系表示，即图中的红，绿，蓝分别代表x，y，z轴。假设汽车要向前移动的话，那么车身和车轮都需要沿着坐标系z轴作平移变换，同时前轮需要绕着前轮车轴为中心沿着x轴方向旋转变换。直白地说，就是车子在往前走的时候轮子也需要滚动。</p>
+<p>直行时的情况比较简单，但是如果需要旋转就比较麻烦了。先来考虑真实的情况，轮子在转动的时候不是一下子就旋转到位的，而是有个缓慢转动的过程，在转动的过程中车身也一直在前进。我们需要记录下来车身此时面对的方向以及轮子此时面对的方向。我们需要将坐标系拆分成两个部分，一个是车子和整个场景所在的世界坐标系，一个是以车子自身位中心的单位坐标系。我们需要在单位坐标系下对轮子做相对于车身的座标变换，在世界坐标系下更新车子当前的座标和面对的方向。</p>
+<h2>前期准备</h2>
+<p>实际上上面的内容Three.js里面的例子已经有现成的代码了，之前还花了好多时间研究诸如cannon.js，Physijs等等JavaSript物理引擎，出来的结果不是车子不停的打转就是动弹不得。还是先考虑没有物理引擎的情况吧。</p>
+<p>Car.js的文件可以在Three.js的github源码中找到，在example目录下的js文件夹里面。也可以在我的github里面这个demo的代码中找到，但是我稍微修改了一下里面的参数。</p>
+<p>首先我们需要将Three.js库以及Car.js添加到源文件当中</p>
+<div class="highlight"><pre><span></span><span class="p">&lt;</span><span class="nt">script</span> <span class="na">src</span><span class="o">=</span><span class="s">&#39;js/libs/three.min.js&#39;</span><span class="p">&gt;&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">script</span> <span class="na">src</span><span class="o">=</span><span class="s">&#39;js/Car.js&#39;</span><span class="p">&gt;&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">script</span> <span class="na">src</span><span class="o">=</span><span class="s">&quot;js/Detector.js&quot;</span><span class="p">&gt;&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+</pre></div>
+
+
+<p>为了实现对键盘输入的检测还需要一个简单的方法监测键盘输入</p>
+<div class="highlight"><pre><span></span><span class="kd">var</span> <span class="nx">carControl</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="nx">moveForward</span><span class="o">:</span> <span class="kc">false</span><span class="p">,</span>
+    <span class="nx">moveBackward</span><span class="o">:</span> <span class="kc">false</span><span class="p">,</span>
+    <span class="nx">moveLeft</span><span class="o">:</span> <span class="kc">false</span><span class="p">,</span>
+    <span class="nx">moveRight</span><span class="o">:</span> <span class="kc">false</span>
+<span class="p">}</span>
+
+<span class="kd">function</span> <span class="nx">onKeyDown</span><span class="p">(</span><span class="nx">event</span><span class="p">)</span> 
+<span class="p">{</span>
+    <span class="k">switch</span><span class="p">(</span><span class="nx">event</span><span class="p">.</span><span class="nx">keyCode</span><span class="p">)</span> 
+    <span class="p">{</span>
+        <span class="k">case</span> <span class="mi">87</span><span class="o">:</span> <span class="cm">/*W*/</span>
+        <span class="k">case</span> <span class="mi">38</span><span class="o">:</span> <span class="cm">/*up*/</span> <span class="nx">carControl</span><span class="p">.</span><span class="nx">moveForward</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span> <span class="k">break</span><span class="p">;</span>
+
+        <span class="k">case</span> <span class="mi">83</span><span class="o">:</span> <span class="cm">/*S*/</span>
+        <span class="k">case</span> <span class="mi">40</span><span class="o">:</span> <span class="cm">/*down*/</span><span class="nx">carControl</span><span class="p">.</span><span class="nx">moveBackward</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span> <span class="k">break</span><span class="p">;</span>
+
+        <span class="k">case</span> <span class="mi">65</span><span class="o">:</span> <span class="cm">/*A*/</span>
+        <span class="k">case</span> <span class="mi">37</span><span class="o">:</span> <span class="cm">/*left*/</span><span class="nx">carControl</span><span class="p">.</span><span class="nx">moveLeft</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span> <span class="k">break</span><span class="p">;</span>
+
+        <span class="k">case</span> <span class="mi">68</span><span class="o">:</span> <span class="cm">/*D*/</span>
+        <span class="k">case</span> <span class="mi">39</span><span class="o">:</span> <span class="cm">/*right*/</span><span class="nx">carControl</span><span class="p">.</span><span class="nx">moveRight</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span> <span class="k">break</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">};</span>
+</pre></div>
+
+
+<p>好了，接下来我们可以编写我们具体实现的js代码了。</p>
+<h2>构建场景元素</h2>
+<p>首先把WebGL元素添加到HTML画布中</p>
+<div class="highlight"><pre><span></span><span class="k">if</span> <span class="p">(</span> <span class="o">!</span> <span class="nx">Detector</span><span class="p">.</span><span class="nx">webgl</span> <span class="p">)</span> <span class="p">{</span>
+
+    <span class="nx">Detector</span><span class="p">.</span><span class="nx">addGetWebGLMessage</span><span class="p">();</span>
+    <span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span> <span class="s1">&#39;container&#39;</span> <span class="p">).</span><span class="nx">innerHTML</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">;</span>
+
+<span class="p">}</span>
+
+<span class="c1">// set the scene size</span>
+<span class="kd">var</span> <span class="nx">WIDTH</span> <span class="o">=</span> <span class="nb">window</span><span class="p">.</span><span class="nx">innerWidth</span><span class="p">,</span>
+<span class="nx">HEIGHT</span> <span class="o">=</span> <span class="mi">500</span><span class="p">;</span>
+
+<span class="nx">container</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="s2">&quot;gameCanvas&quot;</span><span class="p">);</span>
+
+<span class="nx">renderer</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">THREE</span><span class="p">.</span><span class="nx">WebGLRenderer</span><span class="p">();</span>
+<span class="nx">renderer</span><span class="p">.</span><span class="nx">setSize</span><span class="p">(</span> <span class="nb">window</span><span class="p">.</span><span class="nx">innerWidth</span><span class="p">,</span> <span class="nx">HEIGHT</span> <span class="p">);</span>
+<span class="nx">container</span><span class="p">.</span><span class="nx">appendChild</span><span class="p">(</span> <span class="nx">renderer</span><span class="p">.</span><span class="nx">domElement</span> <span class="p">);</span>
+</pre></div>
+
+
+<p>加入摄像机元素，这里之所以将摄像机的远截面设置得那么远是希望能够让摄像机能够捕捉到远处的场景。我们采用skybox的方式来模拟天空的场景，具体如何实现下面会提到。</p>
+<div class="highlight"><pre><span></span><span class="nx">scene</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">THREE</span><span class="p">.</span><span class="nx">Scene</span><span class="p">();</span>
+
+<span class="nx">camera</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">THREE</span><span class="p">.</span><span class="nx">PerspectiveCamera</span><span class="p">(</span> <span class="mi">55</span><span class="p">,</span> <span class="nb">window</span><span class="p">.</span><span class="nx">innerWidth</span> <span class="o">/</span> <span class="nx">HEIGHT</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mi">30000</span> <span class="p">);</span>
+<span class="nx">camera</span><span class="p">.</span><span class="nx">position</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">7</span> <span class="p">);</span>
+<span class="nx">camera</span><span class="p">.</span><span class="nx">lookAt</span><span class="p">(</span> <span class="k">new</span> <span class="nx">THREE</span><span class="p">.</span><span class="nx">Vector3</span><span class="p">(</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span> <span class="p">)</span> <span class="p">);</span>
+</pre></div>
+
+
+<h2>模拟天空场景</h2>
+<p>如何在利用Three.js模拟天空？假如直接将一个平面放置在场景的正上方，那当我们平视整个场景的时候必然是看不到任何东西的，我们需要有一种天空“包裹”住整个场景的感觉，这也许是称作skybox的原因了，可以使得画面感觉显示的范围更大。</p>
+<p>首先要创建一个skybox的图案，用three.js的loader读取文件</p>
+<div class="highlight"><pre><span></span><span class="c1">// load skybox</span>
+<span class="kd">var</span> <span class="nx">cubeMap</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">THREE</span><span class="p">.</span><span class="nx">Texture</span><span class="p">(</span> <span class="p">[]</span> <span class="p">);</span>
+<span class="nx">cubeMap</span><span class="p">.</span><span class="nx">format</span> <span class="o">=</span> <span class="nx">THREE</span><span class="p">.</span><span class="nx">RGBFormat</span><span class="p">;</span>
+<span class="nx">cubeMap</span><span class="p">.</span><span class="nx">flipY</span> <span class="o">=</span> <span class="kc">false</span><span class="p">;</span>
+
+<span class="kd">var</span> <span class="nx">loader</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">THREE</span><span class="p">.</span><span class="nx">ImageLoader</span><span class="p">();</span>
+<span class="nx">loader</span><span class="p">.</span><span class="nx">load</span><span class="p">(</span> <span class="s1">&#39;textures/skyboxsun25degtest.png&#39;</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span> <span class="nx">image</span> <span class="p">)</span> <span class="p">{</span>
+
+    <span class="kd">var</span> <span class="nx">getSide</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span> <span class="nx">x</span><span class="p">,</span> <span class="nx">y</span> <span class="p">)</span> <span class="p">{</span>
+
+        <span class="kd">var</span> <span class="nx">size</span> <span class="o">=</span> <span class="mi">1024</span><span class="p">;</span>
+
+        <span class="kd">var</span> <span class="nx">canvas</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">createElement</span><span class="p">(</span> <span class="s1">&#39;canvas&#39;</span> <span class="p">);</span>
+        <span class="nx">canvas</span><span class="p">.</span><span class="nx">width</span> <span class="o">=</span> <span class="nx">size</span><span class="p">;</span>
+        <span class="nx">canvas</span><span class="p">.</span><span class="nx">height</span> <span class="o">=</span> <span class="nx">size</span><span class="p">;</span>
+
+        <span class="kd">var</span> <span class="nx">context</span> <span class="o">=</span> <span class="nx">canvas</span><span class="p">.</span><span class="nx">getContext</span><span class="p">(</span> <span class="s1">&#39;2d&#39;</span> <span class="p">);</span>
+        <span class="nx">context</span><span class="p">.</span><span class="nx">drawImage</span><span class="p">(</span> <span class="nx">image</span><span class="p">,</span> <span class="o">-</span> <span class="nx">x</span> <span class="o">*</span> <span class="nx">size</span><span class="p">,</span> <span class="o">-</span> <span class="nx">y</span> <span class="o">*</span> <span class="nx">size</span> <span class="p">);</span>
+
+        <span class="k">return</span> <span class="nx">canvas</span><span class="p">;</span>
+
+    <span class="p">};</span>
+
+    <span class="nx">cubeMap</span><span class="p">.</span><span class="nx">image</span><span class="p">[</span> <span class="mi">0</span> <span class="p">]</span> <span class="o">=</span> <span class="nx">getSide</span><span class="p">(</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span> <span class="p">);</span> <span class="c1">// px</span>
+    <span class="nx">cubeMap</span><span class="p">.</span><span class="nx">image</span><span class="p">[</span> <span class="mi">1</span> <span class="p">]</span> <span class="o">=</span> <span class="nx">getSide</span><span class="p">(</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span> <span class="p">);</span> <span class="c1">// nx</span>
+    <span class="nx">cubeMap</span><span class="p">.</span><span class="nx">image</span><span class="p">[</span> <span class="mi">2</span> <span class="p">]</span> <span class="o">=</span> <span class="nx">getSide</span><span class="p">(</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span> <span class="p">);</span> <span class="c1">// py</span>
+    <span class="nx">cubeMap</span><span class="p">.</span><span class="nx">image</span><span class="p">[</span> <span class="mi">3</span> <span class="p">]</span> <span class="o">=</span> <span class="nx">getSide</span><span class="p">(</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span> <span class="p">);</span> <span class="c1">// ny</span>
+    <span class="nx">cubeMap</span><span class="p">.</span><span class="nx">image</span><span class="p">[</span> <span class="mi">4</span> <span class="p">]</span> <span class="o">=</span> <span class="nx">getSide</span><span class="p">(</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span> <span class="p">);</span> <span class="c1">// pz</span>
+    <span class="nx">cubeMap</span><span class="p">.</span><span class="nx">image</span><span class="p">[</span> <span class="mi">5</span> <span class="p">]</span> <span class="o">=</span> <span class="nx">getSide</span><span class="p">(</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span> <span class="p">);</span> <span class="c1">// nz</span>
+    <span class="nx">cubeMap</span><span class="p">.</span><span class="nx">needsUpdate</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>
+
+<span class="p">}</span> <span class="p">);</span>
+</pre></div>
+
+
+<p>在回调函数中，创建了getSide函数来获取skybox立方体六个面的图案。文件本身是4096 × 3072大小的图片，利用HTML画布的绘图函数来返回每一个面图形信息，接下来就可以用Three.js自带的着色器为整个天空的skybox着色</p>
+<div class="highlight"><pre><span></span><span class="kd">var</span> <span class="nx">cubeShader</span> <span class="o">=</span> <span class="nx">THREE</span><span class="p">.</span><span class="nx">ShaderLib</span><span class="p">[</span><span class="s1">&#39;cube&#39;</span><span class="p">];</span>
+<span class="nx">cubeShader</span><span class="p">.</span><span class="nx">uniforms</span><span class="p">[</span><span class="s1">&#39;tCube&#39;</span><span class="p">].</span><span class="nx">value</span> <span class="o">=</span> <span class="nx">cubeMap</span><span class="p">;</span>
+</pre></div>
+
+
+<p>利用生成的着色器创建skybox的材质</p>
+<div class="highlight"><pre><span></span><span class="kd">var</span> <span class="nx">skyBoxMaterial</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">THREE</span><span class="p">.</span><span class="nx">ShaderMaterial</span><span class="p">(</span> <span class="p">{</span>
+    <span class="nx">fragmentShader</span><span class="o">:</span> <span class="nx">cubeShader</span><span class="p">.</span><span class="nx">fragmentShader</span><span class="p">,</span>
+    <span class="nx">vertexShader</span><span class="o">:</span> <span class="nx">cubeShader</span><span class="p">.</span><span class="nx">vertexShader</span><span class="p">,</span>
+    <span class="nx">uniforms</span><span class="o">:</span> <span class="nx">cubeShader</span><span class="p">.</span><span class="nx">uniforms</span><span class="p">,</span>
+    <span class="nx">depthWrite</span><span class="o">:</span> <span class="kc">false</span><span class="p">,</span>
+    <span class="nx">side</span><span class="o">:</span> <span class="nx">THREE</span><span class="p">.</span><span class="nx">BackSide</span>
+<span class="p">});</span>
+</pre></div>
+
+
+<p>接下来就可以创建skybox物体并添加到场景当中去了</p>
+<div class="highlight"><pre><span></span><span class="kd">var</span> <span class="nx">skyBox</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">THREE</span><span class="p">.</span><span class="nx">Mesh</span><span class="p">(</span>
+    <span class="k">new</span> <span class="nx">THREE</span><span class="p">.</span><span class="nx">BoxGeometry</span><span class="p">(</span> <span class="mi">10000</span><span class="p">,</span> <span class="mi">10000</span><span class="p">,</span> <span class="mi">10000</span> <span class="p">),</span>
+    <span class="nx">skyBoxMaterial</span>
+<span class="p">);</span>
+
+<span class="nx">scene</span><span class="p">.</span><span class="nx">add</span><span class="p">(</span> <span class="nx">skyBox</span> <span class="p">);</span>
+</pre></div>
+
+
+<h2>添加地面</h2>
+<p>城市模型大小有限，难以覆盖到整个画面，因此需要在场景中加入一个平面。</p>
+<div class="highlight"><pre><span></span><span class="c1">//add ground </span>
+<span class="kd">var</span> <span class="nx">grassTex</span> <span class="o">=</span> <span class="nx">THREE</span><span class="p">.</span><span class="nx">ImageUtils</span><span class="p">.</span><span class="nx">loadTexture</span><span class="p">(</span><span class="s1">&#39;textures/grass.png&#39;</span><span class="p">);</span> 
+<span class="nx">grassTex</span><span class="p">.</span><span class="nx">wrapS</span> <span class="o">=</span> <span class="nx">THREE</span><span class="p">.</span><span class="nx">RepeatWrapping</span><span class="p">;</span> 
+<span class="nx">grassTex</span><span class="p">.</span><span class="nx">wrapT</span> <span class="o">=</span> <span class="nx">THREE</span><span class="p">.</span><span class="nx">RepeatWrapping</span><span class="p">;</span> 
+<span class="nx">grassTex</span><span class="p">.</span><span class="nx">repeat</span><span class="p">.</span><span class="nx">x</span> <span class="o">=</span> <span class="mi">256</span><span class="p">;</span> 
+<span class="nx">grassTex</span><span class="p">.</span><span class="nx">repeat</span><span class="p">.</span><span class="nx">y</span> <span class="o">=</span> <span class="mi">256</span><span class="p">;</span> 
+<span class="kd">var</span> <span class="nx">groundMat</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">THREE</span><span class="p">.</span><span class="nx">MeshBasicMaterial</span><span class="p">({</span><span class="nx">map</span><span class="o">:</span><span class="nx">grassTex</span><span class="p">});</span>
+
+<span class="kd">var</span> <span class="nx">groundGeo</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">THREE</span><span class="p">.</span><span class="nx">PlaneGeometry</span><span class="p">(</span><span class="mi">4000</span><span class="p">,</span><span class="mi">4000</span><span class="p">);</span>
+
+<span class="nx">ground</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">THREE</span><span class="p">.</span><span class="nx">Mesh</span><span class="p">(</span><span class="nx">groundGeo</span><span class="p">,</span><span class="nx">groundMat</span><span class="p">);</span> 
+<span class="nx">ground</span><span class="p">.</span><span class="nx">position</span><span class="p">.</span><span class="nx">y</span> <span class="o">=</span> <span class="o">-</span><span class="mi">3</span><span class="p">;</span> <span class="c1">//lower it </span>
+<span class="nx">ground</span><span class="p">.</span><span class="nx">rotation</span><span class="p">.</span><span class="nx">x</span> <span class="o">=</span> <span class="o">-</span><span class="nb">Math</span><span class="p">.</span><span class="nx">PI</span><span class="o">/</span><span class="mi">2</span><span class="p">;</span> <span class="c1">//-90 degrees around the xaxis </span>
+<span class="nx">ground</span><span class="p">.</span><span class="nx">doubleSided</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span> 
+<span class="nx">ground</span><span class="p">.</span><span class="nx">receivedShadow</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>
+<span class="nx">scene</span><span class="p">.</span><span class="nx">add</span><span class="p">(</span><span class="nx">ground</span><span class="p">);</span>
+</pre></div>
+
+
+<p>由于地面需要极大的图片，而grass.png大小比较小，这里需要设置图片自身要重复多次，因此wrapS和wrapT的值都设为真，同时设置在x，和y，方向上均需要重复256次。地面的geometry由THREE.PlaneGeometry创建，并且在y轴上往负方向平移了－3个单位，给车的模型留出空位。而之所以绕着x轴旋转90度是因为原始平面是沿着x，y轴平面的，需要旋转至x，z轴平面。</p>
+<h2>加入汽车和城市模型</h2>
+<p>添加汽车到场景中的方式很简单，只需要给函数需要的信息就够了，同时也需要写好回调函数</p>
+<div class="highlight"><pre><span></span><span class="nx">car</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">THREE</span><span class="p">.</span><span class="nx">Car</span><span class="p">();</span>
+<span class="nx">car</span><span class="p">.</span><span class="nx">modelScale</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+<span class="nx">car</span><span class="p">.</span><span class="nx">backWheelOffset</span> <span class="o">=</span> <span class="mi">2</span><span class="p">;</span>
+<span class="nx">car</span><span class="p">.</span><span class="nx">callback</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span> <span class="nx">object</span> <span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">x</span> <span class="o">=</span> <span class="mi">270</span><span class="p">;</span>
+    <span class="kd">var</span> <span class="nx">y</span> <span class="o">=</span> <span class="mf">0.1</span><span class="p">;</span>
+    <span class="kd">var</span> <span class="nx">z</span> <span class="o">=</span> <span class="o">-</span><span class="mi">330</span><span class="p">;</span>
+    <span class="c1">// var s = 0.01;</span>
+    <span class="nx">object</span><span class="p">.</span><span class="nx">root</span><span class="p">.</span><span class="nx">position</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span> <span class="nx">x</span><span class="p">,</span> <span class="nx">y</span><span class="p">,</span> <span class="nx">z</span> <span class="p">);</span>
+    <span class="nx">scene</span><span class="p">.</span><span class="nx">add</span><span class="p">(</span> <span class="nx">object</span><span class="p">.</span><span class="nx">root</span> <span class="p">);</span>
+
+    <span class="nx">object</span><span class="p">.</span><span class="nx">root</span><span class="p">.</span><span class="nx">add</span><span class="p">(</span> <span class="nx">camera</span> <span class="p">);</span>
+
+    <span class="nx">camera</span><span class="p">.</span><span class="nx">position</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="o">-</span><span class="mi">30</span> <span class="p">);</span>
+
+    <span class="nx">object</span><span class="p">.</span><span class="nx">bodyMesh</span><span class="p">.</span><span class="nx">geometry</span><span class="p">.</span><span class="nx">dynamic</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>
+    <span class="nx">object</span><span class="p">.</span><span class="nx">bodyMesh</span><span class="p">.</span><span class="nx">geometry</span><span class="p">.</span><span class="nx">computeFaceNormals</span><span class="p">();</span>
+<span class="p">}</span>
+<span class="nx">car</span><span class="p">.</span><span class="nx">setVisible</span><span class="p">(</span> <span class="kc">true</span> <span class="p">);</span>
+<span class="nx">car</span><span class="p">.</span><span class="nx">loadPartsJSON</span><span class="p">(</span> <span class="s1">&#39;./models/Audi_Car/audi_body.js&#39;</span><span class="p">,</span> <span class="s1">&#39;./models/Audi_Car/wheel_left.js&#39;</span> <span class="p">);</span>
+</pre></div>
+
+
+<p>这里的回调函数起着设定汽车的初试状态的作用，因为要配合城市模型，所以x，y，z起始座标都需要更改。同时为了保证摄像头能够一直跟踪汽车，将摄像头加入到汽车的单位坐标系当中，位置也设置好。</p>
+<div class="highlight"><pre><span></span><span class="nx">object</span><span class="p">.</span><span class="nx">bodyMesh</span><span class="p">.</span><span class="nx">geometry</span><span class="p">.</span><span class="nx">computeFaceNormals</span><span class="p">();</span>
+</pre></div>
+
+
+<p>这一句代码的作用是计算汽车每个面的法向量，根据这个法向量Three.js在着色的时候就不用Flat Shading，而是采用更为平滑的Smooth Shading。</p>
+<p>oadPartJSON函数读取js格式下的模型，可以利用官方Three.js写好的python脚本将常用的.obj，.fbx等等格式转换成.js格式，脚本文件存放在Three.js源代码目录下的utils/converters文件夹里面。这里面要注意，车身的模型存放在在audi_body.js文件里，wheel_left.js只存放了车子的左前轮模型。Car.js会自己计算剩下的三个轮子的座标，只需要保证左前轮的模型仍然保持在车子模型的坐标系里面左前轮的位置，不要将轮子的座标放到坐标原点。</p>
+<p>将城市的模型也放到场景当中，整个游戏的场景就算是差不多搭建完成了。</p>
+<div class="highlight"><pre><span></span><span class="k">new</span> <span class="nx">THREE</span><span class="p">.</span><span class="nx">JSONLoader</span><span class="p">().</span><span class="nx">load</span><span class="p">(</span> <span class="s1">&#39;./models/City_4/City.js&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span> <span class="nx">geometry</span><span class="p">,</span> <span class="nx">material</span> <span class="p">)</span> <span class="p">{</span>
+    <span class="nx">geometry</span><span class="p">.</span><span class="nx">computeVertexNormals</span><span class="p">();</span>
+    <span class="kd">var</span> <span class="nx">cityMesh</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">THREE</span><span class="p">.</span><span class="nx">Mesh</span><span class="p">(</span> <span class="nx">geometry</span><span class="p">,</span> <span class="k">new</span> <span class="nx">THREE</span><span class="p">.</span><span class="nx">MeshFaceMaterial</span><span class="p">(</span> <span class="nx">material</span> <span class="p">)</span> <span class="p">);</span>
+    <span class="nx">cityMesh</span><span class="p">.</span><span class="nx">scale</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">4</span> <span class="p">);</span>
+    <span class="nx">cityMesh</span><span class="p">.</span><span class="nx">rotation</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span> <span class="mi">0</span><span class="p">,</span> <span class="nb">Math</span><span class="p">.</span><span class="nx">PI</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span> <span class="p">);</span>
+    <span class="nx">cityMesh</span><span class="p">.</span><span class="nx">position</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span> <span class="o">-</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mf">2.9</span><span class="p">,</span> <span class="mi">400</span> <span class="p">);</span>
+    <span class="nx">scene</span><span class="p">.</span><span class="nx">add</span><span class="p">(</span> <span class="nx">cityMesh</span> <span class="p">);</span>
+<span class="p">});</span>
+</pre></div>
+
+
+<p>接下来只需要完成定时刷新网页的函数并加入到执行函数当中。</p>
+<div class="highlight"><pre><span></span><span class="kd">function</span> <span class="nx">animate</span><span class="p">()</span> <span class="p">{</span>
+    <span class="nx">requestAnimationFrame</span><span class="p">(</span><span class="nx">animate</span><span class="p">);</span>
+    <span class="nx">car</span><span class="p">.</span><span class="nx">updateCarModel</span><span class="p">(</span> <span class="nb">Date</span><span class="p">.</span><span class="nx">now</span><span class="p">()</span> <span class="o">-</span> <span class="nx">time</span><span class="p">,</span> <span class="nx">carControl</span> <span class="p">);</span>
+    <span class="nx">render</span><span class="p">();</span>
+
+    <span class="nx">time</span> <span class="o">=</span> <span class="nb">Date</span><span class="p">.</span><span class="nx">now</span><span class="p">();</span>
+
+<span class="p">}</span>
+
+<span class="kd">function</span> <span class="nx">render</span><span class="p">()</span> <span class="p">{</span>
+    <span class="nx">renderer</span><span class="p">.</span><span class="nx">render</span><span class="p">(</span> <span class="nx">scene</span><span class="p">,</span> <span class="nx">camera</span> <span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<h2>最终效果</h2>
+<p>游戏截图如下：</p>
+<p><img alt="Game icon" src="https://wangdaiwei.github.io/img/WebGL_RacingGame/game.png"></p>
+<p>模型的加载时间对于网页而言可能有些慢，并且由于需要渲染的场景比较大会有一定的延时，不过看到自己的完成的模型能够在画面中跑起来还是挺有趣的。我已经上传了这个程序的源代码到github上，网址是：<a href="" title="https://github.com/wangdaiwei/wangdaiwei.github.io/tree/master/CityRun">CityRun</a>。也可以直接点击<a href="http://wangdaiwei.github.io/CityRun/game.html">这个链接</a>直接尝试一下最后的做出来的游戏。</p><p>There are <a href="https://wangdaiwei.github.io/threejssai-che-you-xi.html#disqus_thread">comments</a>.</p>                </article>
+            </aside><!-- /#featured -->
+                <section id="content" class="body">
+                    <h1>Other articles</h1>
+                    <hr />
+                    <ol id="posts-list" class="hfeed">
+
+            <li><article class="hentry">
+                <header>
+                    <h1><a href="https://wangdaiwei.github.io/yong-webglbian-xie-yi-ge-3dtu-xing-wang-zhan.html" rel="bookmark"
+                           title="Permalink to 用WebGL编写一个3D图形网站">用WebGL编写一个3D图形网站</a></h1>
+                </header>
+
+                <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2014-05-22T00:00:00+08:00">
+                Published: 周四 22 五月 2014
+        </abbr>
+
+        <address class="vcard author">
+                By                         <a class="url fn" href="https://wangdaiwei.github.io/author/daiwei-wang.html">Daiwei Wang</a>
+        </address>
+<p>In <a href="https://wangdaiwei.github.io/category/development.html">Development</a>.</p>
+<p>tags: <a href="https://wangdaiwei.github.io/tag/webgl.html">WebGL</a> <a href="https://wangdaiwei.github.io/tag/computer-graphics.html">Computer Graphics</a> </p>
+</footer><!-- /.post-info -->                <p>自己的学生生涯也差不多结束了，感觉是时候把自己这一年来学的东西做一个总结，顺便回顾一下以前做过的东西。这几天多动动手，争取写多一些内容。</p>
+<h2>WebGL简单介绍</h2>
+<p>如果有听说过OpenGL的话，那么WebGL理解起来就不是那么困难了，简单来说其实就是OpenGL在HTML5的JavaScript移植版。要是OpenGL没听说过，那就把它当成是一个在网页上的图形引擎吧。我们可以在HTML5的网页上创建Canvas（画布）来配置我们的WebGL绘制图形的过程。</p>
+<p>要想从最基本的开始写一个很简单的程序也不是那么容易的，写过OpenGL程序的人肯定都知道，想要显示一个简单的正方形也不是一句代码就能解决的事。你得设置好视角，然后你得定义绘图方式，标出矩形每一个顶点的位置，再转换到世界坐标系等等。总之就是一切都是计算机图形学基础的东西，要想好好用WebGL这个写一个能看的动画估计就得花好长时间了。所以我们还是用点现成的东西吧，目前关于WebGL可用的库有很多，比较常用的就是Three.js。</p>
+<h2>Three.js</h2>
+<p>这个库已经写的比较完整了，已经有很多很炫的例子，可以在<a href="http://threejs.org/">官网</a>上找到。有了Three.js，很多事情变简单了许多。绘制一个3D画面的步骤就变成这样了：</p>
+<ol>
+<li>在HTML网页里配置基本的画布</li>
+<li>在画布上布置WebGL基本元素，比如立方体，球体等等</li>
+<li>配置好Camera，加入光源，着色器等等</li>
+<li>如果需要的话，加入对输入设备的检测，比如鼠标的点击动作</li>
+<li>最后就是加入一个计时器不断地刷新页面，比如动态显示水面的波纹 …</li></ol>
+                <a class="readmore" href="https://wangdaiwei.github.io/yong-webglbian-xie-yi-ge-3dtu-xing-wang-zhan.html">read more</a>
+<p>There are <a href="https://wangdaiwei.github.io/yong-webglbian-xie-yi-ge-3dtu-xing-wang-zhan.html#disqus_thread">comments</a>.</p>                </div><!-- /.entry-content -->
+            </article></li>
+                </ol><!-- /#posts-list -->
+                </section><!-- /#content -->
+        <section id="extras" class="body">
+                <div class="blogroll">
+                        <h2>links</h2>
+                        <ul>
+                            <li><a href="http://getpelican.com/">Pelican</a></li>
+                            <li><a href="http://python.org/">Python.org</a></li>
+                            <li><a href="http://jinja.pocoo.org/">Jinja2</a></li>
+                        </ul>
+                </div><!-- /.blogroll -->
+                <div class="social">
+                        <h2>social</h2>
+                        <ul>
+                            <li><a href="https://wangdaiwei.github.io/feeds/all.atom.xml" type="application/atom+xml" rel="alternate">atom feed</a></li>
+
+                        </ul>
+                </div><!-- /.social -->
+        </section><!-- /#extras -->
+
+        <footer id="contentinfo" class="body">
+                <address id="about" class="vcard body">
+                Proudly powered by <a href="http://getpelican.com/">Pelican</a>, which takes great advantage of <a href="http://python.org">Python</a>.
+                </address><!-- /#about -->
+
+                <p>The theme is by <a href="http://coding.smashingmagazine.com/2009/08/04/designing-a-html-5-layout-from-scratch/">Smashing Magazine</a>, thanks!</p>
+        </footer><!-- /#contentinfo -->
+
+    <script type="text/javascript">
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-46745526-1', 'auto');
+    ga('send', 'pageview');
+    </script>
+<script type="text/javascript">
+    var disqus_shortname = 'wangdaiwei-github';
+    (function () {
+        var s = document.createElement('script'); s.async = true;
+        s.type = 'text/javascript';
+        s.src = 'https://' + disqus_shortname + '.disqus.com/count.js';
+        (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+    }());
+</script>
+</body>
+</html>

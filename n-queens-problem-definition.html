@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+        <meta charset="utf-8" />
+        <title>N-Queens Problem Definition</title>
+        <link rel="stylesheet" href="https://wangdaiwei.github.io/theme/css/main.css" />
+        <link href="https://wangdaiwei.github.io/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="DaiweiWang@Github Atom Feed" />
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <h1><a href="https://wangdaiwei.github.io/">DaiweiWang@Github </a></h1>
+                <nav><ul>
+                    <li><a href="https://wangdaiwei.github.io/category/development.html">Development</a></li>
+                    <li><a href="https://wangdaiwei.github.io/category/math.html">Math</a></li>
+                    <li><a href="https://wangdaiwei.github.io/category/misc.html">Misc</a></li>
+                    <li class="active"><a href="https://wangdaiwei.github.io/category/study.html">Study</a></li>
+                    <li><a href="https://wangdaiwei.github.io/category/unity.html">Unity</a></li>
+                </ul></nav>
+        </header><!-- /#banner -->
+<section id="content" class="body">
+  <article>
+    <header>
+      <h1 class="entry-title">
+        <a href="https://wangdaiwei.github.io/n-queens-problem-definition.html" rel="bookmark"
+           title="Permalink to N-Queens Problem Definition">N-Queens Problem Definition</a></h1>
+    </header>
+
+    <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2014-02-20T00:00:00+08:00">
+                Published: 周四 20 二月 2014
+        </abbr>
+
+        <address class="vcard author">
+                By                         <a class="url fn" href="https://wangdaiwei.github.io/author/daiwei-wang.html">Daiwei Wang</a>
+        </address>
+<p>In <a href="https://wangdaiwei.github.io/category/study.html">Study</a>.</p>
+<p>tags: <a href="https://wangdaiwei.github.io/tag/constraint-satisfaction-problem.html">Constraint Satisfaction Problem</a> </p>
+</footer><!-- /.post-info -->      <p>N-Queens problem is defined as: place n queens on an <span class="math">\(n × n\)</span> chess board so that the queens do not attack each other. Now, we rotate the board clockwisely by 45 degrees as shown in following picture, and use a variable to denote the queen partition (if any) for each row (a diagonal in the original board).</p>
+<p><img alt="N-Queens" src="https://wangdaiwei.github.io/img/NQueens/queens.jpg"></p>
+<p>Thus the variables are <span class="math">\(y_{1-n}, y_{2-n},..., y_{0},..., y_{n-2}, y_{n-1}.\)</span> While each variable takes values according to the new coordinate system, we use the value <span class="math">\(−n\)</span> to denote that there are no queens on a particular row. The domain of each variable <span class="math">\(y_i\)</span> is thus <span class="math">\(D_i = { |i|+1,|i|+3,...,2n−|i|−1 } ∪ {−n}\)</span> for <span class="math">\(i \in [1−n,n−1]\)</span>. The set of constraints are given as follows:</p>
+<ul>
+<li>for <span class="math">\(i \in [1−n,n−1]: \sum_i(y_i \ne −n)=n\)</span></li>
+<li>for <span class="math">\(i \in [1−n,n−1]\)</span> and <span class="math">\(j \in [1,2n−1]: \sum_i(y_i =j) \leq 1\)</span></li>
+<li>for <span class="math">\(i,j \in [1−n,n−1]\)</span> and <span class="math">\(i \ne j:|y_i−y_j| \ne |i−j|\)</span></li>
+</ul>
+<p>The model is modeled in three ways: arithmetic constraint, tuple sets and DFA.</p>
+<p>The Gecode implementation has been uploaded to my github repository. You can see the source code at <a href="https://github.com/wangdaiwei/gecode">wangdaiwei/gecode</a>.</p>
+<p>The program should be run as following command in Mac OSX:</p>
+<div class="highlight"><pre><span></span><span class="err">queens -model mod 5</span>
+</pre></div>
+
+
+<p>Here mod stands for the model you choose. The value is from 1 to 3. The last parameter defines the size of N-Queens problem.</p>
+<script type="text/javascript">if (!document.getElementById('mathjaxscript_pelican_#%@#$@#')) {
+    var align = "center",
+        indent = "0em",
+        linebreak = "false";
+
+    if (false) {
+        align = (screen.width < 768) ? "left" : align;
+        indent = (screen.width < 768) ? "0em" : indent;
+        linebreak = (screen.width < 768) ? 'true' : linebreak;
+    }
+
+    var mathjaxscript = document.createElement('script');
+    mathjaxscript.id = 'mathjaxscript_pelican_#%@#$@#';
+    mathjaxscript.type = 'text/javascript';
+    mathjaxscript.src = 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.3/latest.js?config=TeX-AMS-MML_HTMLorMML';
+
+    var configscript = document.createElement('script');
+    configscript.type = 'text/x-mathjax-config';
+    configscript[(window.opera ? "innerHTML" : "text")] =
+        "MathJax.Hub.Config({" +
+        "    config: ['MMLorHTML.js']," +
+        "    TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'none' } }," +
+        "    jax: ['input/TeX','input/MathML','output/HTML-CSS']," +
+        "    extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']," +
+        "    displayAlign: '"+ align +"'," +
+        "    displayIndent: '"+ indent +"'," +
+        "    showMathMenu: true," +
+        "    messageStyle: 'normal'," +
+        "    tex2jax: { " +
+        "        inlineMath: [ ['\\\\(','\\\\)'] ], " +
+        "        displayMath: [ ['$$','$$'] ]," +
+        "        processEscapes: true," +
+        "        preview: 'TeX'," +
+        "    }, " +
+        "    'HTML-CSS': { " +
+        "        availableFonts: ['STIX', 'TeX']," +
+        "        preferredFont: 'STIX'," +
+        "        styles: { '.MathJax_Display, .MathJax .mo, .MathJax .mi, .MathJax .mn': {color: 'inherit ! important'} }," +
+        "        linebreaks: { automatic: "+ linebreak +", width: '90% container' }," +
+        "    }, " +
+        "}); " +
+        "if ('default' !== 'default') {" +
+            "MathJax.Hub.Register.StartupHook('HTML-CSS Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax['HTML-CSS'].FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+            "MathJax.Hub.Register.StartupHook('SVG Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax.SVG.FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+        "}";
+
+    (document.body || document.getElementsByTagName('head')[0]).appendChild(configscript);
+    (document.body || document.getElementsByTagName('head')[0]).appendChild(mathjaxscript);
+}
+</script>
+    </div><!-- /.entry-content -->
+    <div class="comments">
+      <h2>Comments !</h2>
+      <div id="disqus_thread"></div>
+      <script type="text/javascript">
+        var disqus_shortname = 'wangdaiwei-github';
+        var disqus_identifier = 'n-queens-problem-definition.html';
+        var disqus_url = 'https://wangdaiwei.github.io/n-queens-problem-definition.html';
+        (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//wangdaiwei-github.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+      </script>
+      <noscript>Please enable JavaScript to view the comments.</noscript>
+    </div>
+
+  </article>
+</section>
+        <section id="extras" class="body">
+                <div class="blogroll">
+                        <h2>links</h2>
+                        <ul>
+                            <li><a href="http://getpelican.com/">Pelican</a></li>
+                            <li><a href="http://python.org/">Python.org</a></li>
+                            <li><a href="http://jinja.pocoo.org/">Jinja2</a></li>
+                        </ul>
+                </div><!-- /.blogroll -->
+                <div class="social">
+                        <h2>social</h2>
+                        <ul>
+                            <li><a href="https://wangdaiwei.github.io/feeds/all.atom.xml" type="application/atom+xml" rel="alternate">atom feed</a></li>
+
+                        </ul>
+                </div><!-- /.social -->
+        </section><!-- /#extras -->
+
+        <footer id="contentinfo" class="body">
+                <address id="about" class="vcard body">
+                Proudly powered by <a href="http://getpelican.com/">Pelican</a>, which takes great advantage of <a href="http://python.org">Python</a>.
+                </address><!-- /#about -->
+
+                <p>The theme is by <a href="http://coding.smashingmagazine.com/2009/08/04/designing-a-html-5-layout-from-scratch/">Smashing Magazine</a>, thanks!</p>
+        </footer><!-- /#contentinfo -->
+
+    <script type="text/javascript">
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-46745526-1', 'auto');
+    ga('send', 'pageview');
+    </script>
+<script type="text/javascript">
+    var disqus_shortname = 'wangdaiwei-github';
+    (function () {
+        var s = document.createElement('script'); s.async = true;
+        s.type = 'text/javascript';
+        s.src = 'https://' + disqus_shortname + '.disqus.com/count.js';
+        (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+    }());
+</script>
+</body>
+</html>

@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+        <meta charset="utf-8" />
+        <title>iOS创建颜色的一个简单方法</title>
+        <link rel="stylesheet" href="https://wangdaiwei.github.io/theme/css/main.css" />
+        <link href="https://wangdaiwei.github.io/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="DaiweiWang@Github Atom Feed" />
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <h1><a href="https://wangdaiwei.github.io/">DaiweiWang@Github </a></h1>
+                <nav><ul>
+                    <li class="active"><a href="https://wangdaiwei.github.io/category/development.html">Development</a></li>
+                    <li><a href="https://wangdaiwei.github.io/category/math.html">Math</a></li>
+                    <li><a href="https://wangdaiwei.github.io/category/misc.html">Misc</a></li>
+                    <li><a href="https://wangdaiwei.github.io/category/study.html">Study</a></li>
+                    <li><a href="https://wangdaiwei.github.io/category/unity.html">Unity</a></li>
+                </ul></nav>
+        </header><!-- /#banner -->
+<section id="content" class="body">
+  <article>
+    <header>
+      <h1 class="entry-title">
+        <a href="https://wangdaiwei.github.io/ioschuang-jian-yan-se-de-yi-ge-jian-dan-fang-fa.html" rel="bookmark"
+           title="Permalink to iOS创建颜色的一个简单方法">iOS创建颜色的一个简单方法</a></h1>
+    </header>
+
+    <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2014-08-23T00:00:00+08:00">
+                Published: 周六 23 八月 2014
+        </abbr>
+
+        <address class="vcard author">
+                By                         <a class="url fn" href="https://wangdaiwei.github.io/author/daiwei-wang.html">Daiwei Wang</a>
+        </address>
+<p>In <a href="https://wangdaiwei.github.io/category/development.html">Development</a>.</p>
+<p>tags: <a href="https://wangdaiwei.github.io/tag/ios.html">iOS</a> </p>
+</footer><!-- /.post-info -->      <p>Objective-C里面通过RGB值的方式创建一个UIColor的对象很简单，只需要传递给指定的RGB值就可以了：</p>
+<div class="highlight"><pre><span></span><span class="p">+</span> <span class="p">(</span><span class="bp">UIColor</span> <span class="o">*</span><span class="p">)</span><span class="nf">colorWithRed:</span><span class="p">(</span><span class="n">CGFloat</span><span class="p">)</span><span class="nv">red</span> <span class="nf">green:</span><span class="p">(</span><span class="n">CGFloat</span><span class="p">)</span><span class="nv">green</span> <span class="nf">blue:</span><span class="p">(</span><span class="n">CGFloat</span><span class="p">)</span><span class="nv">blue</span> <span class="nf">alpha:</span><span class="p">(</span><span class="n">CGFloat</span><span class="p">)</span><span class="nv">alpha</span>
+</pre></div>
+
+
+<p>不过这个方法有一个问题，就是这里面的RGB值是用0～1.0的浮点值来表示的，对于常用的0～255的表示方式以及类似FFFFFF的十六进制表示方式并没有对应的方法。我比较喜欢通过Category的方式扩展UIColor，只需要在工程里面添加一个类就行了：</p>
+<div class="highlight"><pre><span></span><span class="bp">UIColor</span><span class="o">+</span><span class="n">CreateMethods</span><span class="p">.</span><span class="n">h</span>
+
+<span class="c1">//</span>
+<span class="c1">//  UIColor+CreateMethods.h</span>
+<span class="c1">//</span>
+
+<span class="cp">#import &lt;UIKit/UIKit.h&gt;</span>
+
+<span class="k">@interface</span> <span class="bp">UIColor</span> <span class="nl">(CreateMethods)</span>
+
+<span class="c1">// wrapper for [UIColor colorWithRed:green:blue:alpha:]</span>
+<span class="c1">// values must be in range 0 - 255</span>
+<span class="p">+</span> <span class="p">(</span><span class="bp">UIColor</span><span class="o">*</span><span class="p">)</span><span class="nf">colorWith8BitRed:</span><span class="p">(</span><span class="n">NSInteger</span><span class="p">)</span><span class="nv">red</span> <span class="nf">green:</span><span class="p">(</span><span class="n">NSInteger</span><span class="p">)</span><span class="nv">green</span> <span class="nf">blue:</span><span class="p">(</span><span class="n">NSInteger</span><span class="p">)</span><span class="nv">blue</span> <span class="nf">alpha:</span><span class="p">(</span><span class="n">CGFloat</span><span class="p">)</span><span class="nv">alpha</span><span class="p">;</span>
+
+<span class="c1">// Creates color using hex representation</span>
+<span class="c1">// hex - must be in format: #FF00CC </span>
+<span class="c1">// alpha - must be in range 0.0 - 1.0</span>
+<span class="p">+</span> <span class="p">(</span><span class="bp">UIColor</span><span class="o">*</span><span class="p">)</span><span class="nf">colorWithHex:</span><span class="p">(</span><span class="bp">NSString</span><span class="o">*</span><span class="p">)</span><span class="nv">hex</span> <span class="nf">alpha:</span><span class="p">(</span><span class="n">CGFloat</span><span class="p">)</span><span class="nv">alpha</span><span class="p">;</span>
+
+<span class="k">@end</span>
+
+<span class="bp">UIColor</span><span class="o">+</span><span class="n">CreateMethods</span><span class="p">.</span><span class="n">m</span>
+
+<span class="c1">//</span>
+<span class="c1">//  UIColor+CreateMethods.m</span>
+<span class="c1">//</span>
+
+<span class="cp">#import &quot;UIColor+CreateMethods.h&quot;</span>
+
+<span class="k">@implementation</span> <span class="bp">UIColor</span> <span class="nl">(CreateMethods)</span>
+
+<span class="p">+</span> <span class="p">(</span><span class="bp">UIColor</span><span class="o">*</span><span class="p">)</span><span class="nf">colorWith8BitRed:</span><span class="p">(</span><span class="n">NSInteger</span><span class="p">)</span><span class="nv">red</span> <span class="nf">green:</span><span class="p">(</span><span class="n">NSInteger</span><span class="p">)</span><span class="nv">green</span> <span class="nf">blue:</span><span class="p">(</span><span class="n">NSInteger</span><span class="p">)</span><span class="nv">blue</span> <span class="nf">alpha:</span><span class="p">(</span><span class="n">CGFloat</span><span class="p">)</span><span class="nv">alpha</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="p">[</span><span class="bp">UIColor</span> <span class="nl">colorWithRed</span><span class="p">:(</span><span class="n">red</span><span class="o">/</span><span class="mf">255.0</span><span class="p">)</span> <span class="nl">green</span><span class="p">:(</span><span class="n">green</span><span class="o">/</span><span class="mf">255.0</span><span class="p">)</span> <span class="nl">blue</span><span class="p">:(</span><span class="n">blue</span><span class="o">/</span><span class="mf">255.0</span><span class="p">)</span> <span class="nl">alpha</span><span class="p">:</span><span class="n">alpha</span><span class="p">];</span>
+<span class="p">}</span>
+
+<span class="p">+</span> <span class="p">(</span><span class="bp">UIColor</span><span class="o">*</span><span class="p">)</span><span class="nf">colorWithHex:</span><span class="p">(</span><span class="bp">NSString</span><span class="o">*</span><span class="p">)</span><span class="nv">hex</span> <span class="nf">alpha:</span><span class="p">(</span><span class="n">CGFloat</span><span class="p">)</span><span class="nv">alpha</span> <span class="p">{</span>
+
+    <span class="n">assert</span><span class="p">(</span><span class="mi">7</span> <span class="o">==</span> <span class="p">[</span><span class="n">hex</span> <span class="n">length</span><span class="p">]);</span>
+    <span class="n">assert</span><span class="p">(</span><span class="sc">&#39;#&#39;</span> <span class="o">==</span> <span class="p">[</span><span class="n">hex</span> <span class="nl">characterAtIndex</span><span class="p">:</span><span class="mi">0</span><span class="p">]);</span>
+
+    <span class="bp">NSString</span> <span class="o">*</span><span class="n">redHex</span> <span class="o">=</span> <span class="p">[</span><span class="bp">NSString</span> <span class="nl">stringWithFormat</span><span class="p">:</span><span class="s">@&quot;0x%@&quot;</span><span class="p">,</span> <span class="p">[</span><span class="n">hex</span> <span class="nl">substringWithRange</span><span class="p">:</span><span class="n">NSMakeRange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)]];</span>
+    <span class="bp">NSString</span> <span class="o">*</span><span class="n">greenHex</span> <span class="o">=</span> <span class="p">[</span><span class="bp">NSString</span> <span class="nl">stringWithFormat</span><span class="p">:</span><span class="s">@&quot;0x%@&quot;</span><span class="p">,</span> <span class="p">[</span><span class="n">hex</span> <span class="nl">substringWithRange</span><span class="p">:</span><span class="n">NSMakeRange</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">)]];</span>
+    <span class="bp">NSString</span> <span class="o">*</span><span class="n">blueHex</span> <span class="o">=</span> <span class="p">[</span><span class="bp">NSString</span> <span class="nl">stringWithFormat</span><span class="p">:</span><span class="s">@&quot;0x%@&quot;</span><span class="p">,</span> <span class="p">[</span><span class="n">hex</span> <span class="nl">substringWithRange</span><span class="p">:</span><span class="n">NSMakeRange</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">2</span><span class="p">)]];</span>
+
+    <span class="kt">unsigned</span> <span class="n">redInt</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="bp">NSScanner</span> <span class="o">*</span><span class="n">rScanner</span> <span class="o">=</span> <span class="p">[</span><span class="bp">NSScanner</span> <span class="nl">scannerWithString</span><span class="p">:</span><span class="n">redHex</span><span class="p">];</span>
+    <span class="p">[</span><span class="n">rScanner</span> <span class="nl">scanHexInt</span><span class="p">:</span><span class="o">&amp;</span><span class="n">redInt</span><span class="p">];</span>
+
+    <span class="kt">unsigned</span> <span class="n">greenInt</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="bp">NSScanner</span> <span class="o">*</span><span class="n">gScanner</span> <span class="o">=</span> <span class="p">[</span><span class="bp">NSScanner</span> <span class="nl">scannerWithString</span><span class="p">:</span><span class="n">greenHex</span><span class="p">];</span>
+    <span class="p">[</span><span class="n">gScanner</span> <span class="nl">scanHexInt</span><span class="p">:</span><span class="o">&amp;</span><span class="n">greenInt</span><span class="p">];</span>
+
+    <span class="kt">unsigned</span> <span class="n">blueInt</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="bp">NSScanner</span> <span class="o">*</span><span class="n">bScanner</span> <span class="o">=</span> <span class="p">[</span><span class="bp">NSScanner</span> <span class="nl">scannerWithString</span><span class="p">:</span><span class="n">blueHex</span><span class="p">];</span>
+    <span class="p">[</span><span class="n">bScanner</span> <span class="nl">scanHexInt</span><span class="p">:</span><span class="o">&amp;</span><span class="n">blueInt</span><span class="p">];</span>
+
+    <span class="k">return</span> <span class="p">[</span><span class="bp">UIColor</span> <span class="nl">colorWith8BitRed</span><span class="p">:</span><span class="n">redInt</span> <span class="nl">green</span><span class="p">:</span><span class="n">greenInt</span> <span class="nl">blue</span><span class="p">:</span><span class="n">blueInt</span> <span class="nl">alpha</span><span class="p">:</span><span class="n">alpha</span><span class="p">];</span>
+<span class="p">}</span>
+
+<span class="k">@end</span>
+</pre></div>
+
+
+<p>该方法来自<a href="http://stackoverflow.com/questions/6207329/how-to-set-hex-color-code-for-background">StackOverflow</a>。</p>
+    </div><!-- /.entry-content -->
+    <div class="comments">
+      <h2>Comments !</h2>
+      <div id="disqus_thread"></div>
+      <script type="text/javascript">
+        var disqus_shortname = 'wangdaiwei-github';
+        var disqus_identifier = 'ioschuang-jian-yan-se-de-yi-ge-jian-dan-fang-fa.html';
+        var disqus_url = 'https://wangdaiwei.github.io/ioschuang-jian-yan-se-de-yi-ge-jian-dan-fang-fa.html';
+        (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//wangdaiwei-github.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+      </script>
+      <noscript>Please enable JavaScript to view the comments.</noscript>
+    </div>
+
+  </article>
+</section>
+        <section id="extras" class="body">
+                <div class="blogroll">
+                        <h2>links</h2>
+                        <ul>
+                            <li><a href="http://getpelican.com/">Pelican</a></li>
+                            <li><a href="http://python.org/">Python.org</a></li>
+                            <li><a href="http://jinja.pocoo.org/">Jinja2</a></li>
+                        </ul>
+                </div><!-- /.blogroll -->
+                <div class="social">
+                        <h2>social</h2>
+                        <ul>
+                            <li><a href="https://wangdaiwei.github.io/feeds/all.atom.xml" type="application/atom+xml" rel="alternate">atom feed</a></li>
+
+                        </ul>
+                </div><!-- /.social -->
+        </section><!-- /#extras -->
+
+        <footer id="contentinfo" class="body">
+                <address id="about" class="vcard body">
+                Proudly powered by <a href="http://getpelican.com/">Pelican</a>, which takes great advantage of <a href="http://python.org">Python</a>.
+                </address><!-- /#about -->
+
+                <p>The theme is by <a href="http://coding.smashingmagazine.com/2009/08/04/designing-a-html-5-layout-from-scratch/">Smashing Magazine</a>, thanks!</p>
+        </footer><!-- /#contentinfo -->
+
+    <script type="text/javascript">
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-46745526-1', 'auto');
+    ga('send', 'pageview');
+    </script>
+<script type="text/javascript">
+    var disqus_shortname = 'wangdaiwei-github';
+    (function () {
+        var s = document.createElement('script'); s.async = true;
+        s.type = 'text/javascript';
+        s.src = 'https://' + disqus_shortname + '.disqus.com/count.js';
+        (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+    }());
+</script>
+</body>
+</html>

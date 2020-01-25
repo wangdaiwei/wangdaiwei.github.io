@@ -11,8 +11,10 @@
         <header id="banner" class="body">
                 <h1><a href="https://wangdaiwei.github.io/">DaiweiWang@Github </a></h1>
                 <nav><ul>
-                    <li><a href="https://wangdaiwei.github.io/category/graphics.html">Graphics</a></li>
+                    <li><a href="https://wangdaiwei.github.io/category/development.html">Development</a></li>
                     <li><a href="https://wangdaiwei.github.io/category/math.html">Math</a></li>
+                    <li><a href="https://wangdaiwei.github.io/category/misc.html">Misc</a></li>
+                    <li><a href="https://wangdaiwei.github.io/category/study.html">Study</a></li>
                     <li><a href="https://wangdaiwei.github.io/category/unity.html">Unity</a></li>
                 </ul></nav>
         </header><!-- /#banner -->
@@ -32,8 +34,8 @@
         <address class="vcard author">
                 By                         <a class="url fn" href="https://wangdaiwei.github.io/author/daiwei-wang.html">Daiwei Wang</a>
         </address>
-<p>In <a href="https://wangdaiwei.github.io/category/graphics.html">Graphics</a>.</p>
-<p>tags: <a href="https://wangdaiwei.github.io/tag/directx-texture.html">DirectX Texture</a> </p>
+<p>In <a href="https://wangdaiwei.github.io/category/development.html">Development</a>.</p>
+<p>tags: <a href="https://wangdaiwei.github.io/tag/computer-graphics.html">Computer Graphics</a> <a href="https://wangdaiwei.github.io/tag/directx-texture.html">DirectX Texture</a> </p>
 </footer><!-- /.post-info --><p>试想一下这样的情境，有一个地图需要显示，这个地图需要的精度非常高，常用的做法就是用几个较小的贴图拼在一起，只有镜头里出现需要显示的部分再加载。当这个贴图是高度图时，需要考虑的一点就是如何让相邻的两个高度图完全一致，避免相邻的网格因为高度不一致导致缝隙出现。最近在拼合高度图的时候，就遇到了相邻贴图值对应不上的问题。</p>
 <p>首先考虑的是采样方式的问题，因为Unreal引擎默认的双线性采样(Bilinear)会导致图的边缘采样的值不一样，左边图片采样到最右边的时候，只有上下左三个像素点做混合，反之亦然。那么改成点采样的方式呢？确保左边贴图采到最右边的像素点，右边贴图采到最左边的像素点，这两个像素点只要颜色值一致，那么出来的高度信息一定就是一致的。抱着这样的想法，我尝试了一下点采样，然而出来的结果仍然不对，两边的高度还是稍微有一点点缝隙存在。用RenderDoc查看渲染时用到的高度图，对应的贴图位置的颜色都是一致的，左边贴图最右边的颜色值跟右边贴图最左边的颜色值一模一样，这就非常奇怪了。</p>
 <p>经过了数个小时的研究后，我们终于发现了问题的所在，那就是从网格像素点到实际贴图采样点之间的映射实际上并不是直接的坐标对应关系。在实际采样贴图的过程中，不管贴图分辨率多么的大，每一个像素点都是一个固定大小的矩形，而采样的时候只能采样贴图上面一个确定的点，那么这个像素点<a href="https://en.wikipedia.org/wiki/Pixel">Pixel</a>在贴图像素<a href="https://en.wikipedia.org/wiki/Texel_(graphics)">Texel</a>的中心还是在边缘，计算出来的结果显然是不一样的。</p>

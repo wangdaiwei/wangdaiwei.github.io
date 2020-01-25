@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+        <meta charset="utf-8" />
+        <title>iOS推送机制的隐患</title>
+        <link rel="stylesheet" href="https://wangdaiwei.github.io/theme/css/main.css" />
+        <link href="https://wangdaiwei.github.io/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="DaiweiWang@Github Atom Feed" />
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <h1><a href="https://wangdaiwei.github.io/">DaiweiWang@Github </a></h1>
+                <nav><ul>
+                    <li class="active"><a href="https://wangdaiwei.github.io/category/development.html">Development</a></li>
+                    <li><a href="https://wangdaiwei.github.io/category/math.html">Math</a></li>
+                    <li><a href="https://wangdaiwei.github.io/category/misc.html">Misc</a></li>
+                    <li><a href="https://wangdaiwei.github.io/category/study.html">Study</a></li>
+                    <li><a href="https://wangdaiwei.github.io/category/unity.html">Unity</a></li>
+                </ul></nav>
+        </header><!-- /#banner -->
+<section id="content" class="body">
+  <article>
+    <header>
+      <h1 class="entry-title">
+        <a href="https://wangdaiwei.github.io/iostui-song-ji-zhi-de-yin-huan.html" rel="bookmark"
+           title="Permalink to iOS推送机制的隐患">iOS推送机制的隐患</a></h1>
+    </header>
+
+    <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2014-06-23T00:00:00+08:00">
+                Published: 周一 23 六月 2014
+        </abbr>
+
+        <address class="vcard author">
+                By                         <a class="url fn" href="https://wangdaiwei.github.io/author/daiwei-wang.html">Daiwei Wang</a>
+        </address>
+<p>In <a href="https://wangdaiwei.github.io/category/development.html">Development</a>.</p>
+<p>tags: <a href="https://wangdaiwei.github.io/tag/ios.html">iOS</a> </p>
+</footer><!-- /.post-info -->      <p>最近在研究iOS的推送系统，虽然配置起来稍微麻烦了一些，但是实现的原理并不复杂。简单来讲，就是通过app向APNS（Apple Push Notification Service）发送一个注册的请求，等到APNS同意之后便会发回设备的ID。在这个过程中，用户是可以一开始就选择是否接受推送通知的，如果用户不同意接收推送通知的话那么APNS也会收到用户的选择而不再发送推送通知，直到用户修改设置里面的选项。</p>
+<p>现在的一个问题就在于，推送通知在app没有打开的情况（或者打开以后进入后台）下，是iOS系统自己处理的。这就造成什么问题呢？应用在没有使用的情况下，是没有办法处理接收到的推送通知的。比如说一个新闻客户端，如果想在收到推送通知的时候弹出提示框显示最新的新闻，这是无法办到的，除非用户在设置里面将推送的显示修改成提示框形式。这样有一个好处就是，应用程序无需关注程序没有打开情况下对推送的信息的处理，同时也节省了系统的资源，不需要每一个程序都监视推送信息的接收。</p>
+<p>直到现在都一切正常，没有什么大问题。但是最近突然发现了一个很致命的安全隐患，就是<strong>假如用户卸载了app并且重新安装回去，即使用户不打开app也能收到之前用户的推送信息</strong>。这代表什么呢？假使用户卸载了应用程序但是没有删除用户信息，那么接下来的用户如果安装了同一个应用并且并没有登录进应用程序，那么他照样可以收到<strong>之前用户</strong>的推送信息。这是什么原因呢？iOS在卸载用户程序的时候不会告诉给应用程序提供者，因此假如该用户没有在新的设备上登录的话，那么应用程序提供者将会继续发送该用户的推送信息给该设备。当设备重新安装上app的时候，就会接收到之前用户的推送信息，只要这位用户还没有登录自己的账号。</p>
+<p>我在WhatsApp上测试了一下，这种情况的确是存在的。WhatApp每次卸载之后都要重新安装，但只要重新安装之后不登陆新的账号，那么之前用户的推送信息都能全部收到。虽然说这种情况并不常见，但是还是有一定的风险的，以后如果使用app的时候在卸载程序的时候最好都记得把登录信息删除掉。如果忘记删除了，其实也不太要紧，可以有两个选择：一是重新登录一次再删除掉登录信息或者在新的设备上登录，二是保证设备在删除该app后24小时内没有重新安装回去，在这种情况下设备也不会接收到推送信息，实测有效。不过突然想到要是变成了24小时之后收不到推送信息，然后再把手机的时间拨回去会怎么样，因为只是将手机的时间往后拨就能模拟删除应用24小时了。有机会尝试一下吧。</p>
+<p>Android倒是没有这样的问题，因为推送信息是交由app自己处理的。因此只要不是程序故意想把推送信息显示出来，只要app检测到用户没有登录便不把推送信息显示出来即可。</p>
+    </div><!-- /.entry-content -->
+    <div class="comments">
+      <h2>Comments !</h2>
+      <div id="disqus_thread"></div>
+      <script type="text/javascript">
+        var disqus_shortname = 'wangdaiwei-github';
+        var disqus_identifier = 'iostui-song-ji-zhi-de-yin-huan.html';
+        var disqus_url = 'https://wangdaiwei.github.io/iostui-song-ji-zhi-de-yin-huan.html';
+        (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//wangdaiwei-github.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+      </script>
+      <noscript>Please enable JavaScript to view the comments.</noscript>
+    </div>
+
+  </article>
+</section>
+        <section id="extras" class="body">
+                <div class="blogroll">
+                        <h2>links</h2>
+                        <ul>
+                            <li><a href="http://getpelican.com/">Pelican</a></li>
+                            <li><a href="http://python.org/">Python.org</a></li>
+                            <li><a href="http://jinja.pocoo.org/">Jinja2</a></li>
+                        </ul>
+                </div><!-- /.blogroll -->
+                <div class="social">
+                        <h2>social</h2>
+                        <ul>
+                            <li><a href="https://wangdaiwei.github.io/feeds/all.atom.xml" type="application/atom+xml" rel="alternate">atom feed</a></li>
+
+                        </ul>
+                </div><!-- /.social -->
+        </section><!-- /#extras -->
+
+        <footer id="contentinfo" class="body">
+                <address id="about" class="vcard body">
+                Proudly powered by <a href="http://getpelican.com/">Pelican</a>, which takes great advantage of <a href="http://python.org">Python</a>.
+                </address><!-- /#about -->
+
+                <p>The theme is by <a href="http://coding.smashingmagazine.com/2009/08/04/designing-a-html-5-layout-from-scratch/">Smashing Magazine</a>, thanks!</p>
+        </footer><!-- /#contentinfo -->
+
+    <script type="text/javascript">
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-46745526-1', 'auto');
+    ga('send', 'pageview');
+    </script>
+<script type="text/javascript">
+    var disqus_shortname = 'wangdaiwei-github';
+    (function () {
+        var s = document.createElement('script'); s.async = true;
+        s.type = 'text/javascript';
+        s.src = 'https://' + disqus_shortname + '.disqus.com/count.js';
+        (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+    }());
+</script>
+</body>
+</html>

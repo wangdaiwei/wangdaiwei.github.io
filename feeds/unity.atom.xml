@@ -17,20 +17,18 @@
 &lt;h1&gt;UI的重建过程&lt;/h1&gt;
 &lt;p&gt;完成了合批操作之后，Unity会发送渲染指令给图形管道，以便完成Mesh的重建过程。如前文所述，&lt;em&gt;CanvasUpdateRegistry&lt;/em&gt; 负责处理重建过程，关联的函数是&lt;em&gt;PerformUpdate&lt;/em&gt;。&lt;/p&gt;
 &lt;p&gt;一共有三个步骤：&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;1、被置为dirty状态的Layout组件需要通过ICanvasElement.Rebuild方法重建子UI元素的布局；
-2、ClippingRegistry.Cull方法会根据UI元素的大小裁剪掉所有注册的可裁剪元素；
-3、被置为dirty状态的Graphic元素会重建它们的图形元素（前者Graphic指Graphic类相关的元素，后者的图形指的是实际显示的图形）
-&lt;/pre&gt;&lt;/div&gt;
-
-
+&lt;ol&gt;
+&lt;li&gt;被置为dirty状态的Layout组件需要通过ICanvasElement.Rebuild方法重建子UI元素的布局；&lt;/li&gt;
+&lt;li&gt;ClippingRegistry.Cull方法会根据UI元素的大小裁剪掉所有注册的可裁剪元素；&lt;/li&gt;
+&lt;li&gt;被置为dirty状态的Graphic元素会重建它们的图形元素（前者Graphic指Graphic类相关的元素，后者的图形指的是实际显示的图形）&lt;/li&gt;
+&lt;/ol&gt;
 &lt;p&gt;可以看出重建过程分为两部分，分别是Layout重建和Graphic重建。Layout重建有三个部分，分别是PreLayout，Layout和PostLayout。Graphic重建有两个部分，分别是PreRender和LatePreRender。&lt;/p&gt;
 &lt;p&gt;Layout重建之前，首先需要按照层级关系进行排序，考虑到更接近根物体的Layout可能会影响到层级更低的物体的Layout，因此必须先计算它们的Layout。因此，UGUI采用的是根据层级关系排序，层级越高则在Layout列表里的位置就越靠前。&lt;/p&gt;
 &lt;p&gt;当 &lt;em&gt;ICanvasElement&lt;/em&gt; 组件的 &lt;em&gt;Rebuild&lt;/em&gt; 方法被调用时，Graphic类会在PreRender这一步检查有哪些Graphic元素需要被重建。需要重建的情况包括：&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;顶点数据被置为dirty (比如RectTransform修改了大小)，则mesh信息会被重建
-材质数据被置为dirty (比如组件的材质球或者贴图被修改了)，则同一个GameObject上挂在的Canvas Renderer的材质也会被更新
-&lt;/pre&gt;&lt;/div&gt;
-
-
+&lt;ul&gt;
+&lt;li&gt;顶点数据被置为dirty (比如RectTransform修改了大小)，则mesh信息会被重建&lt;/li&gt;
+&lt;li&gt;材质数据被置为dirty (比如组件的材质球或者贴图被修改了)，则同一个GameObject上挂在的Canvas Renderer的材质也会被更新&lt;/li&gt;
+&lt;/ul&gt;
 &lt;p&gt;Graphic重建并不需要有任何的顺序，因此也不需要对输入进行排序。&lt;/p&gt;
 &lt;p&gt;参考文档：&lt;/p&gt;
-&lt;p&gt;https://unity3d.com/cn/learn/tutorials/topics/best-practices/fundamentals-unity-ui&lt;/p&gt;</content><category term="Unity"></category><category term="UI"></category><category term="Optimization"></category></entry></feed>
+&lt;p&gt;&lt;a href="" title="https://unity3d.com/cn/learn/tutorials/topics/best-practices/fundamentals-unity-ui"&gt;https://unity3d.com/cn/learn/tutorials/topics/best-practices/fundamentals-unity-ui&lt;/a&gt;&lt;/p&gt;</content><category term="Unity"></category><category term="Unity"></category><category term="UI"></category><category term="Optimization"></category></entry></feed>
